@@ -1,0 +1,96 @@
+@startuml academia_physical_model
+
+' hide the spot
+hide circle
+
+' avoid problems with angled crows feet
+skinparam linetype ortho
+
+entity "mahasiswa" as mahasiswa {
+  *id : int <<generated>> (PK)
+  --
+  nama : varchar(255)
+  nim : varchar(255)
+  nomor_hp : varchar(15)
+  email : varchar(255)
+}
+
+
+entity "riwayat_status_akademik" as riwayat_status_akademik {
+  *id : int <<generated>> (PK)
+  --
+  status_akademik : varchar(50)
+  disetujui_operator : boolean
+  id_semester_akademik : int <<FK>>
+  id_mahasiswa : int <<FK>>
+}
+
+entity "irs" as irs {
+  *id : int <<generated>> (PK)
+  --
+  jumlah_sks : int
+  file_scan_irs : varchar(255)
+  id_mahasiswa : int <<FK>>
+  id_riwayat_status_akademik : int <<FK>>
+}
+
+entity "khs" as khs {
+  *id : int <<generated>> (PK)
+  --
+  jumlah_ip : float
+  file_scan_khs : varchar(255)
+  id_mahasiswa : int <<FK>>
+  id_irs : int <<FK>>
+}
+
+entity "pkl" as pkl {
+  *id : int <<generated>> (PK)
+  --
+  nilai_pkl : float
+  id_mahasiswa : int <<FK>> 
+  id_riwayat_status_akademik : int <<FK>>
+}
+
+entity "skripsi" as skripsi {
+  *id : int <<generated>> (PK)
+  --
+  nilai_skripsi : float
+  id_mahasiswa : int <<FK>> 
+  id_riwayat_status_akademik : int <<FK>>
+}
+
+entity "dosen_wali" as dosen_wali {
+  *id : int <<generated>> (PK)
+  --
+  nip : varchar(255)
+  nama : varchar(255)
+  nomor_hp : varchar(15)
+  email : varchar(255)
+}
+
+entity "operator_departemen" as operator_departemen {
+  *id : int <<generated>> (PK)
+  --
+  nama : varchar(255)
+  nomor_hp : varchar(15)
+  email : varchar(255)
+}
+
+entity "semester_akademik" as semester_akademik {
+  *id : int <<generated>> (PK)
+  --
+  tahun_ajaran : varchar(10)
+  semester : int
+}
+
+
+mahasiswa --|{ riwayat_status_akademik : id_riwayat_status_akademik
+riwayat_status_akademik --|{ irs : id_irs
+riwayat_status_akademik --|{ khs : id_khs
+mahasiswa }|--|{ dosen_wali : id_riwayat_status_akademik
+riwayat_status_akademik --|{ irs : id_riwayat_status_akademik
+riwayat_status_akademik --|{ khs : id_riwayat_status_akademik
+riwayat_status_akademik --|{ pkl : id_riwayat_status_akademik
+riwayat_status_akademik --|{ skripsi : id_riwayat_status_akademik
+
+@enduml
