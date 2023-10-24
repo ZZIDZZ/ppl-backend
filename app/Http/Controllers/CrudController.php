@@ -129,7 +129,7 @@ class CrudController extends Controller
             $linkField = $value['linkField'];
             $displayName = $value['displayName'];
             $selectFields = $value['selectFields'];
-            $selectValue = $value['selectValue'];
+            $selectValue = $value['selectValue']; 
             $selectFields = implode(", ", $selectFields);
             $relationJoin .= " LEFT JOIN $linkTable $aliasTable ON {$tableName}.$key = $aliasTable.$linkField";
             foreach($value['selectFields'] as $selectField) {
@@ -159,14 +159,7 @@ class CrudController extends Controller
         
     }
     
-    function update($id){
-        $book = DB::select('select b.*, c.name as category  from books b LEFT JOIN categories c ON b.category_id = c.id WHERE b.id = ?', [$id]);
-        $categories = DB::select('select * from categories');
-        return view('update.books', ['book' => $book[0], 'categories' => $categories]);
-    }
-    
-    function doUpdate(Request $request, $model, $id){
-
+    function update($model, $id, Request $request){
         $modelClass = "App\\Models\\" . ucfirst($model);
 
         $relations = $modelClass::FIELD_RELATIONS;
@@ -180,6 +173,13 @@ class CrudController extends Controller
         $validation = $modelClass::FIELD_VALIDATION;
         $fieldInputs = $modelClass::FIELD_INPUT;
 
+        // check id exists
+        $res = DB::select("SELECT * FROM {$tableName} WHERE id = ?", [$id]);
+        if(count($res) == 0) {
+            return response()->json(["message" => "$model not found"], 404);
+        }
+
+        // validate input
         $validator = Validator::make($request->all(), $validation);
 
         if ($validator->fails()) {
@@ -188,42 +188,115 @@ class CrudController extends Controller
 
         $input = $request->only($fieldInputs);
 
-        $update = DB::update("UPDATE {$tableName} SET " . implode(", ", array_map(function($key) {
-            return "$key = ?";
-        }, array_keys($input))) . " WHERE id = ?", array_values($input), $id);
+        if(isset($input['password'])) {
+            $input['password'] = bcrypt($input['password']);
+        }
 
 
+        try{
+            // append input with id
+            $params = array_values($input);
+            $params[] = $id;
+            $update = DB::update("UPDATE {$tableName} SET " . implode(", ", array_map(function($key) {
+                return "$key = ?";
+            }, array_keys($input))) . " WHERE id = ?", $params);
+    
+            return response()->json([
+                "message" => "$model updated"
+            ], 200);
+        } catch(\Exception $e){
+            return response()->json([
+                "message" => "$model cannot be updated",
+                "error" => $e->getMessage()
+            ], 500);
+        }
+        
+        return response()->json([
+            "message" => "$model updated"
+        ], 200);
         
 
-        return redirect()->route('books.list');
+        // return view('update.books', ['book' => $book[0], 'categories' => $categories]);
     }
     
-    function create(){
-        $categories = DB::select('select * from categories');
-        return view('create.books', ['categories' => $categories]);
-    }
-    
-    function doCreate(Request $request){
-        if(null !== $request->input('title'))
-            $title = $request->input('title');
-        if(null !== $request->input('author'))
-            $author = $request->input('author');
-        if(null !== $request->input('category_id'))
-            $category_id = $request->input('category_id');
-        if(null !== $request->input('price'))
-            $price = $request->input('price');
-        if(null !== $request->input('stock'))
-            $stock = $request->input('stock');
-        if(null !== $request->input('isbn'))
-            $isbn = $request->input('isbn');
-        
-        $create = DB::insert('insert into books (isbn, title, author, category_id, price, stock) values (?, ?, ?, ?, ?, ?)', [$isbn, $title, $author, $category_id, $price, $stock]);
-        return redirect()->route('books.list');
 
+    
+    function create($model, Request $request){
+        $modelClass = "App\\Models\\" . ucfirst($model);
+
+        $relations = $modelClass::FIELD_RELATIONS;
+        $tableName = $modelClass::TABLE;
+        $searchable = $modelClass::FIELD_SEARCHABLE;
+        $sortable = $modelClass::FIELD_SORTABLE;
+        $alias = $modelClass::FIELD_ALIAS;
+        $fields = $modelClass::FIELDS;
+        $fieldTypes = $modelClass::FIELD_TYPES;
+        $title = $modelClass::TITLE;
+        $validation = $modelClass::FIELD_VALIDATION;
+        $fieldInputs = $modelClass::FIELD_INPUT;
+
+        // validate input
+        $validator = Validator::make($request->all(), $validation);
+
+        if ($validator->fails()) {
+            return response()->json(["message" => $validator->errors()->first()], 422);
+        }
+
+        $input = $request->only($fieldInputs);
+
+        // check if contain field password, if yes, encrypt it
+        if(isset($input['password'])) {
+            $input['password'] = bcrypt($input['password']);
+        }
+        
+        try{
+            $create = DB::insert("INSERT INTO {$tableName} (" . implode(", ", array_keys($input)) . ") VALUES (" . implode(", ", array_map(function($key) {
+                return "?";
+            }, array_keys($input))) . ")", array_values($input));
+    
+            return response()->json([
+                "message" => "$model created"
+            ], 200);
+        } catch(\Exception $e){
+            return response()->json([
+                "message" => "$model cannot be created",
+                "error" => $e->getMessage()
+            ], 500);
+        }
+        
     }
     
-    function doDelete(Request $request, $id){
-        $delete = DB::delete('delete from books where id = ?', [$id]);
-        return redirect()->route('books.list');
+    function delete(Request $request, $model, $id){
+        $modelClass = "App\\Models\\" . ucfirst($model);
+
+        $relations = $modelClass::FIELD_RELATIONS;
+        $tableName = $modelClass::TABLE;
+        $searchable = $modelClass::FIELD_SEARCHABLE;
+        $sortable = $modelClass::FIELD_SORTABLE;
+        $alias = $modelClass::FIELD_ALIAS;
+        $fields = $modelClass::FIELDS;
+        $fieldTypes = $modelClass::FIELD_TYPES;
+        $title = $modelClass::TITLE;
+        $validation = $modelClass::FIELD_VALIDATION;
+        $fieldInputs = $modelClass::FIELD_INPUT;
+
+        // check id exists
+        $res = DB::select("SELECT * FROM {$tableName} WHERE id = ?", [$id]);
+        if(count($res) == 0) {
+            return response()->json(["message" => "$model not found"], 404);
+        }
+
+        try{
+            $delete = DB::delete("DELETE FROM {$tableName} WHERE id = ?", [$id]);
+            return response()->json([
+                "message" => "$model deleted"
+            ], 200);
+        } catch(\Exception $e) {
+            return response()->json([
+                "message" => "$model cannot be deleted",
+                "error" => $e->getMessage()
+            ], 500);
+        }
     }
+    
 }

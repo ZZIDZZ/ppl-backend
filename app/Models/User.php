@@ -22,32 +22,25 @@ class User extends Authenticatable implements JWTSubject
         "password",
         "role_id",
     ];
-
     const FIELD_INPUT = [
         "email",
         "password",
         "role_id",
     ];
-
     const FIELD_TYPES = [
         "id" => "Integer",
         "email" => "String",
         "password" => "String",
         "role_id" => "Integer",
     ];
-
     const FIELD_SORTABLE = ["id", "email", "password", "role_id"];
-
     const FIELD_SEARCHABLE = ["email"];
-
     const FIELD_ALIAS = [
         "id" => "id",
         "email" => "Email",
         "password" => "Password",
         "role_id" => "role_id",
-        
     ];
-    
     const FIELD_RELATIONS = [
         "role_id" => [
           "linkTable" => "roles",
@@ -58,7 +51,6 @@ class User extends Authenticatable implements JWTSubject
           "selectValue" => "role_name"
         ]
     ];
-
     const FIELD_VALIDATION = [
         "email" => "required|email|unique:users,email",
         "password" => "required",
