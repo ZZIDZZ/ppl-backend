@@ -32,11 +32,11 @@ class CrudController extends Controller
             $linkField = $value['linkField'];
             $displayName = $value['displayName'];
             $selectFields = $value['selectFields'];
-            $selectValue = $value['selectValue'];
+            $selectValues = $value['selectValue'];
             $selectFields = implode(", ", $selectFields);
             $relationJoin .= " LEFT JOIN $linkTable $aliasTable ON {$tableName}.$key = $aliasTable.$linkField";
-            foreach($value['selectFields'] as $selectField) {
-                $relationQuery .= ", $aliasTable.$selectField AS $selectValue";
+            foreach($value['selectFields'] as $selectKey => $selectField) {
+                $relationQuery .= ", $aliasTable.$selectField AS $selectValues[$selectKey]";
             }
         }
 
@@ -65,13 +65,14 @@ class CrudController extends Controller
             foreach($relations as $key => $value) {
                 if($key == $orderBy) {
                     $isRelation = true;
-                    if($isRelation) {
-                        $queryOrderBy = $value['aliasTable'] . "." . $value['linkField'];
-                    }else {
-                        $queryOrderBy = $tableName . "." . $orderBy;
-                    }
                     break;
                 }
+            }
+            // check if orderBy is in fields
+            if($isRelation) {
+                $queryOrderBy = $value['aliasTable'] . "." . $value['linkField'];
+            }else {
+                $queryOrderBy = $tableName . "." . $orderBy;
             }
             
             $order = $request->input('order');
@@ -81,6 +82,7 @@ class CrudController extends Controller
         $limit = null !== ($request->input('limit')) ? intval($request->input('limit')) : 10;
         $offset = ($page - 1) * $limit;
         $finalQuery = $finalQuery . " LIMIT $limit OFFSET $offset";
+
         $res = DB::select($finalQuery);
 
         // $books = DB::select('select b.*, c.name as category from books b LEFT JOIN categories c ON b.category_id = c.id');
@@ -133,11 +135,11 @@ class CrudController extends Controller
             $linkField = $value['linkField'];
             $displayName = $value['displayName'];
             $selectFields = $value['selectFields'];
-            $selectValue = $value['selectValue']; 
+            $selectValues = $value['selectValue']; 
             $selectFields = implode(", ", $selectFields);
             $relationJoin .= " LEFT JOIN $linkTable $aliasTable ON {$tableName}.$key = $aliasTable.$linkField";
-            foreach($value['selectFields'] as $selectField) {
-                $relationQuery .= ", $aliasTable.$selectField AS $selectValue";
+            foreach($value['selectFields'] as $selectKey => $selectField) {
+                $relationQuery .= ", $aliasTable.$selectField[$selectKey] AS $selectValues[$selectKey]";
             }
         }
 

@@ -48,7 +48,7 @@ class User extends Authenticatable implements JWTSubject
           "linkField" => "id",
           "displayName" => "role_name",
           "selectFields" => ["role_name"],
-          "selectValue" => "role_name"
+          "selectValue" => ["role_name"]
         ]
     ];
     const FIELD_VALIDATION = [

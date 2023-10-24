@@ -74,7 +74,7 @@ class DosenWali extends Model
             'linkField' => 'id',
             'displayName' => 'email',
             'selectFields' => ['email'],
-            'selectValue' => 'email',
+            'selectValue' => ['email'],
         ],
     ];
 
