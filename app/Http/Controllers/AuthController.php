@@ -34,7 +34,7 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
         $user = User::select("users.*", "roles.role_code")->leftjoin('roles', 'roles.id', 'users.role_id')->where("email", $credentials["email"])->first();
         if (empty($user))
-            throw new CoreException(__("message.userNotFound", ['email' => $credentials["email"]]), 422);
+            return response()->json(["message" => __("message.userNotFound", ['email' => $credentials["email"]])], 422);
         // get table source from role_code
         switch ($user->role_code) {
             case "mahasiswa":
@@ -63,7 +63,8 @@ class AuthController extends Controller
         
         if ($token = auth('api')->attempt($credentials)) {
         } else {
-            throw new CoreException(__("message.loginCredentialFalse"), 401);
+            // return error with 401
+            return response()->json(["message" => __("message.loginCredentialFalse")], 401);
         }
 
         return [
@@ -128,7 +129,7 @@ class AuthController extends Controller
     {
         // check if already logged in first
         if (!$this->guard()->check()) {
-            throw new CoreException(__("message.notLoggedIn"), 401);
+            return response()->json(["message" => __("message.notLoggedIn")], 401);
         }
         auth('api')->logout();
 

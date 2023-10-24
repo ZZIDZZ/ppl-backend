@@ -1,0 +1,5 @@
+<?php 
+
+return [
+    "projects" => "Projects",
+];
