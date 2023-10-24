@@ -97,6 +97,10 @@ class CrudController extends Controller
 
         return [
             'data' => $data,
+            'total' => $totalCount,
+            'limit' => $limit,
+            'page' => $page,
+            'totalPage' => ceil($totalCount / $limit),
             'model' => $model,
             'success' => true,
         ];
