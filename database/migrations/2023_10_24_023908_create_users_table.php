@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-
+use Illuminate\Support\Facades\DB;
 return new class extends Migration
 {
     /**
@@ -14,14 +14,16 @@ return new class extends Migration
     public function up()
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
+            $table->bigIncrements('id')->unsigned();
             $table->string('password');
+            $table->foreignId('role_id')->nullable()->constrained('roles');
             $table->rememberToken();
-            $table->timestamps();
+            $table->boolean('active')->nullable()->default(true);
+            $table->foreignId('created_by')->nullable();
+            $table->foreignId('updated_by')->nullable();
+            $table->timestampsTz($precision = 0);
         });
+        // create user with role 'mahasiswa', 'operator', dosen', 'departemen'
     }
 
     /**
