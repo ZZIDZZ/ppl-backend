@@ -80,7 +80,7 @@ class Mahasiswa extends Model
             'selectFields' => ['email'],
             'selectValue' => 'email',
         ],
-        'user_id' => [
+        'dosen_wali_id' => [
             'linkTable' => 'dosen_wali',
             'aliasTable' => 'B',
             'linkField' => 'id',
