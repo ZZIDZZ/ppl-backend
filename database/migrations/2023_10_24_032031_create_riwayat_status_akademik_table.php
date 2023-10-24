@@ -17,10 +17,6 @@ return new class extends Migration
             $table->bigIncrements('id')->unsigned();
             $table->foreignId('mahasiswa_id')->nullable()->constrained('mahasiswa');
             $table->foreignId('semester_akademik_id')->nullable()->constrained('semester_akademik');
-            $table->boolean('active')->nullable()->default(true);
-            $table->foreignId('created_by')->nullable();
-            $table->foreignId('updated_by')->nullable();
-            $table->timestampsTz($precision = 0);
         });
     }
 

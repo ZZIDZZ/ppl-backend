@@ -15,15 +15,32 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->bigIncrements('id')->unsigned();
+            $table->string('email')->unique();
             $table->string('password');
             $table->foreignId('role_id')->nullable()->constrained('roles');
             $table->rememberToken();
-            $table->boolean('active')->nullable()->default(true);
-            $table->foreignId('created_by')->nullable();
-            $table->foreignId('updated_by')->nullable();
-            $table->timestampsTz($precision = 0);
         });
         // create user with role 'mahasiswa', 'operator', dosen', 'departemen'
+        DB::table('users')->insert([
+            'email' => 'mahasiswa@gmail.com',
+            'password' => bcrypt('12345678'),
+            'role_id' => 1,
+        ]);
+        DB::table('users')->insert([
+            'email' => 'operator@gmail.com',
+            'password' => bcrypt('12345678'),
+            'role_id' => 2,
+        ]);
+        DB::table('users')->insert([
+            'email' => 'doswal@gmail.com',
+            'password' => bcrypt('12345678'),
+            'role_id' => 3,
+        ]);
+        DB::table('users')->insert([
+            'email' => 'departemen@gmail.com',
+            'password' => bcrypt('12345678'),
+            'role_id' => 4,
+        ]);
     }
 
     /**

@@ -17,10 +17,6 @@ return new class extends Migration
             $table->bigIncrements('id')->unsigned();
             $table->bigInteger('tahun_ajaran')->nullable();
             $table->bigInteger('semester')->nullable()->comment('1: Ganjil, 2: Genap');
-            $table->boolean('active')->nullable()->default(true);
-            $table->foreignId('created_by')->nullable();
-            $table->foreignId('updated_by')->nullable();
-            $table->timestampsTz($precision = 0);
         });
     }
 

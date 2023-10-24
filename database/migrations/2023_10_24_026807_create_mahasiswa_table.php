@@ -19,12 +19,7 @@ return new class extends Migration
             $table->foreignId('dosen_wali_id')->nullable()->constrained('dosen_wali');
             $table->string('name')->nullable();
             $table->string('phone_number')->nullable();
-            $table->string('email')->nullable();
             $table->string('nim')->nullable();
-            $table->boolean('active')->nullable()->default(true);
-            $table->foreignId('created_by')->nullable();
-            $table->foreignId('updated_by')->nullable();
-            $table->timestampsTz($precision = 0);
         });
     }
 

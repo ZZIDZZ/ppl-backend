@@ -20,10 +20,6 @@ return new class extends Migration
             $table->string('phone_number')->nullable();
             $table->string('email')->nullable();
             $table->string('nip')->nullable();
-            $table->boolean('active')->nullable()->default(true);
-            $table->foreignId('created_by')->nullable();
-            $table->foreignId('updated_by')->nullable();
-            $table->timestampsTz($precision = 0);
         });
     }
 
