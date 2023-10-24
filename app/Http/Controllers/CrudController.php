@@ -53,7 +53,7 @@ class CrudController extends Controller
             $queryFilter = " TRUE OR ";
             $searchableList = [];
             foreach ($searchable as $key => $value) {
-                $searchableList[] = " UPPER($value) LIKE '%{$searchTerm}%' ";
+                $searchableList[] = " UPPER($value) ILIKE '%{$searchTerm}%' ";
             }
             $finalQuery = $finalQuery ." WHERE TRUE " . " AND (" . implode(" OR ", $searchableList) . ") ";
         } 
@@ -188,7 +188,7 @@ class CrudController extends Controller
             return "$key = ?";
         }, array_keys($input))) . " WHERE id = ?", array_values($input), $id);
 
-        
+
         
 
         return redirect()->route('books.list');
