@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class CrudController extends Controller
 {
     
     function list(Request $request, $model){
-        $modelClass = "App\\Models\\" . ucfirst($model);
+        $modelClass = "\\App\\Models\\" . Str::ucfirst(Str::camel($model));
 
         $relations = $modelClass::FIELD_RELATIONS;
         $tableName = $modelClass::TABLE;
@@ -111,7 +112,7 @@ class CrudController extends Controller
     
     function show($model, $id){
         // same implementation as list
-        $modelClass = "App\\Models\\" . ucfirst($model);
+        $modelClass = "\\App\\Models\\" . Str::ucfirst(Str::camel($model));
 
         $relations = $modelClass::FIELD_RELATIONS;
         $tableName = $modelClass::TABLE;
@@ -163,7 +164,7 @@ class CrudController extends Controller
     }
     
     function update($model, $id, Request $request){
-        $modelClass = "App\\Models\\" . ucfirst($model);
+        $modelClass = "\\App\\Models\\" . Str::ucfirst(Str::camel($model));
 
         $relations = $modelClass::FIELD_RELATIONS;
         $tableName = $modelClass::TABLE;
@@ -225,7 +226,7 @@ class CrudController extends Controller
 
     
     function create($model, Request $request){
-        $modelClass = "App\\Models\\" . ucfirst($model);
+        $modelClass = "\\App\\Models\\" . Str::ucfirst(Str::camel($model));
 
         $relations = $modelClass::FIELD_RELATIONS;
         $tableName = $modelClass::TABLE;
@@ -270,7 +271,7 @@ class CrudController extends Controller
     }
     
     function delete(Request $request, $model, $id){
-        $modelClass = "App\\Models\\" . ucfirst($model);
+        $modelClass = "\\App\\Models\\" . Str::ucfirst(Str::camel($model));
 
         $relations = $modelClass::FIELD_RELATIONS;
         $tableName = $modelClass::TABLE;
