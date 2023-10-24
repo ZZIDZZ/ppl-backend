@@ -14,13 +14,15 @@ use App\Http\Controllers\AuthController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group([
+    'middleware' => ['auth.rest']
+], function () {
+    Route::get('/', function () {
+        return response()->json(['message' => 'Hello World!'], 200);
+    });
 });
 
-Route::get('/', function () {
-    return response()->json(['message' => 'Hello World!'], 200);
-});
+
 
 Route::post("/login", [AuthController::class, 'login']);
 Route::get("/logout", [AuthController::class, 'logout']);
