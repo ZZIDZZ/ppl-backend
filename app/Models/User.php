@@ -45,6 +45,7 @@ class User extends Authenticatable implements JWTSubject
         "email" => "Email",
         "password" => "Password",
         "role_id" => "role_id",
+        
     ];
     
     const FIELD_RELATIONS = [
