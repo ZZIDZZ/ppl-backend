@@ -64,12 +64,15 @@ class CrudController extends Controller
             foreach($relations as $key => $value) {
                 if($key == $orderBy) {
                     $isRelation = true;
+                    if($isRelation) {
+                        $queryOrderBy = $value['aliasTable'] . "." . $value['linkField'];
+                    }else {
+                        $queryOrderBy = $tableName . "." . $orderBy;
+                    }
                     break;
                 }
             }
-            if($isRelation) {
-                $queryOrderBy = $value['aliasTable'] . "." . $value['linkField'];
-            }
+            
             $order = $request->input('order');
             $finalQuery = $finalQuery . " ORDER BY $queryOrderBy $order";
         }
