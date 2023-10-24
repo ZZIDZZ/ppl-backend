@@ -1,0 +1,44 @@
+name: Depop Momentos
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    
+jobs:
+  Twingate-GitHub-Actions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+          
+      - name: Sync
+        env:
+          dest: "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/ppl.zzidzz.tech/"
+        run: |
+          echo "${{secrets.DEPLOY_KEY}}" > ~/deploy_key
+          chmod 600 ~/deploy_key
+          rsync -chav --delete \
+            -e 'ssh -i ~/deploy_key -o StrictHostKeyChecking=no' \
+            --exclude=.git --exclude=.env --exclude=vendor --exclude=storage ./ ${{env.dest}}
+
+      - name: install packages
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          port: 22
+          script: |
+            cd /home/${{ secrets.SSH_USER }}/ppl.zzidzz.tech
+            /usr/bin/php8.2 /usr/local/bin/composer install
+
+      - name: Check the deployed service URL
+        uses: jtalk/url-health-check-action@v3
+        with:
+          # HTTP Health Check for successful deployment testing
+          # Check the following URLs one by one sequentially
+          url: http:/ppl.zzidzz.tech
+          max-attempts: 3 # Optional, defaults to 1
+          retry-delay: 3s # Optional, only applicable to max-attempts > 1
