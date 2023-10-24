@@ -108,16 +108,37 @@ class AuthController extends Controller
      */
     public function me()
     {
-        $user = DB::selectOne("SELECT A.id, A.name, A.email, B.role_code, B.role_name
-            FROM users A
-        INNER JOIN roles B ON B.id = A.role_id WHERE A.id = ?", [$this->guard()->id()]);
+        $id = auth('api')->user()->id;
+        $user = User::select("users.*", "roles.role_code")->leftjoin('roles', 'roles.id', 'users.role_id')->where("users.id", $id)->first();
+        if (empty($user))
+            return response()->json(["message" => __("message.userNotFound", ['id' => $id])], 422);
+        // get table source from role_code
+        switch ($user->role_code) {
+            case "mahasiswa":
+                $table = "mahasiswa";
+                break;
+            case "dosen":
+                $table = "dosen";
+                break;
+            case "departemen":
+                $table = "departemen";
+                break;
+            case "operator":
+                $table = "operator";
+                break;
+            default:
+                $table = "users";
+                break;
+        }
+        $user = User::select("users.email", "users.role_id", $table . ".*", "roles.role_name", "roles.role_code")
+            ->leftjoin('roles', 'roles.id', 'users.role_id')
+            ->leftjoin($table, $table . ".user_id", "users.id")
+            ->where("users.id", $id)->first();
+        // empty password
 
-        $user->permissions = explode(",", DB::selectOne("SELECT string_agg(C.task_code, ',') AS task_list
-        FROM users A
-            INNER JOIN role_task B ON B.role_id = A.role_id
-            INNER JOIN tasks C ON C.id = B.task_id
-        WHERE A.id = ?", [$user->id])->task_list);
-        return response()->json($user);
+        return response()->json([
+            "data" => $user->toArray()
+        ]);
     }
 
     /**

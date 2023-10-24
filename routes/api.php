@@ -21,6 +21,7 @@ Route::group([
     Route::get('/', function () {
         return response()->json(['message' => 'Hello World!'], 200);
     });
+    Route::get('/me', [AuthController::class, 'me']);
     // crud routes
     Route::get('/{model}/list', [CrudController::class, 'list']);
     Route::get('/{model}/show/{id}', [CrudController::class, 'show']);
