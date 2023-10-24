@@ -29,6 +29,8 @@ class Handler extends ExceptionHandler
         'current_password',
         'password',
         'password_confirmation',
+        // flash inside data array
+        'data.*.password',
     ];
 
     /**

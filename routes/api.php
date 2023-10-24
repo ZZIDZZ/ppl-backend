@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CrudController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -20,6 +21,12 @@ Route::group([
     Route::get('/', function () {
         return response()->json(['message' => 'Hello World!'], 200);
     });
+    // crud routes
+    Route::get('/{model}/list', [CrudController::class, 'list']);
+    Route::get('/{model}/show/{id}', [CrudController::class, 'show']);
+    Route::post('/{model}/create', [CrudController::class, 'create']);
+    Route::put('/{model}/update/{id}', [CrudController::class, 'update']);
+    Route::delete('/{model}/delete/{id}', [CrudController::class, 'delete']);
 });
 
 
