@@ -13,13 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('irs', function (Blueprint $table) {
+        Schema::create('skripsi', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->float('sks_semester', 16, 2)->default(0);
+            $table->float('nilai', 16, 2)->default(0);
+            $table->date('tanggal_selesai')->nullable();
+            $table->boolean('is_lulus')->nullable();
             $table->foreignId('mahasiswa_id')->constrained('mahasiswa');
             $table->foreignId('riwayat_status_akademik_id')->nullable()->constrained('riwayat_status_akademik');
-            $table->text('file_scan_irs')->nullable();
-            $table->string('status_code')->nullable()->comment('waiting_approval / approved');
+            $table->text('file_skripsi')->nullable();
+            $table->string('status_code')->nullable()->comment('waiting_approval / approved / waiting_approval_over / approved_over');
+
         });
     }
 
@@ -30,6 +33,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('irs');
+        Schema::dropIfExists('skripsi');
     }
 };

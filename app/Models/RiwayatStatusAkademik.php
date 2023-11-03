@@ -9,6 +9,7 @@ class RiwayatStatusAkademik extends Model
 {
     use HasFactory;
     protected $table = 'riwayat_status_akademik';
+    public $timestamps = false;
 
     // Schema::create('riwayat_status_akademik', function (Blueprint $table) {
     //     $table->bigIncrements('id')->unsigned();
@@ -76,6 +77,13 @@ class RiwayatStatusAkademik extends Model
         'name' => 'required',
         'phone_number' => 'nullable',
         'nim' => 'nullable',
+    ];
+
+    const FIELD_DEFAULT_VALUE = [
+        'user_id' => '',
+        'name' => '',
+        'phone_number' => '',
+        'nim' => '',
     ];
 
     protected $fillable = [

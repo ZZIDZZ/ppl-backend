@@ -30,6 +30,14 @@ Route::group([
     Route::delete('/{model}/delete/{id}', [CrudController::class, 'delete']);
 });
 
+Route::group([
+    'middleware' => ['setguard:api']
+], function () {
+    Route::get('file/{model}/{field}/{id}', [UploadController::class, 'getFile']);
+    Route::get('thumbnail/{model}/{field}/{id}', [UploadController::class, 'getTumbnailFile']);
+    Route::get('temp-file/{path}', [UploadController::class, 'getTempFile']);
+});
+
 
 
 Route::post("/login", [AuthController::class, 'login']);

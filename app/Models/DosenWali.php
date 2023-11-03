@@ -9,6 +9,7 @@ class DosenWali extends Model
 {
     use HasFactory;
     protected $table = 'dosen_wali';
+    public $timestamps = false;
 
     // schema:
     // Schema::create('dosen_wali', function (Blueprint $table) {
@@ -83,6 +84,13 @@ class DosenWali extends Model
         'name' => 'required',
         'phone_number' => 'nullable',
         'nip' => 'nullable',
+    ];
+
+    const FIELD_DEFAULT_VALUE = [
+        'user_id' => '',
+        'name' => '',
+        'phone_number' => '',
+        'nip' => '',
     ];
 
     protected $fillable = [

@@ -9,6 +9,7 @@ class Mahasiswa extends Model
 {
     use HasFactory;
     protected $table = 'mahasiswa';
+    public $timestamps = false;
 
     // Schema::create('mahasiswa', function (Blueprint $table) {
     //     $table->bigIncrements('id')->unsigned();
@@ -95,6 +96,13 @@ class Mahasiswa extends Model
         'name' => 'required',
         'phone_number' => 'nullable',
         'nim' => 'nullable',
+    ];
+
+    const FIELD_DEFAULT_VALUE = [
+        'user_id' => '',
+        'name' => '',
+        'phone_number' => '',
+        'nim' => '',
     ];
 
     protected $fillable = [

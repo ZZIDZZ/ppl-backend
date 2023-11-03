@@ -18,7 +18,8 @@ return new class extends Migration
             $table->float('ip_semester', 16, 2)->default(0);
             $table->foreignId('mahasiswa_id')->constrained('mahasiswa');
             $table->foreignId('riwayat_status_akademik_id')->nullable()->constrained('riwayat_status_akademik');
-            $table->text('file_scan_irs')->nullable();
+            $table->text('file_scan_khs')->nullable();
+            $table->string('status_code')->nullable()->comment('waiting_approval / approved');
         });
     }
 

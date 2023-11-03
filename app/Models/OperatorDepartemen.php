@@ -9,6 +9,7 @@ class OperatorDepartemen extends Model
 {
     use HasFactory;
     protected $table = 'operator_departemen';
+    public $timestamps = false;
 
     const TABLE = 'operator_departemen';
     const TITLE = 'Operator Departemen';
@@ -67,6 +68,12 @@ class OperatorDepartemen extends Model
         'user_id' => 'required',
         'name' => 'required',
         'phone_number' => 'nullable',
+    ];
+
+    const FIELD_DEFAULT_VALUE = [
+        'user_id' => '',
+        'name' => '',
+        'phone_number' => '',
     ];
 
     protected $fillable = [

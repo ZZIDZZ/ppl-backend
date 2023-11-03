@@ -13,6 +13,7 @@ class User extends Authenticatable implements JWTSubject
 {
     use HasApiTokens, HasFactory, Notifiable;
     protected $table='users';
+    public $timestamps = false;
 
     const TABLE = "users";
     const TITLE = "User";
@@ -56,6 +57,14 @@ class User extends Authenticatable implements JWTSubject
         "password" => "required",
         "role_id" => "required",
     ];
+
+    const FIELD_DEFAULT_VALUE = [
+        "id" => '',
+        "email" => '',
+        "password" => '',
+        "role_id" => '',
+    ];
+    
 
     /**
      * The attributes that are mass assignable.

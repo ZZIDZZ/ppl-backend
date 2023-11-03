@@ -9,6 +9,7 @@ class Departemen extends Model
 {
     use HasFactory;
     protected $table = 'departemen';
+    public $timestamps = false;
 
     const TABLE = 'departemen';
     const TITLE = 'Departemen';
@@ -67,6 +68,12 @@ class Departemen extends Model
         'user_id' => 'required',
         'name' => 'required',
         'phone_number' => 'nullable',
+    ];
+
+    const FIELD_DEFAULT_VALUE = [
+        'user_id' => '',
+        'name' => '',
+        'phone_number' => '',
     ];
 
     protected $fillable = [

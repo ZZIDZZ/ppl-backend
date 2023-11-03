@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -12,6 +14,11 @@ class CrudController extends Controller
     
     function list(Request $request, $model){
         $modelClass = "\\App\\Models\\" . Str::ucfirst(Str::camel($model));
+
+        // cek if model exists
+        if(!class_exists($modelClass)) {
+            return response()->json(["message" => "$model not found"], 404);
+        }
 
         $relations = $modelClass::FIELD_RELATIONS;
         $tableName = $modelClass::TABLE;
@@ -110,6 +117,26 @@ class CrudController extends Controller
             'model' => $model,
             'success' => true,
         ];
+        array_map(function ($key) use ($modelClass, $model) {
+            foreach ($key as $field => $value) {
+                $key->class_model_name = $model;
+                if ((preg_match("/file/i", $field) || preg_match("/img_/i", $field)) && !is_null($key->$field)) {
+                    $url = URL::to('api/file' . $modelClass::FILEROOT . '/' . $field . '/' . $key->id);
+                    $thumbnailUrl = URL::to('api/thumbnail' . $modelClass::FILEROOT . '/' . $field . '/' . $key->id);
+                    $ext = pathinfo($key->$field, PATHINFO_EXTENSION);
+                    $filename = pathinfo(storage_path($key->$field), PATHINFO_BASENAME);
+
+                    $key->$field = (object) [
+                        "ext" => (is_null($key->$field)) ? null : $ext,
+                        "url" => $url,
+                        "tumbnail_url" => $thumbnailUrl,
+                        "filename" => (is_null($key->$field)) ? null : $filename,
+                        "field_value" => $key->$field
+                    ];
+                }
+            }
+            return $key;
+        }, $res);
     }
     
     function show($model, $id){
@@ -157,6 +184,23 @@ class CrudController extends Controller
             'fieldTypes' => $fieldTypes,
             'title' => $title,
         ];
+
+        foreach ($fields as $item) {
+            if ((preg_match("/file/i", $item) or preg_match("/img_/i", $item)) and !is_null($data->$item)) {
+                $url = URL::to('api/file/' . $tableName . '/' . $item . '/' . $data->id);
+                $tumbnailUrl = URL::to('api/tumb-file/' . $tableName . '/' . $item . '/' . $data->id);
+                $ext = pathinfo($data->$item, PATHINFO_EXTENSION);
+                $filename = pathinfo(storage_path($data->$item), PATHINFO_BASENAME);
+                $data->$item = (object) [
+                    "ext" => (is_null($data->$item)) ? null : $ext,
+                    "url" => $url,
+                    "tumbnail_url" => $tumbnailUrl,
+                    "filename" => (is_null($data->$item)) ? null : $filename,
+                    "field_value" => $data->$item
+                ];
+            }
+        }
+
         return [
             'data' => $data,
             'model' => $model,
@@ -178,10 +222,12 @@ class CrudController extends Controller
         $title = $modelClass::TITLE;
         $validation = $modelClass::FIELD_VALIDATION;
         $fieldInputs = $modelClass::FIELD_INPUT;
+        $defaultValues = $modelClass::FIELD_DEFAULT_VALUE;
 
         // check id exists
-        $res = DB::select("SELECT * FROM {$tableName} WHERE id = ?", [$id]);
-        if(count($res) == 0) {
+        $object = $modelClass::find($id);
+
+        if(is_null($object)) {
             return response()->json(["message" => "$model not found"], 404);
         }
 
@@ -201,12 +247,15 @@ class CrudController extends Controller
 
         try{
             // append input with id
-            $params = array_values($input);
-            $params[] = $id;
-            $update = DB::update("UPDATE {$tableName} SET " . implode(", ", array_map(function($key) {
-                return "$key = ?";
-            }, array_keys($input))) . " WHERE id = ?", $params);
-    
+            // END MOVE FILE
+            foreach ($fieldInputs as $item) {
+                if (array_key_exists($item, $input)) {
+                    if (!(preg_match("/file/i", $item) or preg_match("/img_/i", $item))) {
+                        $inputValue = $input[$item];
+                        $object->{$item} = ($inputValue !== '') ? $inputValue : null;
+                    }
+                }
+            }
             return response()->json([
                 "message" => "$model updated"
             ], 200);
@@ -216,9 +265,80 @@ class CrudController extends Controller
                 "error" => $e->getMessage()
             ], 500);
         }
+
+        // START MOVE FILE
+        foreach ($fields as $item) {
+            if((preg_match("/file/i", $item) or preg_match("/img_/i", $item))){
+                if (isset($input[$item])){
+                    if (is_null($input[$item])){
+                        $object->{$item} = null;
+                    }
+                    else if ($object->{$item} !== $input[$item]) {
+                        $tmpPath = $input[$item] ?? null;
+                        if (!is_null($tmpPath)) {
+                            if (!Storage::exists($tmpPath)) {
+                                return response()->json(["message" => 'file not found at /tmp'], 422);
+                            }
+                            $tmpPath = $input[$item] ?? null;
+        
+                            $originalname = pathinfo(storage_path($tmpPath), PATHINFO_FILENAME);
+                            $ext = pathinfo(storage_path($tmpPath), PATHINFO_EXTENSION);
+        
+                            $newPath = $modelClass::FILEROOT . "/" . $originalname . "." . $ext;
+        
+                            if (Storage::exists($newPath)) {
+                                $id = 1;
+                                $filename = pathinfo(storage_path($newPath), PATHINFO_FILENAME);
+                                $ext = pathinfo(storage_path($newPath), PATHINFO_EXTENSION);
+                                while (true) {
+                                    $originalname = $filename . "($id)." . $ext;
+                                    if (!Storage::exists($modelClass::FILEROOT . "/" . $originalname))
+                                        break;
+                                    $id++;
+                                }
+                                $newPath = $modelClass::FILEROOT . "/" . $originalname;
+                            }
+                            //OLD FILE DELETE
+                            $oldFilePath = $input[$item];
+                            Storage::delete($oldFilePath);
+                            //END MOVE FILE
+                            $input[$item] = $newPath;
+                            Storage::move($tmpPath, $newPath);
+                            //END MOVE FILE
+                        } else {
+                            //OLD FILE DELETE
+                            $oldFilePath = $input[$item];
+                            Storage::delete($oldFilePath);
+                            //END MOVE FILE
+                        }
+                    }
+                }
+            }
+        }
+        // END MOVE FILE
+
+        $object->save();
+
+        foreach ($fields as $item) {
+            if ((preg_match("/file/i", $item) or preg_match("/img_/i", $item)) and !is_null($object->$item)) {
+                $url = URL::to('api/file/' . $tableName . '/' . $item . '/' . $object->id);
+                $tumbnailUrl = URL::to('api/tumb-file/' . $tableName . '/' . $item . '/' . $object->id);
+                $ext = pathinfo($object->$item, PATHINFO_EXTENSION);
+                $filename = pathinfo(storage_path($object->$item), PATHINFO_BASENAME);
+                $object->$item = (object) [
+                    "ext" => (is_null($object->$item)) ? null : $ext,
+                    "url" => $url,
+                    "tumbnail_url" => $tumbnailUrl,
+                    "filename" => (is_null($object->$item)) ? null : $filename,
+                    "field_value" => $object->$item
+                ];
+            }
+        }
+        
         
         return response()->json([
-            "message" => "$model updated"
+            "message" => "$model updated",
+            "data" => $object,
         ], 200);
         
 
@@ -240,6 +360,7 @@ class CrudController extends Controller
         $title = $modelClass::TITLE;
         $validation = $modelClass::FIELD_VALIDATION;
         $fieldInputs = $modelClass::FIELD_INPUT;
+        $defaultValues = $modelClass::FIELD_DEFAULT_VALUE;
 
         // validate input
         $validator = Validator::make($request->all(), $validation);
@@ -254,14 +375,20 @@ class CrudController extends Controller
         if(isset($input['password'])) {
             $input['password'] = bcrypt($input['password']);
         }
+        $object = new $modelClass;
+
         
         try{
-            $create = DB::insert("INSERT INTO {$tableName} (" . implode(", ", array_keys($input)) . ") VALUES (" . implode(", ", array_map(function($key) {
-                return "?";
-            }, array_keys($input))) . ")", array_values($input));
-    
+            foreach ($fieldInputs as $item) {
+                if (isset($input[$item])) {
+                    $inputValue = $input[$item] ?? $defaultValues[$item];
+                    $object->{$item} = ($inputValue !== '') ? $inputValue : null;
+                }
+            }
+            $object->save();
             return response()->json([
-                "message" => "$model created"
+                "message" => "$model created",
+                "data" => $object,
             ], 200);
         } catch(\Exception $e){
             return response()->json([
@@ -287,13 +414,24 @@ class CrudController extends Controller
         $fieldInputs = $modelClass::FIELD_INPUT;
 
         // check id exists
-        $res = DB::select("SELECT * FROM {$tableName} WHERE id = ?", [$id]);
-        if(count($res) == 0) {
+        $object = $modelClass::find($id);
+
+        if(!$object) {
             return response()->json(["message" => "$model not found"], 404);
         }
-
         try{
-            $delete = DB::delete("DELETE FROM {$tableName} WHERE id = ?", [$id]);
+            // delete object
+            $object->delete();
+            //Setelah data dihapus, hapus file yang terkait
+
+            foreach ($fields as $item) {
+                if ((preg_match("/file/i", $item) or preg_match("/img_/i", $item)) and !is_null($object->$item)) {
+                    $path = $object->{$item};
+                    if (Storage::exists($path)) {
+                        Storage::delete($path);
+                    }
+                }
+            }
             return response()->json([
                 "message" => "$model deleted"
             ], 200);

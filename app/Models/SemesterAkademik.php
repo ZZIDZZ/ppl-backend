@@ -61,6 +61,9 @@ class SemesterAkademik extends Model
         'semester' => 'required',
     ];
 
+    const FIELD_DEFAULT_VALUES = [
+    ];
+
     protected $fillable = [
         'tahun_ajaran',
         'semester',
