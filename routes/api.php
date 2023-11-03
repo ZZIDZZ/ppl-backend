@@ -18,21 +18,6 @@ use App\Http\Controllers\CrudController;
 Route::group([
     'middleware' => ['auth.rest']
 ], function () {
-    Route::get('/', function () {
-        return response()->json(['message' => 'Hello World!'], 200);
-    });
-    Route::get('/me', [AuthController::class, 'me']);
-    // crud routes
-    Route::get('/{model}/list', [CrudController::class, 'list']);
-    Route::get('/{model}/show/{id}', [CrudController::class, 'show']);
-    Route::post('/{model}/create', [CrudController::class, 'create']);
-    Route::put('/{model}/update/{id}', [CrudController::class, 'update']);
-    Route::delete('/{model}/delete/{id}', [CrudController::class, 'delete']);
-});
-
-Route::group([
-    'middleware' => ['setguard:api']
-], function () {
     Route::get('file/{model}/{field}/{id}', [UploadController::class, 'getFile']);
     Route::get('thumbnail/{model}/{field}/{id}', [UploadController::class, 'getTumbnailFile']);
     Route::get('temp-file/{path}', [UploadController::class, 'getTempFile']);
@@ -42,3 +27,20 @@ Route::group([
 
 Route::post("/login", [AuthController::class, 'login']);
 Route::get("/logout", [AuthController::class, 'logout']);
+
+Route::group([
+    'middleware' => ['auth.rest']
+], function () {
+    Route::get('/', function () {
+        return response()->json(['message' => 'Hello World!'], 200);
+    });
+    Route::get('/me', [AuthController::class, 'me']);
+    // crud routes
+    Route::post('upload', [UploadController::class, 'upload'])->name("upload")->middleware('auth.rest');
+    Route::get('/{model}/list', [CrudController::class, 'list']);
+    Route::get('/{model}/show/{id}', [CrudController::class, 'show']);
+    Route::post('/{model}/create', [CrudController::class, 'create']);
+    Route::put('/{model}/update/{id}', [CrudController::class, 'update']);
+    Route::delete('/{model}/delete/{id}', [CrudController::class, 'delete']);
+});
+
