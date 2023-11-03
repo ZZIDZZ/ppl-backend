@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CrudController;
+use App\Http\Controllers\OperatorController;
+use App\Http\Controllers\UploadController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -14,9 +16,12 @@ use App\Http\Controllers\CrudController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::post("/login", [AuthController::class, 'login']);
+Route::get("/logout", [AuthController::class, 'logout']);
 
+
+// file routes
 Route::group([
-    'middleware' => ['auth.rest']
 ], function () {
     Route::get('file/{model}/{field}/{id}', [UploadController::class, 'getFile']);
     Route::get('thumbnail/{model}/{field}/{id}', [UploadController::class, 'getTumbnailFile']);
@@ -24,10 +29,24 @@ Route::group([
 });
 
 
+// start custom routes
+Route::group([
+    'middleware' => ['auth.rest']
+], function () {
 
-Route::post("/login", [AuthController::class, 'login']);
-Route::get("/logout", [AuthController::class, 'logout']);
+    // start custom routes for operator
+    Route::prefix('operator')->group(
+        function () {
+            Route::get('download-template', [OperatorController::class, 'downloadTemplate']);
+            Route::post('import-excel', [OperatorController::class, 'importExcel']);
+        }
+    );
 
+
+});
+
+
+// crud routes
 Route::group([
     'middleware' => ['auth.rest']
 ], function () {
