@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CrudController;
+use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\OperatorController;
 use App\Http\Controllers\UploadController;
 /*
@@ -31,9 +32,9 @@ Route::group([
 
 // start custom routes
 Route::group([
-    'middleware' => ['auth.rest']
+    'middleware' => ['auth.rest'],
+    'prefix' => 'custom'
 ], function () {
-
     // start custom routes for operator
     Route::prefix('operator')->group(
         function () {
@@ -41,8 +42,16 @@ Route::group([
             Route::post('import-excel', [OperatorController::class, 'importExcel']);
         }
     );
-
-
+    
+    // start custom routes for mahasiswa
+    Route::prefix('mahasiswa')->group(
+        function () {
+            Route::post('edit-profile', [MahasiswaController::class, 'editProfile']);
+            Route::get('show-profile', [MahasiswaController::class, 'showProfile']);
+            Route::post('change-password', [MahasiswaController::class, 'changePassword']);
+        }
+    );
+    
 });
 
 

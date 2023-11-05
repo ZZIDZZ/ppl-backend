@@ -32,6 +32,7 @@ jobs:
           port: 22
           script: |
             cd /home/${{ secrets.SSH_USER }}/ppl.zzidzz.tech
+            rm composer.lock
             /usr/bin/php8.2 /usr/local/bin/composer install
 
       - name: Check the deployed service URL

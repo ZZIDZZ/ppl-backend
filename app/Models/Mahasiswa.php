@@ -30,6 +30,7 @@ class Mahasiswa extends Model
         'name',
         'phone_number',
         'nim',
+        'password_changed'
     ];
 
     const FIELD_TYPES = [

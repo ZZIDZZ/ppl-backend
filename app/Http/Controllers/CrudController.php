@@ -316,7 +316,7 @@ class CrudController extends Controller
             }
         }
         // END MOVE FILE
-
+        
         $object->save();
 
         foreach ($fields as $item) {
@@ -442,5 +442,4 @@ class CrudController extends Controller
             ], 500);
         }
     }
-    
 }

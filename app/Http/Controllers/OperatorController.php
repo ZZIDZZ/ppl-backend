@@ -20,14 +20,13 @@ class OperatorController extends Controller
         $role_code = 'operator';
         $role_id = Role::where('code', $role_code)->first()->id;
 
-        if(auth()->user()->role_id != $role_id){
+        if(auth('api')->user()->role_id != $role_id){
             return response()->json(['message' => 'Unauthorized'], 403);
         }
     }
 
     public function downloadTemplate(){
         // check if exist at storage app/excel-templates/TemplateMahasiswa.xlsx first, if not then create it
-        $this->boot();
         $fileName = "TemplateMahasiswa.xlsx";
 
         if(!Storage::exists(storage_path('app/excel-templates/TemplateMahasiswa.xlsx'))){
@@ -49,6 +48,7 @@ class OperatorController extends Controller
     }
 
     public function importExcel(Request $request){
+        
     }
 
     protected function createTemplate(){
@@ -60,7 +60,8 @@ class OperatorController extends Controller
             ->setCellValue('A1', 'NIM')
             ->setCellValue('B1', 'Nama Lengkap')
             ->setCellValue('C1', 'Tahun Angkatan (2020, 2021, dst)')
-            ->setCellValue('D1', 'Status (AKTIF / NON-AKTIF)');
+            ->setCellValue('D1', 'Status (AKTIF / NON-AKTIF)')
+            ->setCellValue('E1', 'Email');
 
         $fileName = "TemplateMahasiswa.xlsx";
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
