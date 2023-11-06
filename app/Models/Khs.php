@@ -5,62 +5,72 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Irs extends Model
+class Khs extends Model
 {
 
-    // Schema::create('irs', function (Blueprint $table) {
+    // Schema::create('khs', function (Blueprint $table) {
     //     $table->bigIncrements('id');
-    //     $table->float('sks_semester', 16, 2)->default(0);
+    //     $table->float('ip_semester', 16, 2)->default(0);
     //     $table->foreignId('mahasiswa_id')->constrained('mahasiswa');
     //     $table->foreignId('riwayat_status_akademik_id')->nullable()->constrained('riwayat_status_akademik');
-    //     $table->text('file_scan_irs')->nullable();
+    //     $table->text('file_scan_khs')->nullable();
+    //     $table->string('status_code')->nullable()->comment('waiting_approval / approved');
     // });
     use HasFactory;
-    protected $table = 'irs';
+
+    const TABLE = 'khs';
+
+    const TITLE = 'Kartu Hasil Studi';
+    protected $table = 'khs';
     public $timestamps = true;
-    const TABLE = 'irs';
-    const TITLE = 'Isian Rencana Studi';
+    
 
     const FIELDS = [
         'id',
-        'sks_semester',
+        'ip_semester',
         'mahasiswa_id',
         'riwayat_status_akademik_id',
-        'file_scan_irs',
+        'file_scan_khs',
+        'status_code',
         'semester_akademik_id'
     ];
     const FIELD_TYPES = [
-        // 'id' => 'primary_key',
-        // 'user_id' => 'foreign_key',
-        // 'name' => 'string',
-        // 'phone_number' => 'string',
-        // 'nim' => 'string',
+        // 'id',
+        // 'ip_semester',
+        // 'mahasiswa_id',
+        // 'riwayat_status_akademik_id',
+        // 'file_scan_khs',
+        // 'status_code',
     ];
     const FIELD_INPUT = [
-        'sks_semester',
+        'ip_semester',
         'mahasiswa_id',
         'riwayat_status_akademik_id',
-        'file_scan_irs',
+        'file_scan_khs',
+        'status_code',
         'semester_akademik_id'
     ];
     const FIELD_SORTABLE = [
         'id',
-        'sks_semester',
+        'ip_semester',
         'mahasiswa_id',
         'riwayat_status_akademik_id',
-        'file_scan_irs',
+        'file_scan_khs',
+        'status_code',
         'semester_akademik_id'
     ];
     //searchable untuk tipe string and text!
     const FIELD_SEARCHABLE = [
-        'file_scan_irs',
+        'file_scan_khs',
+        'status_code',
     ];
     const FIELD_ALIAS = [
         'id' => 'id',
-        'sks_semester' => 'sks semester',
+        'ip_semester' => 'ip semester',
         'mahasiswa_id' => 'id mahasiswa',
         'riwayat_status_akademik_id' => 'id riwayat status akademik',
-        'file_scan_irs' => 'file scan irs',
+        'file_scan_khs' => 'file scan khs',
+        'status_code' => 'kode status',
         'semester_akademik_id' => 'id semester akademik'
     ];
     const FIELD_RELATIONS = [
@@ -91,24 +101,27 @@ class Irs extends Model
     ];
 
     const FIELD_VALIDATION = [
-        'sks_semester' => 'nullable',
+        'ip_semester' => 'nullable',
         'mahasiswa_id' => 'required',
         'riwayat_status_akademik_id' => 'nullable',
+        'file_scan_irs' => 'nullable',
+        'status_code' => 'nullable',
         'semester_akademik_id' => 'nullable'
     ];
 
     const FIELD_DEFAULT_VALUE = [
-        'sks_semester' => 0,
+        'ip_semester' => 0,
         'mahasiswa_id' => '',
         'riwayat_status_akademik_id' => '',
         'file_scan_irs' => '',
+        'status_code' => '',
     ];
-
+    
     const FIELD_FILTERABLE = [
         "id" => [
             "operator" => "=",
         ],
-        "sks_semester" => [
+        "ip_semester" => [
             "operator" => "=",
         ],
         "mahasiswa_id" => [
@@ -117,16 +130,20 @@ class Irs extends Model
         "riwayat_status_akademik_id" => [
             "operator" => "=",
         ],
-        "semester_akademik_id" => [
+        "file_scan_khs" => [
+            "operator" => "=",
+        ],
+        "status_code" => [
             "operator" => "=",
         ],
     ];
 
     protected $fillable = [
-        'sks_semester',
+        'ip_semester',
         'mahasiswa_id',
         'riwayat_status_akademik_id',
-        'file_scan_irs',
+        'file_scan_khs',
+        'status_code',
         'semester_akademik_id'
     ];
 
