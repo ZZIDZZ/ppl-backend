@@ -65,8 +65,24 @@ class OperatorController extends Controller
         if(!File::isDirectory(storage_path('app/excel-imports'))){
             File::makeDirectory(storage_path('app/excel-imports'), 0755, true, true);
         }
+        $file_extension = pathinfo($fileName, PATHINFO_EXTENSION);
+        // check file type for reader from extension
+        if($file_extension == 'xlsx'){
+            $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader('Xlsx');
+            $reader->setReadDataOnly(true);
+        }else if($file_extension == 'xls'){
+            $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader('Xls');
+            $reader->setReadDataOnly(true);
+        }else if($file_extension == 'csv') {
+            $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader('Xls');
+        }else{
+            return response()->json(['message' => 'File is not valid'], 400);
+        } 
 
-        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file_path);
+        /**  Load $inputFileName to a Spreadsheet Object  **/
+        $spreadsheet = $reader->load($file_path);
+
+        // $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file_path);
 
 
         $worksheet = $spreadsheet->getActiveSheet();
@@ -105,6 +121,7 @@ class OperatorController extends Controller
             $tahun_angkatan = $row[2];
             $status = $row[3];
             $email = $row[4];
+            // dd($nim, $nama_lengkap, $tahun_angkatan, $status, $email);
 
 
             // check if nim is empty
@@ -203,7 +220,7 @@ class OperatorController extends Controller
                     $mahasiswa = new Mahasiswa();
                     $mahasiswa->nim = $nim;
                     $mahasiswa->name = $nama_lengkap;
-                    $mahasiswa->tahun_angkatan = $tahun_angkatan;
+                    $mahasiswa->tahun_masuk = $tahun_angkatan;
                     $mahasiswa->user_id = $user->id;
                     $mahasiswa->status = $status == 'AKTIF' ? 1 : 0;
                     $mahasiswa->save();

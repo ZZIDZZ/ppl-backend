@@ -12,9 +12,9 @@
         <div style="color: #CDC5BD; opacity: 80%; font-size: 0.875rem; margin-bottom: 16px;">Monark</div>
         <div style="align-items: center; justify-content: center;">
             <div style="color: #CDC5BD; opacity: 80%; font-size: 1.875rem;">Email Anda: </div>
-            <div style="font-weight: 700; font-size: 5rem;">{{ $data->email }}</div>
+            <div style="font-weight: 700; font-size: 5rem;">{{ $data['email'] }}</div>
             <div style="color: #CDC5BD; opacity: 80%; font-size: 1.875rem;">Password: </div>
-            <div style="font-weight: 700; font-size: 5rem;">{{ $data->password }}</div>
+            <div style="font-weight: 700; font-size: 5rem;">{{ $data['password'] }}</div>
         </div>
         <div style="color: #CDC5BD; opacity: 80%; font-size: 0.875rem;">Silahkan ganti password anda setelah login.</div>
     </div>

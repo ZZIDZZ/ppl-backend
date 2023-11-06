@@ -88,7 +88,7 @@ class Mahasiswa extends Model
             'linkField' => 'id',
             'displayName' => 'dosen_wali',
             'selectFields' => ['name'],
-            'selectValue' => ['name'],
+            'selectValue' => ['dosen_wali_name'],
         ],
     ];
 

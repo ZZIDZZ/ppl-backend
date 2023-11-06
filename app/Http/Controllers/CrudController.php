@@ -94,29 +94,10 @@ class CrudController extends Controller
 
         // $books = DB::select('select b.*, c.name as category from books b LEFT JOIN categories c ON b.category_id = c.id');
         // return view('list.books', ['books' => $books]);
-        $data = [$res, $totalCount, $limit, $page, $searchTerm ?? '', $orderBy ?? '', $order ?? ''];
-        $data = $res;
-        $model = [
-            'relations' => $relations,
-            'tableName' => $tableName,
-            'searchable' => $searchable,
-            'sortable' => $sortable,
-            'alias' => $alias,
-            'fields' => $fields,
-            'fieldTypes' => $fieldTypes,
-            'title' => $title,
-        ];
+        
         // return ['data' => $data, 'model' => $model];
 
-        return [
-            'data' => $data,
-            'total' => $totalCount,
-            'limit' => $limit,
-            'page' => $page,
-            'totalPage' => ceil($totalCount / $limit),
-            'model' => $model,
-            'success' => true,
-        ];
+        
         array_map(function ($key) use ($modelClass, $model) {
             foreach ($key as $field => $value) {
                 $key->class_model_name = $model;
@@ -137,6 +118,29 @@ class CrudController extends Controller
             }
             return $key;
         }, $res);
+
+        $data = [$res, $totalCount, $limit, $page, $searchTerm ?? '', $orderBy ?? '', $order ?? ''];
+        $data = $res;
+        $model = [
+            'relations' => $relations,
+            'tableName' => $tableName,
+            'searchable' => $searchable,
+            'sortable' => $sortable,
+            'alias' => $alias,
+            'fields' => $fields,
+            'fieldTypes' => $fieldTypes,
+            'title' => $title,
+        ];
+
+        return [
+            'data' => $data,
+            'total' => $totalCount,
+            'limit' => $limit,
+            'page' => $page,
+            'totalPage' => ceil($totalCount / $limit),
+            'model' => $model,
+            'success' => true,
+        ];
     }
     
     function show($model, $id){
