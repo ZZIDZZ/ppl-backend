@@ -314,7 +314,7 @@ class OperatorController extends Controller
         $mahasiswa->save();
 
         // send email
-        
+
         $data = [
             'email' => $input['email'],
             'password' => $password,
@@ -323,6 +323,5 @@ class OperatorController extends Controller
         Log::info("request login " . $data['email'] . " with password " . $data['password']);
 
         return response()->json(['message' => 'Mahasiswa berhasil ditambahkan'], 200);
-
     }
 }

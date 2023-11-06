@@ -434,47 +434,46 @@ class CrudController extends Controller
         
         try{
             foreach ($fieldInputs as $item) {
-                if (isset($input[$item])) {
-                    if(!(preg_match("/file/i", $item) or preg_match("/img_/i", $item))){
-                        $inputValue = $input[$item] ?? $defaultValues[$item];
-                        $object->{$item} = ($inputValue !== '') ? $inputValue : null;
-                    }
-                }
+                if (!(preg_match("/file/i", $item) or preg_match("/img_/i", $item))) {
+                    $inputValue = $input[$item] ?? $defaultValues[$item];
+                    $object->{$item} = ($inputValue !== '') ? $inputValue : null;
+                } 
             }
             // dd(preg_match("/file/i", 'file_scan_irs'));
 
             foreach ($fields as $item) {
-                if ((preg_match("/file/i", $item) or preg_match("/img_/i", $item)) and !is_null($input[$item])){
-                    // dd($item);
-                    $tmpPath = $input[$item]["path"] ?? null;
-                    if (!is_null($tmpPath)) {
-                        if (!Storage::exists($tmpPath)) {
-                            return response()->json(["message" => 'file not found at /tmp'], 422);
-                        }
-                        $tmpPath = $input[$item]["path"];
-                        $originalname = pathinfo(storage_path($tmpPath), PATHINFO_FILENAME);
-                        $ext = pathinfo(storage_path($tmpPath), PATHINFO_EXTENSION);
-        
-                        $newPath = "/". $modelClass::TABLE . "/" . $originalname . "." . $ext;
-                        //START MOVE FILE
-                        if (Storage::exists($newPath)) {
-        
-                            $id = 1;
-                            $filename = pathinfo(storage_path($newPath), PATHINFO_FILENAME);
-                            $ext = pathinfo(storage_path($newPath), PATHINFO_EXTENSION);
-                            while (true) {
-                                $originalname = $filename . "($id)." . $ext;
-                                if (!Storage::exists("/". $modelClass::TABLE . "/" . $originalname))
-                                    break;
-                                $id++;
+                if ((preg_match("/file/i", $item) or preg_match("/img_/i", $item))){
+                    if(isset($input[$item]) and !is_null($input[$item])){
+                        // dd($item);
+                        $tmpPath = $input[$item]["path"] ?? null;
+                        if (!is_null($tmpPath)) {
+                            if (!Storage::exists($tmpPath)) {
+                                return response()->json(["message" => 'file not found at /tmp'], 422);
                             }
-                            $newPath = "/". $modelClass::TABLE . "/" . $originalname;
+                            $tmpPath = $input[$item]["path"];
+                            $originalname = pathinfo(storage_path($tmpPath), PATHINFO_FILENAME);
+                            $ext = pathinfo(storage_path($tmpPath), PATHINFO_EXTENSION);
+            
+                            $newPath = "/". $modelClass::TABLE . "/" . $originalname . "." . $ext;
+                            //START MOVE FILE
+                            if (Storage::exists($newPath)) {
+                                $id = 1;
+                                $filename = pathinfo(storage_path($newPath), PATHINFO_FILENAME);
+                                $ext = pathinfo(storage_path($newPath), PATHINFO_EXTENSION);
+                                while (true) {
+                                    $originalname = $filename . "($id)." . $ext;
+                                    if (!Storage::exists("/". $modelClass::TABLE . "/" . $originalname))
+                                        break;
+                                    $id++;
+                                }
+                                $newPath = "/". $modelClass::TABLE . "/" . $originalname;
+                            }
+            
+                            $ext = pathinfo(storage_path($newPath), PATHINFO_EXTENSION);
+                            $object->{$item} = $newPath;
+                            
+                            Storage::move($tmpPath, $newPath);
                         }
-        
-                        $ext = pathinfo(storage_path($newPath), PATHINFO_EXTENSION);
-                        $object->{$item} = $newPath;
-                        
-                        Storage::move($tmpPath, $newPath);
                     }
                 }
             }
