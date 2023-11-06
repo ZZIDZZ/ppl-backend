@@ -314,6 +314,7 @@ class OperatorController extends Controller
         $mahasiswa->save();
 
         // send email
+        
         $data = [
             'email' => $input['email'],
             'password' => $password,
