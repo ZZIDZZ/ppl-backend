@@ -9,7 +9,7 @@ class OperatorDepartemen extends Model
 {
     use HasFactory;
     protected $table = 'operator_departemen';
-    public $timestamps = false;
+    public $timestamps = true;
 
     const TABLE = 'operator_departemen';
     const TITLE = 'Operator Departemen';

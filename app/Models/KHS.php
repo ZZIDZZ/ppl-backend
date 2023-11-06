@@ -22,7 +22,7 @@ class KHS extends Model
 
     const TITLE = 'Kartu Hasil Studi';
     protected $table = 'khs';
-    public $timestamps = false;
+    public $timestamps = true;
 
     const FIELDS = [
         'id',

@@ -17,7 +17,7 @@ class IRS extends Model
     // });
     use HasFactory;
     protected $table = 'irs';
-    public $timestamps = false;
+    public $timestamps = true;
     const TABLE = 'irs';
     const TITLE = 'Isian Rencana Studi';
 

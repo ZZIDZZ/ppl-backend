@@ -9,7 +9,7 @@ class RiwayatStatusAkademik extends Model
 {
     use HasFactory;
     protected $table = 'riwayat_status_akademik';
-    public $timestamps = false;
+    public $timestamps = true;
 
     // Schema::create('riwayat_status_akademik', function (Blueprint $table) {
     //     $table->bigIncrements('id')->unsigned();
@@ -24,6 +24,7 @@ class RiwayatStatusAkademik extends Model
         'id',
         'mahasiswa_id',
         'semester_akademik_id',
+        'status'
     ];
 
     const FIELD_TYPES = [

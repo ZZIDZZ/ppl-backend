@@ -9,7 +9,7 @@ class SemesterAkademik extends Model
 {
     use HasFactory;
     protected $table = 'semester_akademik';
-    public $timestamps = false;
+    public $timestamps = true;
 
     // Schema::create('semester_akademik', function (Blueprint $table) {
     //     $table->bigIncrements('id')->unsigned();

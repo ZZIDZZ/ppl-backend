@@ -9,7 +9,7 @@ class Mahasiswa extends Model
 {
     use HasFactory;
     protected $table = 'mahasiswa';
-    public $timestamps = false;
+    public $timestamps = true;
 
     // Schema::create('mahasiswa', function (Blueprint $table) {
     //     $table->bigIncrements('id')->unsigned();

@@ -13,7 +13,7 @@ class User extends Authenticatable implements JWTSubject
 {
     use HasApiTokens, HasFactory, Notifiable;
     protected $table='users';
-    public $timestamps = false;
+    public $timestamps = true;
 
     const TABLE = "users";
     const TITLE = "User";

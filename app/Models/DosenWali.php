@@ -9,7 +9,7 @@ class DosenWali extends Model
 {
     use HasFactory;
     protected $table = 'dosen_wali';
-    public $timestamps = false;
+    public $timestamps = true;
 
     // schema:
     // Schema::create('dosen_wali', function (Blueprint $table) {
