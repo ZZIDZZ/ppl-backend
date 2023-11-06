@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class IRS extends Model
+class Irs extends Model
 {
 
     // Schema::create('irs', function (Blueprint $table) {

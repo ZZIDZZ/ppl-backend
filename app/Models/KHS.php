@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class KHS extends Model
+class Khs extends Model
 {
 
     // Schema::create('khs', function (Blueprint $table) {
