@@ -17,7 +17,7 @@ class IRS extends Model
     // });
     use HasFactory;
     protected $table = 'irs';
-    public $timestamp = false;
+    public $timestamps = false;
     const TABLE = 'irs';
     const TITLE = 'Isian Rencana Studi';
 
@@ -27,6 +27,7 @@ class IRS extends Model
         'mahasiswa_id',
         'riwayat_status_akademik_id',
         'file_scan_irs',
+        'semester_akademik_id'
     ];
     const FIELD_TYPES = [
         // 'id' => 'primary_key',
@@ -40,6 +41,7 @@ class IRS extends Model
         'mahasiswa_id',
         'riwayat_status_akademik_id',
         'file_scan_irs',
+        'semester_akademik_id'
     ];
     const FIELD_SORTABLE = [
         'id',
@@ -47,6 +49,7 @@ class IRS extends Model
         'mahasiswa_id',
         'riwayat_status_akademik_id',
         'file_scan_irs',
+        'semester_akademik_id'
     ];
     //searchable untuk tipe string and text!
     const FIELD_SEARCHABLE = [
@@ -58,6 +61,7 @@ class IRS extends Model
         'mahasiswa_id' => 'id mahasiswa',
         'riwayat_status_akademik_id' => 'id riwayat status akademik',
         'file_scan_irs' => 'file scan irs',
+        'semester_akademik_id' => 'id semester akademik'
     ];
     const FIELD_RELATIONS = [
         'mahasiswa_id' => [
@@ -76,22 +80,46 @@ class IRS extends Model
             'selectFields' => ['semester_akademik_id'],
             'selectValue' => ['semester_akademik_id'],
         ],
+        'semester_akademik_id' => [
+            'linkTable' => 'semester_akademik',
+            'aliasTable' => 'C',
+            'linkField' => 'id',
+            'displayName' => 'semester_akademik',
+            'selectFields' => ['tahun_ajaran', 'semester'],
+            'selectValue' => ['tahun_ajaran', 'semester'],
+        ],
     ];
 
     const FIELD_VALIDATION = [
         'sks_semester' => 'nullable',
         'mahasiswa_id' => 'required',
         'riwayat_status_akademik_id' => 'nullable',
-        'file_scan_irs' => 'required',
+        'semester_akademik_id' => 'nullable'
     ];
 
     const FIELD_DEFAULT_VALUE = [
-
         'sks_semester' => 0,
         'mahasiswa_id' => '',
         'riwayat_status_akademik_id' => '',
         'file_scan_irs' => '',
+    ];
 
+    const FIELD_FILTERABLE = [
+        "id" => [
+            "operator" => "=",
+        ],
+        "sks_semester" => [
+            "operator" => "=",
+        ],
+        "mahasiswa_id" => [
+            "operator" => "=",
+        ],
+        "riwayat_status_akademik_id" => [
+            "operator" => "=",
+        ],
+        "semester_akademik_id" => [
+            "operator" => "=",
+        ],
     ];
 
     protected $fillable = [
@@ -99,5 +127,39 @@ class IRS extends Model
         'mahasiswa_id',
         'riwayat_status_akademik_id',
         'file_scan_irs',
+        'semester_akademik_id'
     ];
+
+    public static function beforeInsert($input)
+    {
+        $riwayat_status_akademik_id = $input['riwayat_status_akademik_id'];
+        $semester_akademik_id = RiwayatStatusAkademik::find($riwayat_status_akademik_id)->semester_akademik_id;
+        $input['semester_akademik_id'] = $semester_akademik_id;
+        return $input;
+    }
+
+    public static function afterInsert($object, $input)
+    {
+        return $object;
+    }
+    
+    public static function beforeUpdate($input)
+    {
+        return $input;
+    }
+    
+    public static function afterUpdate($object, $input)
+    {
+        return $object;
+    }
+    
+    public static function beforeDelete($input)
+    {
+        return $input;
+    }
+
+    public static function afterDelete($object, $input)
+    {
+        return $object;
+    }// end custom
 }

@@ -76,9 +76,54 @@ class Departemen extends Model
         'phone_number' => '',
     ];
 
+    const FIELD_FILTERABLE = [
+        "id" => [
+            "operator" => "=",
+        ],
+        "user_id" => [
+            "operator" => "=",
+        ],
+        "name" => [
+            "operator" => "=",
+        ],
+        "phone_number" => [
+            "operator" => "=",
+        ],
+    ];
+
     protected $fillable = [
         'user_id',
         'name',
         'phone_number',
     ];
+
+    public static function beforeInsert($input)
+    {
+        return $input;
+    }
+
+    public static function afterInsert($object, $input)
+    {
+        return $object;
+    }
+    
+    public static function beforeUpdate($input)
+    {
+        return $input;
+    }
+    
+    public static function afterUpdate($object, $input)
+    {
+        return $object;
+    }
+    
+    public static function beforeDelete($input)
+    {
+        return $input;
+    }
+
+    public static function afterDelete($object, $input)
+    {
+        return $object;
+    }// end custom
 }

@@ -114,10 +114,64 @@ class Mahasiswa extends Model
         'nim' => '',
     ];
 
+    const FIELD_FILTERABLE = [
+        "id" => [
+            "operator" => "=",
+        ],
+        "user_id" => [
+            "operator" => "=",
+        ],
+        "dosen_wali_id" => [
+            "operator" => "=",
+        ],
+        "name" => [
+            "operator" => "=",
+        ],
+        "phone_number" => [
+            "operator" => "=",
+        ],
+        "nim" => [
+            "operator" => "=",
+        ],
+        "password_changed" => [
+            "operator" => "=",
+        ],
+    ];
+
     protected $fillable = [
         'user_id',
         'name',
         'phone_number',
         'nim',
     ];
+
+    public static function beforeInsert($input)
+    {
+        return $input;
+    }
+
+    public static function afterInsert($object, $input)
+    {
+        return $object;
+    }
+    
+    public static function beforeUpdate($input)
+    {
+        return $input;
+    }
+    
+    public static function afterUpdate($object, $input)
+    {
+        return $object;
+    }
+    
+    public static function beforeDelete($input)
+    {
+        return $input;
+    }
+
+    public static function afterDelete($object, $input)
+    {
+        return $object;
+    }// end custom
 }

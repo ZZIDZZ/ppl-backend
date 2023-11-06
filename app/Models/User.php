@@ -64,6 +64,18 @@ class User extends Authenticatable implements JWTSubject
         "password" => '',
         "role_id" => '',
     ];
+
+    const FIELD_FILTERABLE = [
+        "id" => [
+            "operator" => "=",
+        ],
+        "email" => [
+            "operator" => "like",
+        ],
+        "role_id" => [
+            "operator" => "=",
+        ],
+    ];
     
 
     /**
@@ -104,5 +116,35 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
+
+    public static function beforeInsert($input)
+    {
+        return $input;
+    }
+
+    public static function afterInsert($object, $input)
+    {
+        return $object;
+    }
+    
+    public static function beforeUpdate($input)
+    {
+        return $input;
+    }
+    
+    public static function afterUpdate($object, $input)
+    {
+        return $object;
+    }
+    
+    public static function beforeDelete($input)
+    {
+        return $input;
+    }
+
+    public static function afterDelete($object, $input)
+    {
+        return $object;
+    }// end custom
 
 }

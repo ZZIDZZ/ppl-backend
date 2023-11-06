@@ -71,7 +71,7 @@ class UploadController extends Controller
         if (!class_exists($classModel))
             return response()->json(["message" => 'Not Found'], 404);
 
-        if (!$classModel::FILEROOT)
+        if (!$classModel::TABLE)
             return response()->json(["message" => 'Not Found'], 404);
 
         $sql = "SELECT A." . $field . " FROM " . $classModel::TABLE . " A WHERE A.id = :id";
@@ -79,7 +79,7 @@ class UploadController extends Controller
 
         $fileName =  DB::selectOne($sql, $params)->$field;
 
-        $path  = $classModel::FILEROOT . '/';
+        $path  = "/". $classModel::TABLE . '/';
         $data = $fileName;
         if (Storage::exists($data)) {
             $file = Storage::get($data);
