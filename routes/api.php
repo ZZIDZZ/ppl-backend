@@ -51,7 +51,6 @@ Route::group([
             Route::post('change-password', [MahasiswaController::class, 'changePassword']);
         }
     );
-    
 });
 
 
