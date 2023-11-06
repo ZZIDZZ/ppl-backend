@@ -40,6 +40,7 @@ Route::group([
         function () {
             Route::get('download-template', [OperatorController::class, 'downloadTemplate']);
             Route::post('import-excel', [OperatorController::class, 'importExcel']);
+            Route::post('create-mahasiswa', [OperatorController::class, 'createMahasiswa']);
         }
     );
     

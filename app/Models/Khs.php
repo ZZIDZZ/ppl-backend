@@ -23,7 +23,7 @@ class Khs extends Model
     const TITLE = 'Kartu Hasil Studi';
     protected $table = 'khs';
     public $timestamps = true;
-    
+
 
     const FIELDS = [
         'id',
@@ -114,7 +114,7 @@ class Khs extends Model
         'mahasiswa_id' => '',
         'riwayat_status_akademik_id' => '',
         'file_scan_irs' => '',
-        'status_code' => '',
+        'status_code' => 'waiting_approval'
     ];
     
     const FIELD_FILTERABLE = [

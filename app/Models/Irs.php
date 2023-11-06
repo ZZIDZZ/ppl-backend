@@ -16,7 +16,7 @@ class Irs extends Model
     //     $table->text('file_scan_irs')->nullable();
     // });
     use HasFactory;
-    
+
     protected $table = 'irs';
     public $timestamps = true;
     const TABLE = 'irs';
@@ -103,6 +103,7 @@ class Irs extends Model
         'mahasiswa_id' => '',
         'riwayat_status_akademik_id' => '',
         'file_scan_irs' => '',
+        'status_code' => 'waiting_approval'
     ];
 
     const FIELD_FILTERABLE = [

@@ -9,7 +9,7 @@ class Mahasiswa extends Model
 {
     use HasFactory;
     protected $table = 'mahasiswa';
-    public $timestamps = true;
+    public $timestamps = false;
 
     // Schema::create('mahasiswa', function (Blueprint $table) {
     //     $table->bigIncrements('id')->unsigned();
@@ -32,7 +32,8 @@ class Mahasiswa extends Model
         'name',
         'phone_number',
         'nim',
-        'password_changed'
+        'password_changed',
+        'tahun_masuk'
     ];
 
     const FIELD_TYPES = [
@@ -58,6 +59,7 @@ class Mahasiswa extends Model
         'name',
         'phone_number',
         'nim',
+        'tahun_masuk'
     ];
 
     //searchable untuk tipe string and text!
@@ -75,6 +77,7 @@ class Mahasiswa extends Model
         'name' => 'Nama',
         'phone_number' => 'Nomor Telepon',
         'nim' => 'NIM',
+        'tahun_masuk' => 'Tahun Masuk'
     ];
 
     //linktable = > source tablenya
@@ -136,6 +139,9 @@ class Mahasiswa extends Model
         "password_changed" => [
             "operator" => "=",
         ],
+        "tahun_masuk" => [
+            "operator" => "=",
+        ],
     ];
 
     protected $fillable = [
@@ -143,6 +149,7 @@ class Mahasiswa extends Model
         'name',
         'phone_number',
         'nim',
+        'password_changed',
     ];
 
     public static function beforeInsert($input)
