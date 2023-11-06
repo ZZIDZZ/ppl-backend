@@ -182,6 +182,7 @@ class OperatorController extends Controller
                 'status' => $status,
                 'email' => $email,
             ];
+            $return_data = [];
 
             try{
                 // validate data
@@ -225,6 +226,15 @@ class OperatorController extends Controller
                     $mahasiswa->status = $status == 'AKTIF' ? 1 : 0;
                     $mahasiswa->save();
 
+                    $data_append = [
+                        'user' => $user,
+                        'mahasiswa' => $mahasiswa,
+                    ];
+                    $data_append['user']->password = '';
+
+                    $return_data[] = $data_append;
+                    // empty password
+
                     // send email
                     $data = [
                         'email' => $email,
@@ -249,6 +259,7 @@ class OperatorController extends Controller
             'success_count' => $success_count,
             'error_count' => $error_count,
             'errors' => $errors,
+            'data' => $return_data,
         ];
         return response()->json($response, 200);
 
