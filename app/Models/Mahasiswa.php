@@ -20,7 +20,9 @@ class Mahasiswa extends Model
     //     $table->string('nim')->nullable();
     // });
 
+    //Table => Nama tabel
     const TABLE = 'mahasiswa';
+    //Title menu
     const TITLE = 'Mahasiswa';
     
     const FIELDS = [
@@ -33,11 +35,11 @@ class Mahasiswa extends Model
     ];
 
     const FIELD_TYPES = [
-        'id' => 'primary_key',
-        'user_id' => 'foreign_key',
-        'name' => 'string',
-        'phone_number' => 'string',
-        'nim' => 'string',
+        // 'id' => 'primary_key',
+        // 'user_id' => 'foreign_key',
+        // 'name' => 'string',
+        // 'phone_number' => 'string',
+        // 'nim' => 'string',
     ];
 
     const FIELD_INPUT = [
@@ -57,12 +59,14 @@ class Mahasiswa extends Model
         'nim',
     ];
 
+    //searchable untuk tipe string and text!
     const FIELD_SEARCHABLE = [
         'name',
         'phone_number',
         'nim',
     ];
 
+    //
     const FIELD_ALIAS = [
         'id' => 'id',
         'user_id' => 'id user',
@@ -72,6 +76,10 @@ class Mahasiswa extends Model
         'nim' => 'NIM',
     ];
 
+    //linktable = > source tablenya
+    //linkfield adalah apa yang harus dihubungkan / apa idnya
+    //display name => notUsed
+    //SelectFields => 
     const FIELD_RELATIONS = [
         'user_id' => [
             'linkTable' => 'users',
@@ -87,7 +95,7 @@ class Mahasiswa extends Model
             'linkField' => 'id',
             'displayName' => 'dosen_wali',
             'selectFields' => ['name'],
-            'selectValue' => ['name'],
+            'selectValue' => ['dosen_wali_name'],
         ],
     ];
 
