@@ -47,7 +47,7 @@ class AuthController extends Controller
                 $table = "departemen";
                 break;
             case "operator":
-                $table = "operator";
+                $table = "operator_departemen";
                 break;
             default:
                 $table = "users";
