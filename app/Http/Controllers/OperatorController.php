@@ -287,4 +287,52 @@ class OperatorController extends Controller
         }
         $writer->save(storage_path('app/excel-templates/' . $fileName));
     }
+
+    public function createMahasiswa(Request $request){
+        $input = $request->all();
+
+        $validation = [
+            'nim' => 'required|unique:mahasiswa,nim',
+            'nama_lengkap' => 'required',
+            'tahun_angkatan' => 'required|numeric',
+            'email' => 'required|unique:users,email',
+        ];
+
+        $validator = Validator::make($input, $validation);
+
+        if($validator->fails()){
+            return response()->json($validator->errors()->all(), 400);
+        }
+
+        $role_code = 'mahasiswa';
+        $role_id = Role::where('role_code', $role_code)->first()->id;
+
+
+        $user = new User();
+        $user->email = $input['email'];
+        // generate random 8 digit hexadecimal password
+        $password = Str::random(8);
+        $user->password = bcrypt($password);
+        $user->role_id = $role_id;
+        $user->save();
+
+        $mahasiswa = new Mahasiswa();
+        $mahasiswa->nim = $input['nim'];
+        $mahasiswa->name = $input['nama_lengkap'];
+        $mahasiswa->tahun_masuk = $input['tahun_angkatan'];
+        $mahasiswa->user_id = $user->id;
+        $mahasiswa->status = true;
+        $mahasiswa->save();
+
+        // send email
+
+        $data = [
+            'email' => $input['email'],
+            'password' => $password,
+        ];
+        SendLoginInfoJob::dispatch($data);
+        Log::info("request login " . $data['email'] . " with password " . $data['password']);
+
+        return response()->json(['message' => 'Mahasiswa berhasil ditambahkan'], 200);
+    }
 }

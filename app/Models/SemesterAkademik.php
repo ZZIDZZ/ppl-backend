@@ -9,6 +9,7 @@ class SemesterAkademik extends Model
 {
     use HasFactory;
     protected $table = 'semester_akademik';
+    public $timestamps = true;
 
     // Schema::create('semester_akademik', function (Blueprint $table) {
     //     $table->bigIncrements('id')->unsigned();
@@ -61,11 +62,53 @@ class SemesterAkademik extends Model
         'semester' => 'required',
     ];
 
-    const FIELD_DEFAULT_VALUES = [
+    const FIELD_DEFAULT_VALUE = [
+    ];
+
+    const FIELD_FILTERABLE = [
+        "id" => [
+            "operator" => "=",
+        ],
+        "tahun_ajaran" => [
+            "operator" => "=",
+        ],
+        "semester" => [
+            "operator" => "=",
+        ],
     ];
 
     protected $fillable = [
         'tahun_ajaran',
         'semester',
     ];
+
+    public static function beforeInsert($input)
+    {
+        return $input;
+    }
+
+    public static function afterInsert($object, $input)
+    {
+        return $object;
+    }
+    
+    public static function beforeUpdate($input)
+    {
+        return $input;
+    }
+    
+    public static function afterUpdate($object, $input)
+    {
+        return $object;
+    }
+    
+    public static function beforeDelete($input)
+    {
+        return $input;
+    }
+
+    public static function afterDelete($object, $input)
+    {
+        return $object;
+    }// end custom
 }

@@ -9,7 +9,7 @@ class DosenWali extends Model
 {
     use HasFactory;
     protected $table = 'dosen_wali';
-    public $timestamps = false;
+    public $timestamps = true;
 
     // schema:
     // Schema::create('dosen_wali', function (Blueprint $table) {
@@ -93,10 +93,58 @@ class DosenWali extends Model
         'nip' => '',
     ];
 
+    const FIELD_FILTERABLE = [
+        "id" => [
+            "operator" => "=",
+        ],
+        "user_id" => [
+            "operator" => "=",
+        ],
+        "name" => [
+            "operator" => "=",
+        ],
+        "phone_number" => [
+            "operator" => "=",
+        ],
+        "nip" => [
+            "operator" => "=",
+        ],
+    ];
+
     protected $fillable = [
         'user_id',
         'name',
         'phone_number',
         'nip',
     ];
+
+    public static function beforeInsert($input)
+    {
+        return $input;
+    }
+
+    public static function afterInsert($object, $input)
+    {
+        return $object;
+    }
+    
+    public static function beforeUpdate($input)
+    {
+        return $input;
+    }
+    
+    public static function afterUpdate($object, $input)
+    {
+        return $object;
+    }
+    
+    public static function beforeDelete($input)
+    {
+        return $input;
+    }
+
+    public static function afterDelete($object, $input)
+    {
+        return $object;
+    }// end custom
 }

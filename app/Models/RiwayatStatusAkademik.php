@@ -9,7 +9,7 @@ class RiwayatStatusAkademik extends Model
 {
     use HasFactory;
     protected $table = 'riwayat_status_akademik';
-    public $timestamps = false;
+    public $timestamps = true;
 
     // Schema::create('riwayat_status_akademik', function (Blueprint $table) {
     //     $table->bigIncrements('id')->unsigned();
@@ -24,6 +24,7 @@ class RiwayatStatusAkademik extends Model
         'id',
         'mahasiswa_id',
         'semester_akademik_id',
+        'status'
     ];
 
     const FIELD_TYPES = [
@@ -73,23 +74,57 @@ class RiwayatStatusAkademik extends Model
     ];
 
     const FIELD_VALIDATION = [
-        'user_id' => 'required',
-        'name' => 'required',
-        'phone_number' => 'nullable',
-        'nim' => 'nullable',
+        'mahasiswa_id' => 'required',
+        'semester_akademik_id' => 'required',
     ];
 
     const FIELD_DEFAULT_VALUE = [
-        'user_id' => '',
-        'name' => '',
-        'phone_number' => '',
-        'nim' => '',
+    ];
+
+    const FIELD_FILTERABLE = [
+        "id" => [
+            "operator" => "=",
+        ],
+        "mahasiswa_id" => [
+            "operator" => "=",
+        ],
+        "semester_akademik_id" => [
+            "operator" => "=",
+        ],
     ];
 
     protected $fillable = [
-        'user_id',
-        'name',
-        'phone_number',
-        'nim',
+        'mahasiswa_id',
+        'semester_akademik_id',
     ];
+
+    public static function beforeInsert($input)
+    {
+        return $input;
+    }
+
+    public static function afterInsert($object, $input)
+    {
+        return $object;
+    }
+    
+    public static function beforeUpdate($input)
+    {
+        return $input;
+    }
+    
+    public static function afterUpdate($object, $input)
+    {
+        return $object;
+    }
+    
+    public static function beforeDelete($input)
+    {
+        return $input;
+    }
+
+    public static function afterDelete($object, $input)
+    {
+        return $object;
+    }// end custom
 }

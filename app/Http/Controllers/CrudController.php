@@ -28,10 +28,12 @@ class CrudController extends Controller
         $fields = $modelClass::FIELDS;
         $fieldTypes = $modelClass::FIELD_TYPES;
         $title = $modelClass::TITLE;
+        $fieldFilterable = $modelClass::FIELD_FILTERABLE;
 
 
         $relationJoin = "";
         $relationQuery = "";
+        $filterList = [];
         foreach($relations as $key => $value) {
             // keep role_id and add rel_role_id
             $linkTable = $value['linkTable'];
@@ -47,24 +49,61 @@ class CrudController extends Controller
             }
         }
 
+        $input = $request->all();
+        $params = [];
+
+        foreach ($fieldFilterable as $filter => $operator) {
+            if (!$this->is_blank($input, $filter)) {
+                $aliasTable = !isset($operator['aliasTable']) ? $tableName : $operator['aliasTable'];
+                $cekTypeInput = json_decode($input[$filter], true);
+                if (!is_array($cekTypeInput)) {
+                    $filterList[] = " AND " . $aliasTable . "." . $filter .  " " . $operator["operator"] . " :$filter";
+                    $params[$filter] = $input[$filter];
+                } else {
+                    $input[$filter] = json_decode($input[$filter], true);
+                    if ($input[$filter]["operator"] == 'between') {
+                        $filterList[] = " AND " . $aliasTable . "." . $filter .  " " . $input[$filter]["operator"] . " '" . $input[$filter]["value"][0] . "' AND '" . $input[$filter]["value"][1] . "'";
+                    } else if ($input[$filter]["operator"] == 'in') {
+                        $inValues = "'" . implode("','", $input[$filter]["value"]) . "'";
+                        $filterList[] = " AND " . $aliasTable . "." . $filter .  " in (" . $inValues . ")";
+                    } else if ($input[$filter]["operator"] == 'ILIKE') {
+                        $filterList[] = " AND " . $aliasTable . "." . $filter .  " " . $input[$filter]["operator"] . " '%" . $input[$filter]["value"] . "%'";
+                    } else if ($input[$filter]["operator"] == 'IS NOT NULL') {
+                        $filterList[] = " AND " . $aliasTable . "." . $filter .  " " . $input[$filter]["operator"];
+                    } else if ($input[$filter]["operator"] == 'IS NULL') {
+                        $filterList[] = " AND " . $aliasTable . "." . $filter .  " " . $input[$filter]["operator"];
+                    } else {
+                        $filterList[] = " AND " . $aliasTable . "." . $filter .  " " . $input[$filter]["operator"] . " :$filter";
+                        $params[$filter] = $input[$filter]["value"];
+                    }
+                }
+            }
+        }
+
         $finalQuery = "SELECT {$tableName}.* $relationQuery FROM {$tableName}  $relationJoin  ";
 
 
-        $totalCount = DB::selectOne("SELECT COUNT(*) as count FROM {$tableName}")->count;
         function toggleOrder($currentDirection) {
             return ($currentDirection == 'asc') ? 'desc' : 'asc';
         }
+
         // 
+        
+        $searchableList = [];
 
         if (null !== ($request->input('search'))) {
             $searchTerm = $request->input('search');
             $queryFilter = " TRUE OR ";
-            $searchableList = [];
+
             foreach ($searchable as $key => $value) {
                 $searchableList[] = " UPPER($value) ILIKE '%{$searchTerm}%' ";
             }
-            $finalQuery = $finalQuery ." WHERE TRUE " . " AND (" . implode(" OR ", $searchableList) . ") ";
+            
+
+            
         } 
+        $finalQuery = $finalQuery ." WHERE TRUE " . (count($searchableList) > 0 ? " AND (" . implode(" OR ", $searchableList) . ")" : "") .
+            implode("\n", $filterList);
         if(null !== ($request->input('orderBy'))) {
             $orderBy = $request->input('orderBy');
             $isRelation = false;
@@ -90,7 +129,11 @@ class CrudController extends Controller
         $offset = ($page - 1) * $limit;
         $finalQuery = $finalQuery . " LIMIT $limit OFFSET $offset";
 
-        $res = DB::select($finalQuery);
+        // dd($finalQuery, $params, $filterList);
+
+        $res = DB::select($finalQuery, $params);
+        $totalCount = DB::selectOne("SELECT COUNT(*) as count FROM {$tableName}" ." WHERE TRUE " . (count($searchableList) > 0 ? " AND (" . implode(" OR ", $searchableList) . ")" : "") .
+            implode("\n", $filterList), $params)->count;
 
         // $books = DB::select('select b.*, c.name as category from books b LEFT JOIN categories c ON b.category_id = c.id');
         // return view('list.books', ['books' => $books]);
@@ -102,8 +145,8 @@ class CrudController extends Controller
             foreach ($key as $field => $value) {
                 $key->class_model_name = $model;
                 if ((preg_match("/file/i", $field) || preg_match("/img_/i", $field)) && !is_null($key->$field)) {
-                    $url = URL::to('api/file' . $modelClass::FILEROOT . '/' . $field . '/' . $key->id);
-                    $thumbnailUrl = URL::to('api/thumbnail' . $modelClass::FILEROOT . '/' . $field . '/' . $key->id);
+                    $url = URL::to('api/file' . "/". $modelClass::TABLE . '/' . $field . '/' . $key->id);
+                    $thumbnailUrl = URL::to('api/thumbnail' . "/". $modelClass::TABLE . '/' . $field . '/' . $key->id);
                     $ext = pathinfo($key->$field, PATHINFO_EXTENSION);
                     $filename = pathinfo(storage_path($key->$field), PATHINFO_BASENAME);
 
@@ -155,8 +198,9 @@ class CrudController extends Controller
         $fields = $modelClass::FIELDS;
         $fieldTypes = $modelClass::FIELD_TYPES;
         $title = $modelClass::TITLE;
+        $fieldFilterable = $modelClass::FIELD_FILTERABLE;
 
-
+        $filterList = [];
         $relationJoin = "";
         $relationQuery = "";
         foreach($relations as $key => $value) {
@@ -173,6 +217,8 @@ class CrudController extends Controller
                 $relationQuery .= ", $aliasTable.$selectField[$selectKey] AS $selectValues[$selectKey]";
             }
         }
+
+        
 
         $finalQuery = "SELECT {$tableName}.* $relationQuery FROM {$tableName}  $relationJoin  WHERE {$tableName}.id = $id";
 
@@ -243,6 +289,7 @@ class CrudController extends Controller
         }
 
         $input = $request->only($fieldInputs);
+        $input = $modelClass::beforeUpdate($input);
 
         if(isset($input['password'])) {
             $input['password'] = bcrypt($input['password']);
@@ -260,8 +307,10 @@ class CrudController extends Controller
                     }
                 }
             }
+            $object = $modelClass::afterUpdate($object, $input);
             return response()->json([
-                "message" => "$model updated"
+                "message" => "$model updated",
+                "data" => $object,
             ], 200);
         } catch(\Exception $e){
             return response()->json([
@@ -288,7 +337,7 @@ class CrudController extends Controller
                             $originalname = pathinfo(storage_path($tmpPath), PATHINFO_FILENAME);
                             $ext = pathinfo(storage_path($tmpPath), PATHINFO_EXTENSION);
         
-                            $newPath = $modelClass::FILEROOT . "/" . $originalname . "." . $ext;
+                            $newPath = "/". $modelClass::TABLE . "/" . $originalname . "." . $ext;
         
                             if (Storage::exists($newPath)) {
                                 $id = 1;
@@ -296,11 +345,11 @@ class CrudController extends Controller
                                 $ext = pathinfo(storage_path($newPath), PATHINFO_EXTENSION);
                                 while (true) {
                                     $originalname = $filename . "($id)." . $ext;
-                                    if (!Storage::exists($modelClass::FILEROOT . "/" . $originalname))
+                                    if (!Storage::exists("/". $modelClass::TABLE . "/" . $originalname))
                                         break;
                                     $id++;
                                 }
-                                $newPath = $modelClass::FILEROOT . "/" . $originalname;
+                                $newPath = "/". $modelClass::TABLE . "/" . $originalname;
                             }
                             //OLD FILE DELETE
                             $oldFilePath = $input[$item];
@@ -374,6 +423,7 @@ class CrudController extends Controller
         }
 
         $input = $request->only($fieldInputs);
+        $input = $modelClass::beforeInsert($input);
 
         // check if contain field password, if yes, encrypt it
         if(isset($input['password'])) {
@@ -384,12 +434,52 @@ class CrudController extends Controller
         
         try{
             foreach ($fieldInputs as $item) {
-                if (isset($input[$item])) {
+                if (!(preg_match("/file/i", $item) or preg_match("/img_/i", $item))) {
                     $inputValue = $input[$item] ?? $defaultValues[$item];
                     $object->{$item} = ($inputValue !== '') ? $inputValue : null;
+                } 
+            }
+            // dd(preg_match("/file/i", 'file_scan_irs'));
+
+            foreach ($fields as $item) {
+                if ((preg_match("/file/i", $item) or preg_match("/img_/i", $item))){
+                    if(isset($input[$item]) and !is_null($input[$item])){
+                        // dd($item);
+                        $tmpPath = $input[$item]["path"] ?? null;
+                        if (!is_null($tmpPath)) {
+                            if (!Storage::exists($tmpPath)) {
+                                return response()->json(["message" => 'file not found at /tmp'], 422);
+                            }
+                            $tmpPath = $input[$item]["path"];
+                            $originalname = pathinfo(storage_path($tmpPath), PATHINFO_FILENAME);
+                            $ext = pathinfo(storage_path($tmpPath), PATHINFO_EXTENSION);
+            
+                            $newPath = "/". $modelClass::TABLE . "/" . $originalname . "." . $ext;
+                            //START MOVE FILE
+                            if (Storage::exists($newPath)) {
+                                $id = 1;
+                                $filename = pathinfo(storage_path($newPath), PATHINFO_FILENAME);
+                                $ext = pathinfo(storage_path($newPath), PATHINFO_EXTENSION);
+                                while (true) {
+                                    $originalname = $filename . "($id)." . $ext;
+                                    if (!Storage::exists("/". $modelClass::TABLE . "/" . $originalname))
+                                        break;
+                                    $id++;
+                                }
+                                $newPath = "/". $modelClass::TABLE . "/" . $originalname;
+                            }
+            
+                            $ext = pathinfo(storage_path($newPath), PATHINFO_EXTENSION);
+                            $object->{$item} = $newPath;
+                            
+                            Storage::move($tmpPath, $newPath);
+                        }
+                    }
                 }
             }
             $object->save();
+
+            $object = $modelClass::afterInsert($object, $input);
             return response()->json([
                 "message" => "$model created",
                 "data" => $object,
@@ -419,14 +509,18 @@ class CrudController extends Controller
 
         // check id exists
         $object = $modelClass::find($id);
+        $input = $modelClass::beforeDelete($object);
+
 
         if(!$object) {
             return response()->json(["message" => "$model not found"], 404);
         }
         try{
+            
             // delete object
             $object->delete();
             //Setelah data dihapus, hapus file yang terkait
+            $object = $modelClass::afterDelete($object, $input);
 
             foreach ($fields as $item) {
                 if ((preg_match("/file/i", $item) or preg_match("/img_/i", $item)) and !is_null($object->$item)) {
@@ -445,5 +539,10 @@ class CrudController extends Controller
                 "error" => $e->getMessage()
             ], 500);
         }
+    }
+
+    function is_blank($array, $key)
+    {
+        return isset($array[$key]) ? (is_null($array[$key]) || $array[$key] === "") : true;
     }
 }

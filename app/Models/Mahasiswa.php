@@ -20,7 +20,9 @@ class Mahasiswa extends Model
     //     $table->string('nim')->nullable();
     // });
 
+    //Table => Nama tabel
     const TABLE = 'mahasiswa';
+    //Title menu
     const TITLE = 'Mahasiswa';
     
     const FIELDS = [
@@ -30,15 +32,16 @@ class Mahasiswa extends Model
         'name',
         'phone_number',
         'nim',
-        'password_changed'
+        'password_changed',
+        'tahun_masuk'
     ];
 
     const FIELD_TYPES = [
-        'id' => 'primary_key',
-        'user_id' => 'foreign_key',
-        'name' => 'string',
-        'phone_number' => 'string',
-        'nim' => 'string',
+        // 'id' => 'primary_key',
+        // 'user_id' => 'foreign_key',
+        // 'name' => 'string',
+        // 'phone_number' => 'string',
+        // 'nim' => 'string',
     ];
 
     const FIELD_INPUT = [
@@ -56,14 +59,17 @@ class Mahasiswa extends Model
         'name',
         'phone_number',
         'nim',
+        'tahun_masuk'
     ];
 
+    //searchable untuk tipe string and text!
     const FIELD_SEARCHABLE = [
         'name',
         'phone_number',
         'nim',
     ];
 
+    //
     const FIELD_ALIAS = [
         'id' => 'id',
         'user_id' => 'id user',
@@ -71,8 +77,13 @@ class Mahasiswa extends Model
         'name' => 'Nama',
         'phone_number' => 'Nomor Telepon',
         'nim' => 'NIM',
+        'tahun_masuk' => 'Tahun Masuk'
     ];
 
+    //linktable = > source tablenya
+    //linkfield adalah apa yang harus dihubungkan / apa idnya
+    //display name => notUsed
+    //SelectFields => 
     const FIELD_RELATIONS = [
         'user_id' => [
             'linkTable' => 'users',
@@ -106,10 +117,68 @@ class Mahasiswa extends Model
         'nim' => '',
     ];
 
+    const FIELD_FILTERABLE = [
+        "id" => [
+            "operator" => "=",
+        ],
+        "user_id" => [
+            "operator" => "=",
+        ],
+        "dosen_wali_id" => [
+            "operator" => "=",
+        ],
+        "name" => [
+            "operator" => "=",
+        ],
+        "phone_number" => [
+            "operator" => "=",
+        ],
+        "nim" => [
+            "operator" => "=",
+        ],
+        "password_changed" => [
+            "operator" => "=",
+        ],
+        "tahun_masuk" => [
+            "operator" => "=",
+        ],
+    ];
+
     protected $fillable = [
         'user_id',
         'name',
         'phone_number',
         'nim',
+        'password_changed',
     ];
+
+    public static function beforeInsert($input)
+    {
+        return $input;
+    }
+
+    public static function afterInsert($object, $input)
+    {
+        return $object;
+    }
+    
+    public static function beforeUpdate($input)
+    {
+        return $input;
+    }
+    
+    public static function afterUpdate($object, $input)
+    {
+        return $object;
+    }
+    
+    public static function beforeDelete($input)
+    {
+        return $input;
+    }
+
+    public static function afterDelete($object, $input)
+    {
+        return $object;
+    }// end custom
 }
