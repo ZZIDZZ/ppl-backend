@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CrudController;
+use App\Http\Controllers\DosenWaliController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\OperatorController;
 use App\Http\Controllers\UploadController;
@@ -50,6 +51,17 @@ Route::group([
             Route::post('edit-profile', [MahasiswaController::class, 'editProfile']);
             Route::get('show-profile', [MahasiswaController::class, 'showProfile']);
             Route::post('change-password', [MahasiswaController::class, 'changePassword']);
+        }
+    );
+
+    // start custom routes for dosen_wali
+    Route::prefix('dosen_wali')->group(
+        function () {
+            Route::get('irs/list', [DosenWaliController::class, 'listIrsPerwalian']);
+            Route::get('khs/list', [DosenWaliController::class, 'listKhsPerwalian']);
+            Route::get('pkl/list', [DosenWaliController::class, 'listPklPerwalian']);
+            Route::get('skripsi/list', [DosenWaliController::class, 'listSkripsiPerwalian']);
+
         }
     );
 });

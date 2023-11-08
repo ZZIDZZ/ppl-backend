@@ -172,6 +172,8 @@ class Skripsi extends Model
         $riwayat_status_akademik_id = $input['riwayat_status_akademik_id'];
         $semester_akademik_id = RiwayatStatusAkademik::find($riwayat_status_akademik_id)->semester_akademik_id;
         $input['semester_akademik_id'] = $semester_akademik_id;
+
+        $input['status_code'] = 'waiting_approval';
         return $input;
     }
 

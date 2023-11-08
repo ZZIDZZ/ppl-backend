@@ -14,6 +14,7 @@ use App\Models\Mahasiswa;
 use App\Models\User;
 use App\Mail\SendLoginInfo;
 use App\Jobs\SendLoginInfoJob;
+use App\Models\DosenWali;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -121,6 +122,7 @@ class OperatorController extends Controller
             $tahun_angkatan = $row[2];
             $status = $row[3];
             $email = $row[4];
+            $nip = $row[5];
             // dd($nim, $nama_lengkap, $tahun_angkatan, $status, $email);
 
 
@@ -192,6 +194,7 @@ class OperatorController extends Controller
                     'tahun_angkatan' => 'required',
                     'status' => 'required',
                     'email' => 'required|unique:users,email',
+                    'nip' => 'nullable|exists:dosen,nip',
                 ];
 
                 $validator = Validator::make($data, $validation);
@@ -207,6 +210,8 @@ class OperatorController extends Controller
                     // check role_id of role_code mahasiswa
                     $role_code = 'mahasiswa';
                     $role_id = Role::where('role_code', $role_code)->first()->id;
+
+                    $dosen_wali_id = DosenWali::where('nip', $nip)->first()->id;
 
                     // create new user
                     $user = new User();
@@ -224,6 +229,7 @@ class OperatorController extends Controller
                     $mahasiswa->tahun_masuk = $tahun_angkatan;
                     $mahasiswa->user_id = $user->id;
                     $mahasiswa->status = $status == 'AKTIF' ? 1 : 0;
+                    $mahasiswa->dosen_wali_id = $dosen_wali_id;
                     $mahasiswa->save();
 
                     $data_append = [
@@ -276,7 +282,8 @@ class OperatorController extends Controller
             ->setCellValue('B1', 'Nama Lengkap')
             ->setCellValue('C1', 'Tahun Angkatan (2020, 2021, dst)')
             ->setCellValue('D1', 'Status (AKTIF / NON-AKTIF)')
-            ->setCellValue('E1', 'Email');
+            ->setCellValue('E1', 'Email')
+            ->setCellValue('F1', 'NIP Dosen Wali');
 
         $fileName = "TemplateMahasiswa.xlsx";
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
