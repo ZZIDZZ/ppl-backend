@@ -17,6 +17,8 @@ return new class extends Migration
             $table->bigIncrements('id')->unsigned();
             $table->foreignId('role_id')->nullable()->constrained('roles');
             $table->foreignId('permission_id')->nullable()->constrained('permissions');
+            $table->timestampsTz($precision = 0);
+
         });
     }
 

@@ -73,9 +73,9 @@ class DosenWali extends Model
             'linkTable' => 'users',
             'aliasTable' => 'A',
             'linkField' => 'id',
-            'displayName' => 'email',
-            'selectFields' => ['email'],
-            'selectValue' => ['email'],
+            'displayName' => 'username',
+            'selectFields' => ['username'],
+            'selectValue' => ['username'],
         ],
     ];
 

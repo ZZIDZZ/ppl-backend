@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -19,8 +20,20 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->string('phone_number')->nullable();
             $table->string('email')->nullable();
-            $table->string('nip')->nullable();
+            $table->string('nip')->unique();
+            $table->timestampsTz($precision = 0);
+
         });
+
+        DB::table('dosen_wali')->insert([
+            'user_id' => 3,
+            'name' => 'Dosen Wali',
+            'phone_number' => '08123456789',
+            'email' => 'doswal@gmail.com',
+            'nip' => '123456789',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 
     /**

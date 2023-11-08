@@ -20,13 +20,39 @@ return new class extends Migration
             $table->string('role_code', 255)->unique();
             $table->string('role_name', 255);
             $table->text('description')->nullable();
+            $table->timestampsTz($precision = 0);
+
         });
         // create role 'mahasiswa', 'operator', dosen_wali', 'departemen'
         DB::table('roles')->insert([
-            ['role_code' => 'mahasiswa', 'role_name' => 'Mahasiswa', 'description' => 'Mahasiswa'],
-            ['role_code' => 'operator', 'role_name' => 'Operator', 'description' => 'Operator'],
-            ['role_code' => 'dosen_wali', 'role_name' => 'Dosen Wali', 'description' => 'Dosen'],
-            ['role_code' => 'departemen', 'role_name' => 'Departemen', 'description' => 'Departemen'],
+            [
+                'role_code' => 'mahasiswa', 
+                'role_name' => 'Mahasiswa', 
+                'description' => 'Mahasiswa',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'role_code' => 'operator', 
+                'role_name' => 'Operator', 
+                'description' => 'Operator',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'role_code' => 'dosen_wali', 
+                'role_name' => 'Dosen Wali', 
+                'description' => 'Dosen',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'role_code' => 'departemen', 
+                'role_name' => 'Departemen', 
+                'description' => 'Departemen',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ]);
     }
 

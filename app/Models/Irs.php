@@ -26,9 +26,9 @@ class Irs extends Model
         'id',
         'sks_semester',
         'mahasiswa_id',
-        'riwayat_status_akademik_id',
         'file_scan_irs',
-        'semester_akademik_id'
+        'semester_akademik_id',
+        'status_code'
     ];
     const FIELD_TYPES = [
         // 'id' => 'primary_key',
@@ -40,7 +40,6 @@ class Irs extends Model
     const FIELD_INPUT = [
         'sks_semester',
         'mahasiswa_id',
-        'riwayat_status_akademik_id',
         'file_scan_irs',
         'semester_akademik_id'
     ];
@@ -48,9 +47,9 @@ class Irs extends Model
         'id',
         'sks_semester',
         'mahasiswa_id',
-        'riwayat_status_akademik_id',
         'file_scan_irs',
-        'semester_akademik_id'
+        'semester_akademik_id',
+        'status_code'
     ];
     //searchable untuk tipe string and text!
     const FIELD_SEARCHABLE = [
@@ -60,26 +59,30 @@ class Irs extends Model
         'id' => 'id',
         'sks_semester' => 'sks semester',
         'mahasiswa_id' => 'id mahasiswa',
-        'riwayat_status_akademik_id' => 'id riwayat status akademik',
         'file_scan_irs' => 'file scan irs',
-        'semester_akademik_id' => 'id semester akademik'
+        'semester_akademik_id' => 'id semester akademik',
+        'status_code' => 'status code'
     ];
+
+    // mahasiswa:
+    // 'id',
+    // 'user_id',
+    // 'dosen_wali_id',
+    // 'name',
+    // 'phone_number',
+    // 'nim',
+    // 'password_changed',
+    // 'tahun_masuk',
+    // 'jalur_masuk',
+    // 'status',
     const FIELD_RELATIONS = [
         'mahasiswa_id' => [
             'linkTable' => 'mahasiswa',
             'aliasTable' => 'A',
             'linkField' => 'id',
             'displayName' => 'name',
-            'selectFields' => ['name'],
-            'selectValue' => ['name'],
-        ],
-        'riwayat_status_akademik_id' => [
-            'linkTable' => 'riwayat_status_akademik',
-            'aliasTable' => 'B',
-            'linkField' => 'id',
-            'displayName' => 'riwayat_status_akademik',
-            'selectFields' => ['semester_akademik_id'],
-            'selectValue' => ['semester_akademik_id'],
+            'selectFields' => ['name', 'nim', 'tahun_masuk', 'jalur_masuk', 'status', 'dosen_wali_id'],
+            'selectValue' => ['name', 'nim', 'tahun_masuk', 'jalur_masuk', 'status', 'dosen_wali_id'],
         ],
         'semester_akademik_id' => [
             'linkTable' => 'semester_akademik',
@@ -94,14 +97,12 @@ class Irs extends Model
     const FIELD_VALIDATION = [
         'sks_semester' => 'nullable',
         'mahasiswa_id' => 'required',
-        'riwayat_status_akademik_id' => 'nullable',
         'semester_akademik_id' => 'nullable'
     ];
 
     const FIELD_DEFAULT_VALUE = [
         'sks_semester' => 0,
         'mahasiswa_id' => '',
-        'riwayat_status_akademik_id' => '',
         'file_scan_irs' => '',
         'status_code' => 'waiting_approval'
     ];
@@ -116,9 +117,6 @@ class Irs extends Model
         "mahasiswa_id" => [
             "operator" => "=",
         ],
-        "riwayat_status_akademik_id" => [
-            "operator" => "=",
-        ],
         "semester_akademik_id" => [
             "operator" => "=",
         ],
@@ -127,17 +125,12 @@ class Irs extends Model
     protected $fillable = [
         'sks_semester',
         'mahasiswa_id',
-        'riwayat_status_akademik_id',
         'file_scan_irs',
         'semester_akademik_id'
     ];
 
     public static function beforeInsert($input)
     {
-        $riwayat_status_akademik_id = $input['riwayat_status_akademik_id'];
-        $semester_akademik_id = RiwayatStatusAkademik::find($riwayat_status_akademik_id)->semester_akademik_id;
-        $input['semester_akademik_id'] = $semester_akademik_id;
-
         $input['status_code'] = 'waiting_approval';
         return $input;
     }

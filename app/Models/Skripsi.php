@@ -14,7 +14,7 @@ class Skripsi extends Model
     //     $table->date('tanggal_selesai')->nullable();
     //     $table->boolean('is_lulus')->nullable();
     //     $table->foreignId('mahasiswa_id')->constrained('mahasiswa');
-    //     $table->foreignId('riwayat_status_akademik_id')->nullable()->constrained('riwayat_status_akademik');
+    //     $table->foreignId('irs_id')->nullable()->constrained('irs');
     //     $table->text('file_skripsi')->nullable();
     //     $table->string('status_code')->nullable()->comment('waiting_approval / approved / waiting_approval_over / approved_over');
     // });
@@ -33,7 +33,7 @@ class Skripsi extends Model
         'tanggal_selesai',
         'is_lulus',
         'mahasiswa_id',
-        'riwayat_status_akademik_id',
+        'irs_id',
         'file_skripsi',
         'status_code',
         'semester_akademik_id'
@@ -42,7 +42,7 @@ class Skripsi extends Model
         // 'id',
         // 'ip_semester',
         // 'mahasiswa_id',
-        // 'riwayat_status_akademik_id',
+        // 'irs_id',
         // 'file_scan_khs',
         // 'status_code',
     ];
@@ -51,7 +51,7 @@ class Skripsi extends Model
         'tanggal_selesai',
         'is_lulus',
         'mahasiswa_id',
-        'riwayat_status_akademik_id',
+        'irs_id',
         'file_skripsi',
         'status_code',
     ];
@@ -61,7 +61,7 @@ class Skripsi extends Model
         'tanggal_selesai',
         'is_lulus',
         'mahasiswa_id',
-        'riwayat_status_akademik_id',
+        'irs_id',
         'file_skripsi',
         'status_code',
         'semester_akademik_id'
@@ -74,7 +74,7 @@ class Skripsi extends Model
         'id' => 'id',
         'nilai' => 'nilai',
         'mahasiswa_id' => 'id mahasiswa',
-        'riwayat_status_akademik_id' => 'id riwayat status akademik',
+        'irs_id' => 'id riwayat status akademik',
         'file_skripsi' => 'File Skripsi',
         'status_code' => 'kode status',
         'semester_akademik_id' => 'id semester akademik'
@@ -85,14 +85,14 @@ class Skripsi extends Model
             'aliasTable' => 'A',
             'linkField' => 'id',
             'displayName' => 'name',
-            'selectFields' => ['name'],
-            'selectValue' => ['name'],
+            'selectFields' => ['name', 'nim', 'tahun_masuk', 'jalur_masuk', 'status', 'dosen_wali_id'],
+            'selectValue' => ['name', 'nim', 'tahun_masuk', 'jalur_masuk', 'status', 'dosen_wali_id'],
         ],
-        'riwayat_status_akademik_id' => [
-            'linkTable' => 'riwayat_status_akademik',
+        'irs_id' => [
+            'linkTable' => 'irs',
             'aliasTable' => 'B',
             'linkField' => 'id',
-            'displayName' => 'riwayat_status_akademik',
+            'displayName' => 'irs',
             'selectFields' => ['semester_akademik_id'],
             'selectValue' => ['semester_akademik_id'],
         ],
@@ -109,7 +109,7 @@ class Skripsi extends Model
     const FIELD_VALIDATION = [
         'nilai' => 'nullable',
         'mahasiswa_id' => 'required',
-        'riwayat_status_akademik_id' => 'nullable',
+        'irs_id' => 'required',
         'file_skripsi' => 'nullable',
         'status_code' => 'nullable',
         'semester_akademik_id' => 'nullable',
@@ -136,7 +136,7 @@ class Skripsi extends Model
         "mahasiswa_id" => [
             "operator" => "=",
         ],
-        "riwayat_status_akademik_id" => [
+        "irs_id" => [
             "operator" => "=",
         ],
         "file_skripsi" => [
@@ -159,7 +159,7 @@ class Skripsi extends Model
     protected $fillable = [
         'nilai',
         'mahasiswa_id',
-        'riwayat_status_akademik_id',
+        'irs_id',
         'file_skripsi',
         'status_code',
         'semester_akademik_id',
@@ -169,8 +169,8 @@ class Skripsi extends Model
 
     public static function beforeInsert($input)
     {
-        $riwayat_status_akademik_id = $input['riwayat_status_akademik_id'];
-        $semester_akademik_id = RiwayatStatusAkademik::find($riwayat_status_akademik_id)->semester_akademik_id;
+        $irs_id = $input['irs_id'];
+        $semester_akademik_id = Irs::where('id', $irs_id)->first()->semester_akademik_id;
         $input['semester_akademik_id'] = $semester_akademik_id;
 
         $input['status_code'] = 'waiting_approval';

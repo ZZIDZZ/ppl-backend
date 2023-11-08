@@ -31,10 +31,10 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $credentials = $request->only('email', 'password');
-        $user = User::select("users.*", "roles.role_code")->leftjoin('roles', 'roles.id', 'users.role_id')->where("email", $credentials["email"])->first();
+        $credentials = $request->only('username', 'password');
+        $user = User::select("users.*", "roles.role_code")->leftjoin('roles', 'roles.id', 'users.role_id')->where("username", $credentials["username"])->first();
         if (empty($user))
-            return response()->json(["message" => __("message.userNotFound", ['email' => $credentials["email"]])], 422);
+            return response()->json(["message" => __("message.userNotFound", ['username' => $credentials["username"]])], 422);
         // get table source from role_code
         switch ($user->role_code) {
             case "mahasiswa":
@@ -56,7 +56,7 @@ class AuthController extends Controller
         $user = User::select("users.*", $table . ".*", "roles.*")
             ->leftjoin('roles', 'roles.id', 'users.role_id')
             ->leftjoin($table, $table . ".user_id", "users.id")
-            ->where("email", $credentials["email"])->first();
+            ->where("username", $credentials["username"])->first();
         // empty password
         $user->password = "";
 

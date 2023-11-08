@@ -12,7 +12,7 @@ class Khs extends Model
     //     $table->bigIncrements('id');
     //     $table->float('ip_semester', 16, 2)->default(0);
     //     $table->foreignId('mahasiswa_id')->constrained('mahasiswa');
-    //     $table->foreignId('riwayat_status_akademik_id')->nullable()->constrained('riwayat_status_akademik');
+    //     $table->foreignId('irs_id')->nullable()->constrained('irs');
     //     $table->text('file_scan_khs')->nullable();
     //     $table->string('status_code')->nullable()->comment('waiting_approval / approved');
     // });
@@ -29,7 +29,7 @@ class Khs extends Model
         'id',
         'ip_semester',
         'mahasiswa_id',
-        'riwayat_status_akademik_id',
+        'irs_id',
         'file_scan_khs',
         'status_code',
         'semester_akademik_id'
@@ -38,23 +38,22 @@ class Khs extends Model
         // 'id',
         // 'ip_semester',
         // 'mahasiswa_id',
-        // 'riwayat_status_akademik_id',
+        // 'irs_id',
         // 'file_scan_khs',
         // 'status_code',
     ];
     const FIELD_INPUT = [
         'ip_semester',
         'mahasiswa_id',
-        'riwayat_status_akademik_id',
+        'irs_id',
         'file_scan_khs',
         'status_code',
-        'semester_akademik_id'
     ];
     const FIELD_SORTABLE = [
         'id',
         'ip_semester',
         'mahasiswa_id',
-        'riwayat_status_akademik_id',
+        'irs_id',
         'file_scan_khs',
         'status_code',
         'semester_akademik_id'
@@ -68,7 +67,7 @@ class Khs extends Model
         'id' => 'id',
         'ip_semester' => 'ip semester',
         'mahasiswa_id' => 'id mahasiswa',
-        'riwayat_status_akademik_id' => 'id riwayat status akademik',
+        'irs_id' => 'id IRS',
         'file_scan_khs' => 'file scan khs',
         'status_code' => 'kode status',
         'semester_akademik_id' => 'id semester akademik'
@@ -79,16 +78,16 @@ class Khs extends Model
             'aliasTable' => 'A',
             'linkField' => 'id',
             'displayName' => 'name',
-            'selectFields' => ['name'],
-            'selectValue' => ['name'],
+            'selectFields' => ['name', 'nim', 'tahun_masuk', 'jalur_masuk', 'status', 'dosen_wali_id'],
+            'selectValue' => ['name', 'nim', 'tahun_masuk', 'jalur_masuk', 'status', 'dosen_wali_id'],
         ],
-        'riwayat_status_akademik_id' => [
-            'linkTable' => 'riwayat_status_akademik',
+        'irs_id' => [
+            'linkTable' => 'irs',
             'aliasTable' => 'B',
             'linkField' => 'id',
-            'displayName' => 'riwayat_status_akademik',
-            'selectFields' => ['semester_akademik_id'],
-            'selectValue' => ['semester_akademik_id'],
+            'displayName' => 'irs',
+            'selectFields' => ['sks_semester'],
+            'selectValue' => ['sks_semester'],
         ],
         'semester_akademik_id' => [
             'linkTable' => 'semester_akademik',
@@ -103,7 +102,7 @@ class Khs extends Model
     const FIELD_VALIDATION = [
         'ip_semester' => 'nullable',
         'mahasiswa_id' => 'required',
-        'riwayat_status_akademik_id' => 'nullable',
+        'irs_id' => 'required',
         'file_scan_irs' => 'nullable',
         'status_code' => 'nullable',
         'semester_akademik_id' => 'nullable'
@@ -112,7 +111,6 @@ class Khs extends Model
     const FIELD_DEFAULT_VALUE = [
         'ip_semester' => 0,
         'mahasiswa_id' => '',
-        'riwayat_status_akademik_id' => '',
         'file_scan_irs' => '',
         'status_code' => 'waiting_approval'
     ];
@@ -127,7 +125,7 @@ class Khs extends Model
         "mahasiswa_id" => [
             "operator" => "=",
         ],
-        "riwayat_status_akademik_id" => [
+        "irs_id" => [
             "operator" => "=",
         ],
         "file_scan_khs" => [
@@ -141,7 +139,7 @@ class Khs extends Model
     protected $fillable = [
         'ip_semester',
         'mahasiswa_id',
-        'riwayat_status_akademik_id',
+        'irs_id',
         'file_scan_khs',
         'status_code',
         'semester_akademik_id'
@@ -149,8 +147,8 @@ class Khs extends Model
 
     public static function beforeInsert($input)
     {
-        $riwayat_status_akademik_id = $input['riwayat_status_akademik_id'];
-        $semester_akademik_id = RiwayatStatusAkademik::find($riwayat_status_akademik_id)->semester_akademik_id;
+        $irs_id = $input['irs_id'];
+        $semester_akademik_id = Irs::where('id', $irs_id)->first()->semester_akademik_id;
         $input['semester_akademik_id'] = $semester_akademik_id;
 
         $input['status_code'] = 'waiting_approval';

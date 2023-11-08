@@ -13,11 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('riwayat_status_akademik', function (Blueprint $table) {
-            $table->bigIncrements('id')->unsigned();
-            $table->foreignId('mahasiswa_id')->nullable()->constrained('mahasiswa');
-            $table->foreignId('semester_akademik_id')->nullable()->constrained('semester_akademik');
-        });
+        // Schema::create('riwayat_status_akademik', function (Blueprint $table) {
+        //     $table->bigIncrements('id')->unsigned();
+        //     $table->foreignId('mahasiswa_id')->nullable()->constrained('mahasiswa');
+        //     $table->foreignId('semester_akademik_id')->nullable()->constrained('semester_akademik');
+        // });
     }
 
     /**
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('riwayat_status_akademik');
+        // Schema::dropIfExists('riwayat_status_akademik');
     }
 };

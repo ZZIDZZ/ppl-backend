@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('permission_code', 255)->unique();
             $table->string('permission_name', 255);
             $table->text('description')->nullable();
+            $table->timestampsTz($precision = 0);
+
         });
     }
 

@@ -60,8 +60,8 @@ class RiwayatStatusAkademik extends Model
             'aliasTable' => 'A',
             'linkField' => 'id',
             'displayName' => 'name',
-            'selectFields' => ['name'],
-            'selectValue' => ['name'],
+            'selectFields' => ['name', 'nim', 'tahun_masuk', 'jalur_masuk', 'status', 'dosen_wali_id'],
+            'selectValue' => ['name', 'nim', 'tahun_masuk', 'jalur_masuk', 'status', 'dosen_wali_id'],
         ],
         'semester_akademik_id' => [
             'linkTable' => 'semester_akademik',

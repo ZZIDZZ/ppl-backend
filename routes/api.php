@@ -39,7 +39,6 @@ Route::group([
     // start custom routes for operator
     Route::prefix('operator')->group(
         function () {
-            Route::get('download-template', [OperatorController::class, 'downloadTemplate']);
             Route::post('import-excel', [OperatorController::class, 'importExcel']);
             Route::post('create-mahasiswa', [OperatorController::class, 'createMahasiswa']);
         }
@@ -83,4 +82,7 @@ Route::group([
     Route::put('/{model}/update/{id}', [CrudController::class, 'update']);
     Route::delete('/{model}/delete/{id}', [CrudController::class, 'delete']);
 });
+
+Route::get('custom/operator/download-template', [OperatorController::class, 'downloadTemplate']);
+
 

@@ -9,15 +9,21 @@ class Mahasiswa extends Model
 {
     use HasFactory;
     protected $table = 'mahasiswa';
-    public $timestamps = false;
+    public $timestamps = true;
 
     // Schema::create('mahasiswa', function (Blueprint $table) {
     //     $table->bigIncrements('id')->unsigned();
     //     $table->foreignId('user_id')->nullable()->constrained('users');
-    //     $table->foreignId('dosen_wali_id')->nullable()->constrained('dosen_wali');
+    //     $table->foreignId('dosen_wali_id')->constrained('dosen_wali');
     //     $table->string('name')->nullable();
     //     $table->string('phone_number')->nullable();
-    //     $table->string('nim')->nullable();
+    //     $table->string('nim')->unique();
+    //     $table->string('email')->nullable();
+    //     $table->bigInteger('tahun_masuk')->nullable();
+    //     $table->boolean('password_changed')->default(false)->comment('0: Butuh Ganti Password, 1: Password Sudah Diganti');
+    //     $table->string('jalur_masuk')->nullable();
+    //     $table->string('status')->nullable()->default('Aktif')->comment('Aktif, Cuti, Mangkir, DO, Undur Diri, Lulus, dan Meninggal Dunia');
+    //     $table->timestampsTz($precision = 0);
     // });
 
     //Table => Nama tabel
@@ -33,7 +39,11 @@ class Mahasiswa extends Model
         'phone_number',
         'nim',
         'password_changed',
-        'tahun_masuk'
+        'tahun_masuk',
+        'jalur_masuk',
+        'status',
+        'created_at',
+        'updated_at',
     ];
 
     const FIELD_TYPES = [
@@ -50,6 +60,9 @@ class Mahasiswa extends Model
         'name',
         'phone_number',
         'nim',
+        'tahun_masuk',
+        'jalur_masuk',
+        'status',
     ];
 
     const FIELD_SORTABLE = [
@@ -59,7 +72,12 @@ class Mahasiswa extends Model
         'name',
         'phone_number',
         'nim',
-        'tahun_masuk'
+        'password_changed',
+        'tahun_masuk',
+        'jalur_masuk',
+        'status',
+        'created_at',
+        'updated_at',
     ];
 
     //searchable untuk tipe string and text!
@@ -67,17 +85,25 @@ class Mahasiswa extends Model
         'name',
         'phone_number',
         'nim',
+        'tahun_masuk',
+        'jalur_masuk',
+        'status',
     ];
 
     //
     const FIELD_ALIAS = [
         'id' => 'id',
-        'user_id' => 'id user',
-        'dosen_wali_id' => 'id dosen wali',
+        'user_id' => 'Id User',
+        'dosen_wali_id' => 'Id Dosen Wali',
         'name' => 'Nama',
         'phone_number' => 'Nomor Telepon',
         'nim' => 'NIM',
-        'tahun_masuk' => 'Tahun Masuk'
+        'password_changed' => 'Password Changed',
+        'tahun_masuk' => 'Tahun Masuk',
+        'jalur_masuk' => 'Jalur Masuk',
+        'status' => 'Status',
+        'created_at' => 'Created At',
+        'updated_at' => 'Updated At',
     ];
 
     //linktable = > source tablenya
@@ -89,9 +115,9 @@ class Mahasiswa extends Model
             'linkTable' => 'users',
             'aliasTable' => 'A',
             'linkField' => 'id',
-            'displayName' => 'email',
-            'selectFields' => ['email'],
-            'selectValue' => ['email'],
+            'displayName' => 'username',
+            'selectFields' => ['username'],
+            'selectValue' => ['username'],
         ],
         'dosen_wali_id' => [
             'linkTable' => 'dosen_wali',
@@ -105,16 +131,25 @@ class Mahasiswa extends Model
 
     const FIELD_VALIDATION = [
         'user_id' => 'required',
+        'dosen_wali_id' => 'required',
         'name' => 'required',
         'phone_number' => 'nullable',
-        'nim' => 'nullable',
+        'nim' => 'required',
+        'tahun_masuk' => 'nullable',
+        'jalur_masuk' => 'nullable',
+        'status' => 'required',
     ];
 
     const FIELD_DEFAULT_VALUE = [
         'user_id' => '',
+        'dosen_wali_id' => '',
         'name' => '',
         'phone_number' => '',
         'nim' => '',
+        'password_changed' => '',
+        'tahun_masuk' => '',
+        'jalur_masuk' => '',
+        'status' => 'Aktif',
     ];
 
     const FIELD_FILTERABLE = [
@@ -127,14 +162,11 @@ class Mahasiswa extends Model
         "dosen_wali_id" => [
             "operator" => "=",
         ],
-        "name" => [
-            "operator" => "=",
-        ],
         "phone_number" => [
-            "operator" => "=",
+            "operator" => "like",
         ],
         "nim" => [
-            "operator" => "=",
+            "operator" => "like",
         ],
         "password_changed" => [
             "operator" => "=",
@@ -142,14 +174,30 @@ class Mahasiswa extends Model
         "tahun_masuk" => [
             "operator" => "=",
         ],
+        "jalur_masuk" => [
+            "operator" => "=",
+        ],
+        "status" => [
+            "operator" => "=",
+        ],
+        "created_at" => [
+            "operator" => "=",
+        ],
+        "updated_at" => [
+            "operator" => "=",
+        ],
     ];
 
     protected $fillable = [
         'user_id',
+        'dosen_wali_id',
         'name',
         'phone_number',
         'nim',
         'password_changed',
+        'tahun_masuk',
+        'jalur_masuk',
+        'status',
     ];
 
     public static function beforeInsert($input)
