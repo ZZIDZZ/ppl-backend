@@ -303,6 +303,7 @@ class OperatorController extends Controller
             'nama_lengkap' => 'required',
             'tahun_angkatan' => 'required|numeric',
             'email' => 'required|unique:users,email',
+            'dosen_wali_id' => 'required|exists:dosen_wali,id',
         ];
 
         $validator = Validator::make($input, $validation);
@@ -329,6 +330,8 @@ class OperatorController extends Controller
         $mahasiswa->tahun_masuk = $input['tahun_angkatan'];
         $mahasiswa->user_id = $user->id;
         $mahasiswa->status = true;
+        $mahasiswa->dosen_wali_id = $input['dosen_wali_id'];
+        
         $mahasiswa->save();
 
         // send email
