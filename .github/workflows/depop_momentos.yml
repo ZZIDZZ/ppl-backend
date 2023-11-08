@@ -15,7 +15,7 @@ jobs:
           
       - name: Sync
         env:
-          dest: "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/ppl.zzidzz.tech/"
+          dest: "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/ppl.zzidzz.me/"
         run: |
           echo "${{secrets.DEPLOY_KEY}}" > ~/deploy_key
           chmod 600 ~/deploy_key
@@ -31,7 +31,7 @@ jobs:
           key: ${{ secrets.DEPLOY_KEY }}
           port: 22
           script: |
-            cd /home/${{ secrets.SSH_USER }}/ppl.zzidzz.tech
+            cd /home/${{ secrets.SSH_USER }}/ppl.zzidzz.me
             rm composer.lock
             /usr/bin/php8.2 /usr/local/bin/composer install
 
@@ -40,6 +40,6 @@ jobs:
         with:
           # HTTP Health Check for successful deployment testing
           # Check the following URLs one by one sequentially
-          url: http:/ppl.zzidzz.tech
+          url: http:/ppl.zzidzz.me
           max-attempts: 3 # Optional, defaults to 1
           retry-delay: 3s # Optional, only applicable to max-attempts > 1
