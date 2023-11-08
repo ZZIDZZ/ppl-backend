@@ -40,8 +40,8 @@ class AuthController extends Controller
             case "mahasiswa":
                 $table = "mahasiswa";
                 break;
-            case "dosen":
-                $table = "dosen";
+            case "dosen_wali":
+                $table = "dosen_wali";
                 break;
             case "departemen":
                 $table = "departemen";
