@@ -7,6 +7,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class MahasiswaController extends Controller
 {
@@ -51,6 +52,55 @@ class MahasiswaController extends Controller
         $mahasiswa->email = $request->email;
         $mahasiswa->city_id = $request->city_id;
         $mahasiswa->file_profile = $request->file_profile;
+
+        foreach (["file_profile"] as $item) {
+            if((preg_match("/file/i", $item) or preg_match("/img_/i", $item))){
+                if (isset($input[$item])){
+                    if (is_null($input[$item])){
+                        $mahasiswa->{$item} = null;
+                    }
+                    else if ($mahasiswa->{$item} !== $input[$item]) {
+                        $tmpPath = $input[$item] ?? null;
+                        if (!is_null($tmpPath)) {
+                            if (!Storage::exists($tmpPath)) {
+                                return response()->json(["message" => 'file not found at /tmp'], 422);
+                            }
+                            $tmpPath = $input[$item] ?? null;
+        
+                            $originalname = pathinfo(storage_path($tmpPath), PATHINFO_FILENAME);
+                            $ext = pathinfo(storage_path($tmpPath), PATHINFO_EXTENSION);
+        
+                            $newPath = "/". 'mahasiswa' . "/" . $originalname . "." . $ext;
+        
+                            if (Storage::exists($newPath)) {
+                                $id = 1;
+                                $filename = pathinfo(storage_path($newPath), PATHINFO_FILENAME);
+                                $ext = pathinfo(storage_path($newPath), PATHINFO_EXTENSION);
+                                while (true) {
+                                    $originalname = $filename . "($id)." . $ext;
+                                    if (!Storage::exists("/". 'mahasiswa' . "/" . $originalname))
+                                        break;
+                                    $id++;
+                                }
+                                $newPath = "/". 'mahasiswa' . "/" . $originalname;
+                            }
+                            //OLD FILE DELETE
+                            $oldFilePath = $input[$item];
+                            Storage::delete($oldFilePath);
+                            //END MOVE FILE
+                            $input[$item] = $newPath;
+                            Storage::move($tmpPath, $newPath);
+                            //END MOVE FILE
+                        } else {
+                            //OLD FILE DELETE
+                            $oldFilePath = $input[$item];
+                            Storage::delete($oldFilePath);
+                            //END MOVE FILE
+                        }
+                    }
+                }
+            }
+        }
 
 
         $mahasiswa->save();
