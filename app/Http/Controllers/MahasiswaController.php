@@ -45,7 +45,6 @@ class MahasiswaController extends Controller
             'phone_number' => 'nullable|string',
             'email' => 'nullable|string',
             'city_id' => 'nullable|integer',
-            'file_profile' => 'nullable|file|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $mahasiswa->phone_number = $request->phone_number;
