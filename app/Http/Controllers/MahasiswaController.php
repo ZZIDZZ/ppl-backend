@@ -51,7 +51,7 @@ class MahasiswaController extends Controller
         $mahasiswa->phone_number = $request->phone_number;
         $mahasiswa->email = $request->email;
         $mahasiswa->city_id = $request->city_id;
-        $mahasiswa->file_profile = $request->file_profile;
+        // $mahasiswa->file_profile = $request->file_profile;
 
         foreach (["file_profile"] as $item) {
             if((preg_match("/file/i", $item) or preg_match("/img_/i", $item))){
