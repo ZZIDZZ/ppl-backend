@@ -84,6 +84,11 @@ class SemesterAkademik extends Model
 
     public static function beforeInsert($input)
     {
+        // check semester_akademik with same tahun_ajaran and semester has been made before
+        $semester_akademik = SemesterAkademik::where('tahun_ajaran', $input['tahun_ajaran'])->where('semester', $input['semester'])->first();
+        if($semester_akademik){
+            throw new \Exception("Semester Akademik dengan tahun ajaran " . $input['tahun_ajaran'] . " dan semester " . $input['semester'] . " sudah ada");
+        }
         return $input;
     }
 

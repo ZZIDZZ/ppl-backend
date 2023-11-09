@@ -130,7 +130,7 @@ class AuthController extends Controller
                 $table = "users";
                 break;
         }
-        $user = User::select("users.email", "users.role_id", $table . ".*", "roles.role_name", "roles.role_code")
+        $user = User::select("users.username", "users.role_id", $table . ".*", "roles.role_name", "roles.role_code")
             ->leftjoin('roles', 'roles.id', 'users.role_id')
             ->leftjoin($table, $table . ".user_id", "users.id")
             ->where("users.id", $id)->first();

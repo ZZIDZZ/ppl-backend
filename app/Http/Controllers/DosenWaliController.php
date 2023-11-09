@@ -2,12 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DosenWali;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 
 class DosenWaliController extends Controller
 {
+    public function boot(){
+        // check if user role is dosen_wali
+        $role_code = 'dosen_wali';
+        $role_id = Role::where('role_code', $role_code)->first()->id;
+
+        if(auth('api')->user()->role_id != $role_id){
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+    }
+
     protected function is_blank($array, $key)
     {
         return isset($array[$key]) ? (is_null($array[$key]) || $array[$key] === "") : true;
@@ -35,6 +47,9 @@ class DosenWaliController extends Controller
             "status_code" => ["operator" => "=", "type" => "string"],
         ];
         $params = [];
+        $user_id = auth('api')->user()->id;
+        $dosen_wali = DosenWali::where('user_id', $user_id)->first();
+        $dosen_wali_id = $dosen_wali->id;
 
         $sort = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
     
@@ -104,7 +119,6 @@ class DosenWaliController extends Controller
         $sql = "SELECT i.id as id, 
             i.sks_semester as sks_semester,
             i.mahasiswa_id as mahasiswa_id,
-            i.riwayat_status_akademik_id as riwayat_status_akademik_id,
             i.semester_akademik_id as semester_akademik_id,
             i.created_at as created_at, 
             i.updated_at as updated_at,
@@ -118,7 +132,6 @@ class DosenWaliController extends Controller
             FROM irs i 
             LEFT JOIN mahasiswa m ON i.mahasiswa_id = m.id
             LEFT JOIN semester_akademik sa ON i.semester_akademik_id = sa.id
-            LEFT JOIN riwayat_status_akademik rsa ON i.riwayat_status_akademik_id = rsa.id
             WHERE m.dosen_wali_id = 1
             ";
         $data = DB::select("
@@ -197,6 +210,10 @@ class DosenWaliController extends Controller
             "status_code" => ["operator" => "=", "type" => "string"],
         ];
         $params = [];
+        $user_id = auth('api')->user()->id;
+        $dosen_wali = DosenWali::where('user_id', $user_id)->first();
+        $dosen_wali_id = $dosen_wali->id;
+        
 
         $sort = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
     
@@ -266,7 +283,6 @@ class DosenWaliController extends Controller
         $sql = "SELECT k.id as id, 
             k.ip_semester as ip_semester,
             k.mahasiswa_id as mahasiswa_id,
-            k.riwayat_status_akademik_id as riwayat_status_akademik_id,
             k.semester_akademik_id as semester_akademik_id,
             k.created_at as created_at, 
             k.updated_at as updated_at,
@@ -280,7 +296,7 @@ class DosenWaliController extends Controller
             FROM khs k 
             LEFT JOIN mahasiswa m ON k.mahasiswa_id = m.id
             LEFT JOIN semester_akademik sa ON k.semester_akademik_id = sa.id
-            LEFT JOIN riwayat_status_akademik rsa ON k.riwayat_status_akademik_id = rsa.id
+            LEFT JOIN irs i ON i.mahasiswa_id = m.id
             WHERE m.dosen_wali_id = 1
             ";
         $data = DB::select("
@@ -361,6 +377,10 @@ class DosenWaliController extends Controller
             "is_lulus" => ["operator" => "=", "type" => "string"],
         ];
         $params = [];
+        $user_id = auth('api')->user()->id;
+        $dosen_wali = DosenWali::where('user_id', $user_id)->first();
+        $dosen_wali_id = $dosen_wali->id;
+        
 
         $sort = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
     
@@ -430,7 +450,6 @@ class DosenWaliController extends Controller
         $sql = "SELECT p.id as id, 
             p.nilai as nilai,
             p.mahasiswa_id as mahasiswa_id,
-            p.riwayat_status_akademik_id as riwayat_status_akademik_id,
             p.semester_akademik_id as semester_akademik_id,
             p.created_at as created_at, 
             p.updated_at as updated_at,
@@ -446,7 +465,7 @@ class DosenWaliController extends Controller
             FROM pkl p 
             LEFT JOIN mahasiswa m ON p.mahasiswa_id = m.id
             LEFT JOIN semester_akademik sa ON p.semester_akademik_id = sa.id
-            LEFT JOIN riwayat_status_akademik rsa ON p.riwayat_status_akademik_id = rsa.id
+            LEFT JOIN irs i ON i.mahasiswa_id = m.id
             WHERE m.dosen_wali_id = 1
             ";
         $data = DB::select("
@@ -527,6 +546,10 @@ class DosenWaliController extends Controller
             "is_lulus" => ["operator" => "=", "type" => "string"],
         ];
         $params = [];
+        $user_id = auth('api')->user()->id;
+        $dosen_wali = DosenWali::where('user_id', $user_id)->first();
+        $dosen_wali_id = $dosen_wali->id;
+        
 
         $sort = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
     
@@ -596,7 +619,6 @@ class DosenWaliController extends Controller
         $sql = "SELECT s.id as id, 
             s.nilai as nilai,
             s.mahasiswa_id as mahasiswa_id,
-            s.riwayat_status_akademik_id as riwayat_status_akademik_id,
             s.semester_akademik_id as semester_akademik_id,
             s.created_at as created_at, 
             s.updated_at as updated_at,
@@ -612,7 +634,7 @@ class DosenWaliController extends Controller
             FROM skripsi s 
             LEFT JOIN mahasiswa m ON s.mahasiswa_id = m.id
             LEFT JOIN semester_akademik sa ON s.semester_akademik_id = sa.id
-            LEFT JOIN riwayat_status_akademik rsa ON s.riwayat_status_akademik_id = rsa.id
+            LEFT JOIN irs i ON i.mahasiswa_id = m.id
             WHERE m.dosen_wali_id = 1
             ";
         $data = DB::select("

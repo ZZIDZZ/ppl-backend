@@ -7,6 +7,7 @@ use App\Http\Controllers\CrudController;
 use App\Http\Controllers\DosenWaliController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\OperatorController;
+use App\Http\Controllers\RekapController;
 use App\Http\Controllers\UploadController;
 /*
 |--------------------------------------------------------------------------
@@ -60,6 +61,7 @@ Route::group([
             Route::get('khs/list', [DosenWaliController::class, 'listKhsPerwalian']);
             Route::get('pkl/list', [DosenWaliController::class, 'listPklPerwalian']);
             Route::get('skripsi/list', [DosenWaliController::class, 'listSkripsiPerwalian']);
+            Route::get('verifikasi/{akademik}/{id}', [DosenWaliController::class, 'verifikasi']);
 
         }
     );
@@ -67,7 +69,8 @@ Route::group([
     // start custom routes for rekap
     Route::prefix('rekap')->group(
         function () {
-            
+            Route::get('cari-progress-studi', [RekapController::class, 'listIrsPerwalian']);
+
 
         }
     );
