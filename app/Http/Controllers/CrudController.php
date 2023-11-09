@@ -307,7 +307,6 @@ class CrudController extends Controller
                     }
                 }
             }
-            $object = $modelClass::afterUpdate($object, $input);
             return response()->json([
                 "message" => "$model updated",
                 "data" => $object,
@@ -318,6 +317,8 @@ class CrudController extends Controller
                 "error" => $e->getMessage()
             ], 500);
         }
+
+        $object->save();
 
         // START MOVE FILE
         foreach ($fields as $item) {
@@ -371,6 +372,8 @@ class CrudController extends Controller
         // END MOVE FILE
         
         $object->save();
+
+        $object = $modelClass::afterUpdate($object, $input);
 
         foreach ($fields as $item) {
             if ((preg_match("/file/i", $item) or preg_match("/img_/i", $item)) and !is_null($object->$item)) {

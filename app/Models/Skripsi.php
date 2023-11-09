@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Skripsi extends Model
 {
@@ -169,6 +170,16 @@ class Skripsi extends Model
 
     public static function beforeInsert($input)
     {
+        $mahasiswa_id = $input['mahasiswa_id'];
+        $query = "SELECT COALESCE(SUM(i.sks_semester), 0) as total_sks FROM khs k LEFT JOIN irs i ON k.irs_id=i.id WHERE k.mahasiswa_id=:mahasiswa_id";
+        $params = [
+            'mahasiswa_id' => $mahasiswa_id
+        ];
+        $total_sks = DB::select($query, $params)[0]->total_sks;
+        if ($total_sks < 100) {
+            throw new \Exception("Total SKS kurang dari 100, tidak bisa membuat Skripsi");
+        }
+
         $irs_id = $input['irs_id'];
         $semester_akademik_id = Irs::where('id', $irs_id)->first()->semester_akademik_id;
         $input['semester_akademik_id'] = $semester_akademik_id;
