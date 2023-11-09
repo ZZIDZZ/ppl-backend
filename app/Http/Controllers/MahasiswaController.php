@@ -8,6 +8,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Validator;
 
 class MahasiswaController extends Controller
 {
@@ -41,17 +43,28 @@ class MahasiswaController extends Controller
 
         $mahasiswa = Mahasiswa::where('user_id', $user->id)->first();
 
-        // validate request
-        $request->validate([
-            'phone_number' => 'nullable|string',
-            'email' => 'nullable|string',
-            'city_id' => 'nullable|integer',
-        ]);
+        
 
-        $mahasiswa->phone_number = $request->phone_number;
-        $mahasiswa->email = $request->email;
-        $mahasiswa->city_id = $request->city_id;
-        // $mahasiswa->file_profile = $request->file_profile;
+        $input = $request->all();
+        // validate input
+        $validation = [
+            'phone_number' => 'required|string',
+            'email' => 'required|string',
+            'city_id' => 'required|integer',
+            // 'file_profile' => 'required|file|mimes:jpeg,png,jpg|max:2048',
+        ];
+
+        $input = $request->all();
+        $validator = Validator::make($input, $validation);
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()], 422);
+        }
+
+
+        $mahasiswa->phone_number = $input["phone_number"];
+        $mahasiswa->email = $input["email"];
+        $mahasiswa->city_id = $input["city_id"];
+        // $mahasiswa->file_profile = $input["file_profile"];
 
         foreach (["file_profile"] as $item) {
             if ((preg_match("/file/i", $item) or preg_match("/img_/i", $item))){
@@ -116,10 +129,23 @@ class MahasiswaController extends Controller
             ->leftjoin('cities', 'cities.id', 'mahasiswa.city_id')
             ->where("users.id", $user->id)->first();
 
-        $editable = [
-            'name' => true,
-            'phone_number' => true,
-        ];
+        foreach (["file_profile"] as $item) {
+            if ((preg_match("/file/i", $item) or preg_match("/img_/i", $item)) and !is_null($user->$item)) {
+                $url = URL::to('api/file/' . 'mahasiswa' . '/' . $item . '/' . $user->id);
+                $tumbnailUrl = URL::to('api/tumb-file/' . 'mahasiswa' . '/' . $item . '/' . $user->id);
+                $ext = pathinfo($user->$item, PATHINFO_EXTENSION);
+                $filename = pathinfo(storage_path($user->$item), PATHINFO_BASENAME);
+                $user->$item = (object) [
+                    "ext" => (is_null($user->$item)) ? null : $ext,
+                    "url" => $url,
+                    "tumbnail_url" => $tumbnailUrl,
+                    "filename" => (is_null($user->$item)) ? null : $filename,
+                    "field_value" => $user->$item
+                ];
+            }
+        }
+
+        $editable = ["phone_number", "email", "city_id", "file_profile"];
 
         return response()->json([
             'message' => 'success',
