@@ -441,6 +441,9 @@ class CrudController extends Controller
             }
             // dd(preg_match("/file/i", 'file_scan_irs'));
 
+            
+            $object->save();
+            
             foreach ($fields as $item) {
                 if ((preg_match("/file/i", $item) or preg_match("/img_/i", $item))){
                     if(isset($input[$item]) and !is_null($input[$item])){
@@ -477,6 +480,7 @@ class CrudController extends Controller
                     }
                 }
             }
+
             $object->save();
 
             $object = $modelClass::afterInsert($object, $input);
