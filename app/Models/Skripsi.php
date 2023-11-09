@@ -37,7 +37,8 @@ class Skripsi extends Model
         'irs_id',
         'file_skripsi',
         'status_code',
-        'semester_akademik_id'
+        'semester_akademik_id',
+        'is_selesai'
     ];
     const FIELD_TYPES = [
         // 'id',
@@ -55,6 +56,7 @@ class Skripsi extends Model
         'irs_id',
         'file_skripsi',
         'status_code',
+        'is_selesai'
     ];
     const FIELD_SORTABLE = [
         'id',
@@ -65,7 +67,8 @@ class Skripsi extends Model
         'irs_id',
         'file_skripsi',
         'status_code',
-        'semester_akademik_id'
+        'semester_akademik_id',
+        'is_selesai'
     ];
     //searchable untuk tipe string and text!
     const FIELD_SEARCHABLE = [
@@ -116,6 +119,7 @@ class Skripsi extends Model
         'semester_akademik_id' => 'nullable',
         'tanggal_selesai' => 'nullable',
         'is_lulus' => 'nullable',
+        'is_selesai' => 'required'
         
     ];
 
@@ -125,6 +129,7 @@ class Skripsi extends Model
         'status_code' => 'waiting_approval',
         'tanggal_selesai' => null,
         'is_lulus' => null,
+        'is_selesai' => false
     ];
     
     const FIELD_FILTERABLE = [
@@ -155,6 +160,9 @@ class Skripsi extends Model
         "is_lulus" => [
             "operator" => "=",
         ],
+        "is_selesai" => [
+            "operator" => "=",
+        ],
     ];
 
     protected $fillable = [
@@ -166,6 +174,7 @@ class Skripsi extends Model
         'semester_akademik_id',
         'tanggal_selesai',
         'is_lulus',
+        'is_selesai'
     ];
 
     public static function beforeInsert($input)
