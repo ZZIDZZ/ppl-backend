@@ -452,5 +452,17 @@ class OperatorController extends Controller
         $dosen_wali->name = $input['nama_lengkap'];
         $dosen_wali->user_id = $user->id;
         $dosen_wali->save();
+
+        // return login info
+
+        $data = [
+            'username' => $input['nip'],
+            'password' => $password,
+        ];
+
+        return response()->json([
+            'message' => 'Dosen Wali berhasil ditambahkan',
+            'data' => $data,
+        ], 200);
     }
 }

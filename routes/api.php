@@ -63,6 +63,14 @@ Route::group([
 
         }
     );
+
+    // start custom routes for rekap
+    Route::prefix('rekap')->group(
+        function () {
+            
+
+        }
+    );
 });
 
 

@@ -44,6 +44,8 @@ class Mahasiswa extends Model
         'status',
         'created_at',
         'updated_at',
+        'city_id',
+        'file_profile'
     ];
 
     const FIELD_TYPES = [
@@ -63,6 +65,8 @@ class Mahasiswa extends Model
         'tahun_masuk',
         'jalur_masuk',
         'status',
+        'city_id',
+        'file_profile'
     ];
 
     const FIELD_SORTABLE = [
@@ -78,6 +82,8 @@ class Mahasiswa extends Model
         'status',
         'created_at',
         'updated_at',
+        'city_id',
+        'file_profile'
     ];
 
     //searchable untuk tipe string and text!
@@ -104,6 +110,8 @@ class Mahasiswa extends Model
         'status' => 'Status',
         'created_at' => 'Created At',
         'updated_at' => 'Updated At',
+        'city_id' => 'City Id',
+        'file_profile' => 'Foto Profil'
     ];
 
     //linktable = > source tablenya
@@ -127,6 +135,14 @@ class Mahasiswa extends Model
             'selectFields' => ['name'],
             'selectValue' => ['dosen_wali_name'],
         ],
+        'city_id' => [
+            'linkTable' => 'cities',
+            'aliasTable' => 'C',
+            'linkField' => 'id',
+            'displayName' => 'city',
+            'selectFields' => ['name'],
+            'selectValue' => ['city_name'],
+        ],
     ];
 
     const FIELD_VALIDATION = [
@@ -138,6 +154,8 @@ class Mahasiswa extends Model
         'tahun_masuk' => 'nullable',
         'jalur_masuk' => 'nullable',
         'status' => 'required',
+        'city_id' => 'nullable',
+        'file_profile' => 'nullable',
     ];
 
     const FIELD_DEFAULT_VALUE = [
@@ -186,6 +204,12 @@ class Mahasiswa extends Model
         "updated_at" => [
             "operator" => "=",
         ],
+        "city_id" => [
+            "operator" => "=",
+        ],
+        "file_profile" => [
+            "operator" => "=",
+        ],
     ];
 
     protected $fillable = [
@@ -198,6 +222,8 @@ class Mahasiswa extends Model
         'tahun_masuk',
         'jalur_masuk',
         'status',
+        'city_id',
+        'file_profile'
     ];
 
     public static function beforeInsert($input)

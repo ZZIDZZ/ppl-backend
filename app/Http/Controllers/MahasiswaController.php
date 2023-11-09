@@ -42,12 +42,17 @@ class MahasiswaController extends Controller
 
         // validate request
         $request->validate([
-            'name' => 'required|string',
-            'phone_number' => 'required|string',
+            'phone_number' => 'nullable|string',
+            'email' => 'nullable|string',
+            'city_id' => 'nullable|integer',
+            'file_profile' => 'nullable|file|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $mahasiswa->name = $request->name;
         $mahasiswa->phone_number = $request->phone_number;
+        $mahasiswa->email = $request->email;
+        $mahasiswa->city_id = $request->city_id;
+        $mahasiswa->file_profile = $request->file_profile;
+
 
         $mahasiswa->save();
 
@@ -68,9 +73,10 @@ class MahasiswaController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $user = User::select("users.*", 'mahasiswa' . ".*", "roles.*")
+        $user = User::select("users.*", 'mahasiswa' . ".*", "roles.*", "cities.name as city_name")
             ->leftjoin('roles', 'roles.id', 'users.role_id')
             ->leftjoin('mahasiswa', 'mahasiswa' . ".user_id", "users.id")
+            ->leftjoin('cities', 'cities.id', 'mahasiswa.city_id')
             ->where("users.id", $user->id)->first();
 
         $editable = [
