@@ -426,7 +426,7 @@ class OperatorController extends Controller
         $input = $request->all();
 
         $validation = [
-            'nip' => 'required|unique:dosen,nip|unique:users,username',
+            'nip' => 'required|unique:dosen_wali,nip|unique:users,username',
             'nama_lengkap' => 'required',
         ];
 

@@ -42,6 +42,7 @@ Route::group([
         function () {
             Route::post('import-excel', [OperatorController::class, 'importExcel']);
             Route::post('create-mahasiswa', [OperatorController::class, 'createMahasiswa']);
+            Route::post('create-dosen-wali', [OperatorController::class, 'createDosenWali']);
         }
     );
     
