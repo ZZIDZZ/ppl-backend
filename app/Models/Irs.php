@@ -132,6 +132,39 @@ class Irs extends Model
     public static function beforeInsert($input)
     {
         $input['status_code'] = 'waiting_approval';
+
+        // check if semester_akademik is not less than mahasiswa's tahun_masuk, and not more than mahasiswa's tahun_masuk + 6
+        $mahasiswa = Mahasiswa::find($input['mahasiswa_id']);
+        $semester_akademik = SemesterAkademik::find($input['semester_akademik_id']);
+        $tahun_ajaran = $semester_akademik->tahun_ajaran;
+        $semester = $semester_akademik->semester;
+        $tahun_masuk = $mahasiswa->tahun_masuk;
+        $tahun_lulus = $tahun_masuk + 6;
+        if ($tahun_ajaran < $tahun_masuk || $tahun_ajaran > $tahun_lulus) {
+            throw new \Exception("Tahun ajaran tidak valid");
+        }
+
+        // check if mahasiswa has already made irs for this semester
+        $irs = Irs::where('mahasiswa_id', $input['mahasiswa_id'])->where('semester_akademik_id', $input['semester_akademik_id'])->first();
+        if ($irs) {
+            throw new \Exception("IRS untuk semester ini sudah dibuat");
+        }
+
+        // check if the semester and tahun akademik is in order from previous IRS
+        // $semester_akademik = SemesterAkademik::find($input['semester_akademik_id']);
+        // $semester = $semester_akademik->semester;
+        // if($semester == 1){
+        //     $tahun_ajaran = $semester_akademik->tahun_ajaran;
+        //     $tahun_ajaran_sebelumnya = $tahun_ajaran - 1;
+        //     $semester_akademik_sebelumnya = SemesterAkademik::where('tahun_ajaran', $tahun_ajaran_sebelumnya)->where('semester', 2)->first();
+        // } else {
+        //     $tahun_ajaran = $semester_akademik->tahun_ajaran;
+        //     $semester_akademik_sebelumnya = SemesterAkademik::where('tahun_ajaran', $tahun_ajaran)->where('semester', 1)->first();
+        // }
+        // $irs_sebelumnya = Irs::where('mahasiswa_id', $input['mahasiswa_id'])->where('semester_akademik_id', $semester_akademik_sebelumnya->id)->first();
+        // if(!$irs_sebelumnya){
+        //     throw new \Exception("Pembuatan IRS harus urut");
+        // }
         return $input;
     }
 

@@ -70,7 +70,7 @@ Route::group([
     // start custom routes for rekap
     Route::prefix('rekap')->group(
         function () {
-            Route::get('cari-progress-studi', [RekapController::class, 'listIrsPerwalian']);
+            Route::get('list-semester-mahasiswa', [RekapController::class, 'listSemesterMahasiswa']);
 
 
         }
