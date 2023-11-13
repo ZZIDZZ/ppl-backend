@@ -351,6 +351,7 @@ class OperatorController extends Controller
                 'error_count' => $error_count,
                 'errors' => $errors,
                 'data' => $return_data,
+                'url' => null,
             ], 500);
         }
 
