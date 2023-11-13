@@ -264,6 +264,19 @@ class OperatorController extends Controller
                         ];
                     }
 
+                    // log to storage/logs/import-data-mahasiswa.log
+                    Log::channel('import-data-mahasiswa')->info('Import data mahasiswa', [
+                        'nim' => $nim,
+                        'nama_lengkap' => $nama_lengkap,
+                        'tahun_angkatan' => $tahun_angkatan,
+                        'status' => $status,
+                        'nip' => $nip,
+                        'jalur_masuk' => $jalur_masuk,
+                        'dosen_wali_name' => $dosen_wali_name,
+                        'password' => $password,
+                        'username' => $nim,
+                    ]);
+
                 }
             } catch(Exception $e){
                 $error_count++;
