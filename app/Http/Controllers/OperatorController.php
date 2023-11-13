@@ -307,15 +307,22 @@ class OperatorController extends Controller
                 $row++;
             }
             $spreadsheetImport->getActiveSheet()->setTitle("LoginInfo ". Carbon::now()->format('YmdHis'));
-            $fileNameImport = "LoginInfo". Carbon::now()->format('YmdHis') .".csv";
-            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Csv($spreadsheetImport);
+            $fileNameImport = "LoginInfo". Carbon::now()->format('YmdHis') .".xlsx";
+            // $writer = new \PhpOffice\PhpSpreadsheet\Writer\Csv($spreadsheetImport);
+            // create new writer for xlsx
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheetImport);
             // check if exist folder app/excel-imports, if not then create it
             if(!File::isDirectory(storage_path('app/excel-login-info'))){
                 File::makeDirectory(storage_path('app/excel-login-info'), 0755, true, true);
             }
             $writer->save(storage_path('app/excel-login-info/' . $fileNameImport));
+            // $headers = [
+            //     'Content-Type' => 'application/vnd.ms-excel',
+            //     'Content-Disposition' => 'attachment; filename='.$fileNameImport
+            // ];
+            // headers for xlsx
             $headers = [
-                'Content-Type' => 'application/vnd.ms-excel',
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                 'Content-Disposition' => 'attachment; filename='.$fileNameImport
             ];
             // delete file from storage/tmp/$file_path
