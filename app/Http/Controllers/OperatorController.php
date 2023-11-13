@@ -17,6 +17,7 @@ use App\Jobs\SendLoginInfoJob;
 use App\Models\DosenWali;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 
 class OperatorController extends Controller
@@ -321,14 +322,27 @@ class OperatorController extends Controller
             //     'Content-Disposition' => 'attachment; filename='.$fileNameImport
             // ];
             // headers for xlsx
-            $headers = [
-                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'Content-Disposition' => 'attachment; filename='.$fileNameImport
-            ];
+            // $headers = [
+            //     'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            //     'Content-Disposition' => 'attachment; filename='.$fileNameImport
+            // ];
+            // $headers = [
+            //     'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            //     'Content-Disposition' => 'attachment; filename='.$fileName
+            // ];
             // delete file from storage/tmp/$file_path
             Storage::delete($file_path);
+            $url_to_file = URL::to('api/file/excel-login-info/' . $fileNameImport);
+
+            return response()->json([
+                'message' => 'Import data selesai',
+                'success_count' => $success_count,
+                'error_count' => $error_count,
+                'errors' => $errors,
+                'data' => $return_data,
+                'url' => $url_to_file,
+            ], 200);
     
-            return response()->download(storage_path('app/excel-login-info/' . $fileNameImport), $fileNameImport, $headers);
         }
         else{
             return response()->json([
