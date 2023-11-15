@@ -197,8 +197,9 @@ class Pkl extends Model
             'mahasiswa_id' => $mahasiswa_id
         ];
         $total_sks = DB::select($query, $params)[0]->total_sks;
-        if ($total_sks < 100) {
-            throw new \Exception("Total SKS kurang dari 100, tidak bisa membuat PKL");
+        if ($total_sks < 80) {
+            dd($total_sks);
+            throw new \Exception("Total SKS kurang dari 80, tidak bisa membuat PKL");
         }
 
 
