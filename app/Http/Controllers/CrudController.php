@@ -303,7 +303,7 @@ class CrudController extends Controller
         $input = $request->only($fieldInputs);
         $input = $modelClass::beforeUpdate($input);
 
-        if(isset($input['password'])) {
+        if(key_exists('password', $input) && $input['password'] != '') {
             $input['password'] = bcrypt($input['password']);
         }
 
@@ -441,7 +441,7 @@ class CrudController extends Controller
         $input = $modelClass::beforeInsert($input);
 
         // check if contain field password, if yes, encrypt it
-        if(isset($input['password'])) {
+        if(key_exists('password', $input) && $input['password'] != '') {
             $input['password'] = bcrypt($input['password']);
         }
         $object = new $modelClass;
