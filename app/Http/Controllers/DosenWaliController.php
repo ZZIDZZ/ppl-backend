@@ -771,25 +771,25 @@ class DosenWaliController extends Controller
         ];
     }
 
-    public function verifikasi(Request $request, $id, $akademik){
-        $akademik_table = '';
-        if($akademik == 'irs'){
-            $akademik_table = 'irs';
-        }else if ($akademik == 'khs'){
-            $akademik_table = 'khs';
-        }else if ($akademik == 'pkl'){
-            $akademik_table = 'pkl';
-        }else if ($akademik == 'skripsi'){
-            $akademik_table = 'skripsi';
-        }
-        else{
-            return response()->json([
-                'success' => false,
-                'message' => 'akademik tidak ditemukan'
-            ], 400);
-        }
+    // public function verifikasi(Request $request, $id, $akademik){
+    //     $akademik_table = '';
+    //     if($akademik == 'irs'){
+    //         $akademik_table = 'irs';
+    //     }else if ($akademik == 'khs'){
+    //         $akademik_table = 'khs';
+    //     }else if ($akademik == 'pkl'){
+    //         $akademik_table = 'pkl';
+    //     }else if ($akademik == 'skripsi'){
+    //         $akademik_table = 'skripsi';
+    //     }
+    //     else{
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'akademik tidak ditemukan'
+    //         ], 400);
+    //     }
 
-        $akademik_model = 'App\\Models\\' . ucfirst($akademik);
-        $akademik = $akademik_model::where('id', $id)->first();
-    }
+    //     $akademik_model = 'App\\Models\\' . ucfirst($akademik);
+    //     $akademik = $akademik_model::where('id', $id)->first();
+    // }
 }
