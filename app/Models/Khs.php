@@ -48,6 +48,7 @@ class Khs extends Model
         'irs_id',
         'file_scan_khs',
         'status_code',
+        'semester_akademik_id'
     ];
     const FIELD_SORTABLE = [
         'id',
@@ -148,6 +149,8 @@ class Khs extends Model
     public static function beforeInsert($input)
     {
         // check if irs already exist in either khs, pkl, or skripsi, if yes then return error
+        // $semester_akademik_id = Irs::where('id', $input["irs_id"])->first()->semester_akademik_id;
+        // dd($input["irs_id"], $semester_akademik_id);
         if (Khs::where('irs_id', $input['irs_id'])->first()) {
             // throw error
             throw new \Exception("KHS sudah dibuat");

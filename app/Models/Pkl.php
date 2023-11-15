@@ -57,7 +57,8 @@ class Pkl extends Model
         'irs_id',
         'file_pkl',
         'status_code',
-        'is_selesai'
+        'is_selesai',
+        'semester_akademik_id'
     ];
     const FIELD_SORTABLE = [
         'id',
