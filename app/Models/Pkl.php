@@ -181,6 +181,18 @@ class Pkl extends Model
     public static function beforeInsert($input)
     {
         // check from Khs, left join with IRS to get sks_semester, if total sks_semester for all KHS is less than 100, then cannot create new Pkl
+        // check if irs already exist in either khs, pkl, or skripsi, if yes then return error
+        if (Pkl::where('irs_id', $input['irs_id'])->first()) {
+            return response()->json(['message' => 'IRS sudah dipakai'], 422);
+        }
+
+        if (Skripsi::where('irs_id', $input['irs_id'])->first()) {
+            return response()->json(['message' => 'IRS sudah dipakai'], 422);
+        }
+
+        if (Khs::where('irs_id', $input['irs_id'])->first()) {
+            return response()->json(['message' => 'IRS sudah dipakai'], 422);
+        }
 
         $mahasiswa_id = $input['mahasiswa_id'];
         $query = "SELECT COALESCE(SUM(i.sks_semester), 0) as total_sks FROM khs k LEFT JOIN irs i ON k.irs_id=i.id WHERE k.mahasiswa_id=:mahasiswa_id";

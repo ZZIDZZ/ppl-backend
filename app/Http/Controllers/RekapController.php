@@ -8,35 +8,40 @@ use Illuminate\Support\Facades\URL;
 
 class RekapController extends Controller
 {
+
+    protected function is_blank($array, $key)
+    {
+        return isset($array[$key]) ? (is_null($array[$key]) || $array[$key] === "") : true;
+    }
+
+
     public function listSemesterMahasiswa(Request $request){
         // Initialize an empty array to hold the milestone hierarchy data
         $milestone_hierarchy = [];
-        $searchedList = ["nim", "nama", "no_telp", "status_code"];
-        $sortableList = ["id", "sks_semester", "mahasiswa_id", "riwayat_status_akademik_id", "semester_akademik_id", "created_at", "updated_at", "nim", "nama", "tahun_ajaran", "semester", "no_telp", "status_code"];
+        $searchedList = [];
+        $sortableList = ["semester"];
         $filterableList = [
-            "id" => ["operator" => "=", "type" => "string"],
-            "sks_semester" => ["operator" => "=", "type" => "string"],
-            "mahasiswa_id" => ["operator" => "=", "type" => "string"],
-            "riwayat_status_akademik_id" => ["operator" => "=", "type" => "string"],
-            "semester_akademik_id" => ["operator" => "=", "type" => "string"],
-            "created_at" => ["operator" => "=", "type" => "string"],
-            "updated_at" => ["operator" => "=", "type" => "string"],
-            "nim" => ["operator" => "=", "type" => "string"],
-            "nama" => ["operator" => "=", "type" => "string"],
-            "tahun_ajaran" => ["operator" => "=", "type" => "string"],
-            "semester" => ["operator" => "=", "type" => "string"],
-            "no_telp" => ["operator" => "=", "type" => "string"],
-            "status_code" => ["operator" => "=", "type" => "string"],
         ];
         $params = [];
         $user_id = auth('api')->user()->id;
 
-        $sort = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
-    
-        $sortBy = "id";
+        
 
         // get all request params
         $input = $request->all();
+        $mahasiswa_id = $input["mahasiswa_id"] ?? null;
+        if(is_null($mahasiswa_id)){
+            return [
+                "success" => false,
+                "message" => "mahasiswa_id is required"
+            ];
+        }
+
+        $params["mahasiswa_id"] = $mahasiswa_id;
+        $sort = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
+    
+        $sortBy = "semester";
+
 
         if (in_array($input["sort_by"] ?? "", $sortableList)) {
             $sortBy = $input["sort_by"];
@@ -89,14 +94,15 @@ class RekapController extends Controller
         }
 
         
-        $limit = $input["limit"] ?? 10;
+        $limit = $input["limit"] ?? 100;
         $offset = $input["offset"] ?? 0;
         if (!is_null($input["page"] ?? null)) {
             $offset = $limit * ($input["page"] - 1);
         }
         // change reminder_day_config to integer
         // Fetch data from the SQL query
-        $sql = "SELECT semester.semester, 
+        $sql = "SELECT * FROM (
+            SELECT semester.semester, 
             CASE 
             WHEN k.id IS NOT NULL THEN true 
             ELSE false END as is_khs, 
@@ -106,11 +112,17 @@ class RekapController extends Controller
             CASE 
             WHEN s.id IS NOT NULL THEN true 
             ELSE false END as is_skripsi,
-            irs_mahasiswa.*, sa.tahun_ajaran as tahun_ajaran, sa.semester as semester_akademik
+            irs_mahasiswa.id, 
+            irs_mahasiswa.sks_semester as sks_semester, 
+            k.ip_semester as ip_semester,
+            p.nilai as nilai_pkl,
+            s.nilai as nilai_skripsi,
+            sa.tahun_ajaran as tahun_ajaran, 
+            sa.semester as semester_akademik
             FROM generate_series(1, 14) AS semester
             LEFT JOIN 
             (
-                SELECT irs.*, ROW_NUMBER() OVER (ORDER BY id) as irs_number FROM irs WHERE mahasiswa_id=1 ORDER BY id
+                SELECT irs.*, ROW_NUMBER() OVER (ORDER BY id) as irs_number FROM irs WHERE mahasiswa_id=:mahasiswa_id ORDER BY id
             ) irs_mahasiswa 
             ON irs_mahasiswa.irs_number = semester.semester
             LEFT JOIN semester_akademik sa ON sa.id = irs_mahasiswa.semester_akademik_id
@@ -118,7 +130,13 @@ class RekapController extends Controller
             LEFT JOIN pkl p ON p.irs_id = irs_mahasiswa.id
             LEFT JOIN skripsi s ON s.irs_id = irs_mahasiswa.id
             ORDER BY semester.semester
+            ) as dummy
             ";
+        // dd("
+        // SELECT * FROM (
+        //     ". $sql .") as dummy WHERE true ". (count($searchableList) > 0 ? " AND (" . implode(" OR ", $searchableList) . ")"  : "").
+        //     implode("\n", $filterList) .  "  ORDER BY " . $sortBy . " " . $sort . " LIMIT $limit OFFSET $offset 
+        //     ", $params);
         $data = DB::select("
         SELECT * FROM (
             ". $sql .") as dummy WHERE true ". (count($searchableList) > 0 ? " AND (" . implode(" OR ", $searchableList) . ")"  : "").

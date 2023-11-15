@@ -70,7 +70,7 @@ class SemesterAkademik extends Model
             "operator" => "=",
         ],
         "tahun_ajaran" => [
-            "operator" => "=",
+            "operator" => ">=",
         ],
         "semester" => [
             "operator" => "=",

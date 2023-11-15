@@ -1,0 +1,1 @@
+SELECT tahun_masuk, COUNT(id) total_mahasiswa FROM mahasiswa GROUP BY tahun_masuk

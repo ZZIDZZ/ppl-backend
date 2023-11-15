@@ -94,9 +94,21 @@ class CrudController extends Controller
         if (null !== ($request->input('search'))) {
             $searchTerm = $request->input('search');
             $queryFilter = " TRUE OR ";
+            $isRelation = false;
 
             foreach ($searchable as $key => $value) {
-                $searchableList[] = " UPPER($value) ILIKE '%{$searchTerm}%' ";
+                foreach($relations as $relationKey => $relationValue) {
+                    if($key == $relationKey) {
+                        $isRelation = true;
+                        break;
+                    }
+                }
+                if($isRelation) {
+                    $queryFilter .= " $relationValue[aliasTable].$relationValue[displayName] ILIKE '%{$searchTerm}%' OR ";
+                } else{
+                    $queryFilter .= " $tableName.$value ILIKE '%{$searchTerm}%' OR ";
+                }
+                
             }
             
 

@@ -7,6 +7,8 @@ use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class DosenWaliController extends Controller
 {
@@ -23,6 +25,70 @@ class DosenWaliController extends Controller
     protected function is_blank($array, $key)
     {
         return isset($array[$key]) ? (is_null($array[$key]) || $array[$key] === "") : true;
+    }
+
+    public function verifikasi($akademik, $id){
+        $validation = [
+            "akademik" => "required",
+            "id" => "required",
+        ];
+        $validator = Validator::make([
+            "akademik" => $akademik,
+            "id" => $id,
+        ], $validation);
+        if ($validator->fails()) {
+            return [
+                "success" => false,
+                "message" => $validator->errors()->first()
+            ];
+        }
+
+        $upload_field = ["file_scan_irs", "file_scan_khs", "file_pkl", "file_skripsi"];
+        
+        $user_id = auth('api')->user()->id;
+        $akademikList = ["irs", "khs", "pkl", "skripsi"];
+        if(!in_array($akademik, $akademikList)){
+            return [
+                "success" => false,
+                "message" => "akademik is not valid"
+            ];
+        }
+        $akademikClass = "\\App\\Models\\" . Str::ucfirst(Str::camel($akademik));
+        // find akademik if exist
+        $model = $akademikClass::find($id);
+        if(is_null($model)){
+            return [
+                "success" => false,
+                "message" => "akademik is not found"
+            ];
+        }
+        $dosen_wali = DosenWali::where('user_id', $user_id)->first();
+        $dosen_wali_id = $dosen_wali->id;
+
+        $model->status_code = 'approved';
+        $model->save();
+
+        foreach ($upload_field as $item) {
+            if ((preg_match("/file/i", $item) or preg_match("/img_/i", $item)) and !is_null($model->$item)) {
+                $url = URL::to('api/file/' . $akademik . '/' . $item . '/' . $model->id);
+                $tumbnailUrl = URL::to('api/tumb-file/' . $akademik . '/' . $item . '/' . $model->id);
+                $ext = pathinfo($model->$item, PATHINFO_EXTENSION);
+                $filename = pathinfo(storage_path($model->$item), PATHINFO_BASENAME);
+                $model->$item = (object) [
+                    "ext" => (is_null($model->$item)) ? null : $ext,
+                    "url" => $url,
+                    "tumbnail_url" => $tumbnailUrl,
+                    "filename" => (is_null($model->$item)) ? null : $filename,
+                    "field_value" => $model->$item
+                ];
+            }
+        }
+
+        return [
+            "success" => true,
+            "message" => "Berhasil verifikasi",
+            "data" => $model,
+        ];
     }
 
     public function listIrsPerwalian(Request $request)
@@ -134,8 +200,9 @@ class DosenWaliController extends Controller
             FROM irs i 
             LEFT JOIN mahasiswa m ON i.mahasiswa_id = m.id
             LEFT JOIN semester_akademik sa ON i.semester_akademik_id = sa.id
-            WHERE m.dosen_wali_id = 1
+            WHERE m.dosen_wali_id = :dosen_wali_id AND i.status_code='waiting_approval'
             ";
+        $params["dosen_wali_id"] = $dosen_wali_id;
         $data = DB::select("
         SELECT * FROM (
             ". $sql .") as dummy WHERE true ". (count($searchableList) > 0 ? " AND (" . implode(" OR ", $searchableList) . ")"  : "").
@@ -300,9 +367,14 @@ class DosenWaliController extends Controller
             FROM khs k 
             LEFT JOIN mahasiswa m ON k.mahasiswa_id = m.id
             LEFT JOIN semester_akademik sa ON k.semester_akademik_id = sa.id
-            LEFT JOIN irs i ON i.mahasiswa_id = m.id
-            WHERE m.dosen_wali_id = 1
+            WHERE m.dosen_wali_id = :dosen_wali_id AND k.status_code='waiting_approval'
             ";
+        $params["dosen_wali_id"] = $dosen_wali_id;
+        // dd("
+        // SELECT * FROM (
+        //     ". $sql .") as dummy WHERE true ". (count($searchableList) > 0 ? " AND (" . implode(" OR ", $searchableList) . ")"  : "").
+        //     implode("\n", $filterList) .  "  ORDER BY " . $sortBy . " " . $sort . " LIMIT $limit OFFSET $offset 
+        //     ", $params);
         $data = DB::select("
         SELECT * FROM (
             ". $sql .") as dummy WHERE true ". (count($searchableList) > 0 ? " AND (" . implode(" OR ", $searchableList) . ")"  : "").
@@ -471,9 +543,9 @@ class DosenWaliController extends Controller
             FROM pkl p 
             LEFT JOIN mahasiswa m ON p.mahasiswa_id = m.id
             LEFT JOIN semester_akademik sa ON p.semester_akademik_id = sa.id
-            LEFT JOIN irs i ON i.mahasiswa_id = m.id
-            WHERE m.dosen_wali_id = 1
+            WHERE m.dosen_wali_id = :dosen_wali_id AND p.status_code='waiting_approval'
             ";
+        $params["dosen_wali_id"] = $dosen_wali_id;
         $data = DB::select("
         SELECT * FROM (
             ". $sql .") as dummy WHERE true ". (count($searchableList) > 0 ? " AND (" . implode(" OR ", $searchableList) . ")"  : "").
@@ -642,9 +714,9 @@ class DosenWaliController extends Controller
             FROM skripsi s 
             LEFT JOIN mahasiswa m ON s.mahasiswa_id = m.id
             LEFT JOIN semester_akademik sa ON s.semester_akademik_id = sa.id
-            LEFT JOIN irs i ON i.mahasiswa_id = m.id
-            WHERE m.dosen_wali_id = 1
+            WHERE m.dosen_wali_id = :dosen_wali_id AND s.status_code='waiting_approval'
             ";
+        $params["dosen_wali_id"] = $dosen_wali_id;
         $data = DB::select("
         SELECT * FROM (
             ". $sql .") as dummy WHERE true ". (count($searchableList) > 0 ? " AND (" . implode(" OR ", $searchableList) . ")"  : "").

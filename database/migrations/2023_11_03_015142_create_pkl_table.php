@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('pkl', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->float('nilai', 16, 2)->nullable()->default(null)->change();
+            // $table->float('nilai', 16, 2)->nullable()->default(null)->change();
             $table->boolean('is_selesai')->default(false);
             $table->date('tanggal_selesai')->nullable();
             $table->boolean('is_lulus')->nullable();

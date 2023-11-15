@@ -51,6 +51,7 @@ class MahasiswaController extends Controller
             'phone_number' => 'required|string',
             'email' => 'required|string',
             'city_id' => 'required|integer',
+            'password' => 'required|string',
             // 'file_profile' => 'required|file|mimes:jpeg,png,jpg|max:2048',
         ];
 
@@ -59,7 +60,6 @@ class MahasiswaController extends Controller
         if ($validator->fails()) {
             return response()->json(['message' => $validator->errors()], 422);
         }
-
 
         $mahasiswa->phone_number = $input["phone_number"];
         $mahasiswa->email = $input["email"];
@@ -105,6 +105,11 @@ class MahasiswaController extends Controller
 
 
         $mahasiswa->save();
+
+        $user = User::where('id', $user->id)->first();
+        // change password of user
+        $user->password = bcrypt($input["password"]);
+        $user->save();
 
         return response()->json([
             'message' => 'success',

@@ -17,6 +17,7 @@ use App\Jobs\SendLoginInfoJob;
 use App\Models\DosenWali;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 
 class OperatorController extends Controller
@@ -263,6 +264,19 @@ class OperatorController extends Controller
                         ];
                     }
 
+                    // log to storage/logs/import-data-mahasiswa.log
+                    Log::channel('import-data-mahasiswa')->info('Import data mahasiswa', [
+                        'nim' => $nim,
+                        'nama_lengkap' => $nama_lengkap,
+                        'tahun_angkatan' => $tahun_angkatan,
+                        'status' => $status,
+                        'nip' => $nip,
+                        'jalur_masuk' => $jalur_masuk,
+                        'dosen_wali_name' => $dosen_wali_name,
+                        'password' => $password,
+                        'username' => $nim,
+                    ]);
+
                 }
             } catch(Exception $e){
                 $error_count++;
@@ -307,21 +321,41 @@ class OperatorController extends Controller
                 $row++;
             }
             $spreadsheetImport->getActiveSheet()->setTitle("LoginInfo ". Carbon::now()->format('YmdHis'));
-            $fileNameImport = "LoginInfo". Carbon::now()->format('YmdHis') .".csv";
-            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Csv($spreadsheetImport);
+            $fileNameImport = "LoginInfo". Carbon::now()->format('YmdHis') .".xlsx";
+            // $writer = new \PhpOffice\PhpSpreadsheet\Writer\Csv($spreadsheetImport);
+            // create new writer for xlsx
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheetImport);
             // check if exist folder app/excel-imports, if not then create it
             if(!File::isDirectory(storage_path('app/excel-login-info'))){
                 File::makeDirectory(storage_path('app/excel-login-info'), 0755, true, true);
             }
             $writer->save(storage_path('app/excel-login-info/' . $fileNameImport));
-            $headers = [
-                'Content-Type' => 'application/vnd.ms-excel',
-                'Content-Disposition' => 'attachment; filename='.$fileNameImport
-            ];
+            // $headers = [
+            //     'Content-Type' => 'application/vnd.ms-excel',
+            //     'Content-Disposition' => 'attachment; filename='.$fileNameImport
+            // ];
+            // headers for xlsx
+            // $headers = [
+            //     'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            //     'Content-Disposition' => 'attachment; filename='.$fileNameImport
+            // ];
+            // $headers = [
+            //     'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            //     'Content-Disposition' => 'attachment; filename='.$fileName
+            // ];
             // delete file from storage/tmp/$file_path
             Storage::delete($file_path);
+            $url_to_file = URL::to('api/file/excel-login-info/' . $fileNameImport);
+
+            return response()->json([
+                'message' => 'Import data selesai',
+                'success_count' => $success_count,
+                'error_count' => $error_count,
+                'errors' => $errors,
+                'data' => $return_data,
+                'url' => $url_to_file,
+            ], 200);
     
-            return response()->download(storage_path('app/excel-login-info/' . $fileNameImport), $fileNameImport, $headers);
         }
         else{
             return response()->json([
@@ -330,6 +364,7 @@ class OperatorController extends Controller
                 'error_count' => $error_count,
                 'errors' => $errors,
                 'data' => $return_data,
+                'url' => null,
             ], 500);
         }
 
