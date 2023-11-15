@@ -153,6 +153,11 @@ class Khs extends Model
             throw new \Exception("KHS sudah dibuat");
         }
 
+        // check khs between 0.00 - 4.00
+        if ($input['ip_semester'] < 0.00 || $input['ip_semester'] > 4.00) {
+            throw new \Exception("IP Semester harus diantara 0.00 - 4.00");
+        }
+
         $irs_id = $input['irs_id'];
         $semester_akademik_id = Irs::where('id', $irs_id)->first()->semester_akademik_id;
         $input['semester_akademik_id'] = $semester_akademik_id;
