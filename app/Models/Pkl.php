@@ -183,15 +183,12 @@ class Pkl extends Model
         // check from Khs, left join with IRS to get sks_semester, if total sks_semester for all KHS is less than 100, then cannot create new Pkl
         // check if irs already exist in either khs, pkl, or skripsi, if yes then return error
         if (Pkl::where('irs_id', $input['irs_id'])->first()) {
-            return response()->json(['message' => 'IRS sudah dipakai'], 422);
+            // throw error
+            throw new \Exception("IRS sudah dipakai");
         }
-
         if (Skripsi::where('irs_id', $input['irs_id'])->first()) {
-            return response()->json(['message' => 'IRS sudah dipakai'], 422);
-        }
-
-        if (Khs::where('irs_id', $input['irs_id'])->first()) {
-            return response()->json(['message' => 'IRS sudah dipakai'], 422);
+            // throw error
+            throw new \Exception("IRS sudah dipakai");
         }
 
         $mahasiswa_id = $input['mahasiswa_id'];

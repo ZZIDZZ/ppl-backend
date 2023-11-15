@@ -148,18 +148,10 @@ class Khs extends Model
     public static function beforeInsert($input)
     {
         // check if irs already exist in either khs, pkl, or skripsi, if yes then return error
-        if (Pkl::where('irs_id', $input['irs_id'])->first()) {
-            return response()->json(['message' => 'IRS sudah dipakai'], 422);
-        }
-
-        if (Skripsi::where('irs_id', $input['irs_id'])->first()) {
-            return response()->json(['message' => 'IRS sudah dipakai'], 422);
-        }
-
         if (Khs::where('irs_id', $input['irs_id'])->first()) {
-            return response()->json(['message' => 'IRS sudah dipakai'], 422);
+            // throw error
+            throw new \Exception("KHS sudah dibuat");
         }
-
 
         $irs_id = $input['irs_id'];
         $semester_akademik_id = Irs::where('id', $irs_id)->first()->semester_akademik_id;
