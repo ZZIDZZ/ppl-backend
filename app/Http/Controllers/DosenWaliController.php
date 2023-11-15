@@ -50,6 +50,8 @@ class DosenWaliController extends Controller
         $user_id = auth('api')->user()->id;
         $dosen_wali = DosenWali::where('user_id', $user_id)->first();
         $dosen_wali_id = $dosen_wali->id;
+        $input = $request->all();
+
 
         $sort = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
     
@@ -213,6 +215,8 @@ class DosenWaliController extends Controller
         $user_id = auth('api')->user()->id;
         $dosen_wali = DosenWali::where('user_id', $user_id)->first();
         $dosen_wali_id = $dosen_wali->id;
+
+        $input = $request->all();
         
 
         $sort = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
@@ -380,6 +384,8 @@ class DosenWaliController extends Controller
         $user_id = auth('api')->user()->id;
         $dosen_wali = DosenWali::where('user_id', $user_id)->first();
         $dosen_wali_id = $dosen_wali->id;
+        $input = $request->all();
+
         
 
         $sort = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
@@ -549,6 +555,8 @@ class DosenWaliController extends Controller
         $user_id = auth('api')->user()->id;
         $dosen_wali = DosenWali::where('user_id', $user_id)->first();
         $dosen_wali_id = $dosen_wali->id;
+        $input = $request->all();
+
         
 
         $sort = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
@@ -689,5 +697,27 @@ class DosenWaliController extends Controller
             "totalPage" => $totalPage,
             "model" => $modelInfo
         ];
+    }
+
+    public function verifikasi(Request $request, $id, $akademik){
+        $akademik_table = '';
+        if($akademik == 'irs'){
+            $akademik_table = 'irs';
+        }else if ($akademik == 'khs'){
+            $akademik_table = 'khs';
+        }else if ($akademik == 'pkl'){
+            $akademik_table = 'pkl';
+        }else if ($akademik == 'skripsi'){
+            $akademik_table = 'skripsi';
+        }
+        else{
+            return response()->json([
+                'success' => false,
+                'message' => 'akademik tidak ditemukan'
+            ], 400);
+        }
+
+        $akademik_model = 'App\\Models\\' . ucfirst($akademik);
+        $akademik = $akademik_model::where('id', $id)->first();
     }
 }
