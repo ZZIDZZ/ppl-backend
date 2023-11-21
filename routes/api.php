@@ -87,6 +87,8 @@ Route::group([
     Route::prefix('rekap')->group(
         function () {
             Route::get('list-semester-mahasiswa', [RekapController::class, 'listSemesterMahasiswa']);
+            Route::get('rekap-pkl-angkatan', [RekapController::class, 'rekapPklAngkatan']);
+            Route::get('list-pkl-angkatan', [RekapController::class, 'listPklAngkatan']);
         }
     );
 });
