@@ -57,7 +57,8 @@ class Pkl extends Model
         'irs_id',
         'file_pkl',
         'status_code',
-        'is_selesai'
+        'is_selesai',
+        'semester_akademik_id'
     ];
     const FIELD_SORTABLE = [
         'id',
@@ -183,15 +184,12 @@ class Pkl extends Model
         // check from Khs, left join with IRS to get sks_semester, if total sks_semester for all KHS is less than 100, then cannot create new Pkl
         // check if irs already exist in either khs, pkl, or skripsi, if yes then return error
         if (Pkl::where('irs_id', $input['irs_id'])->first()) {
-            return response()->json(['message' => 'IRS sudah dipakai'], 422);
+            // throw error
+            throw new \Exception("IRS sudah dipakai");
         }
-
         if (Skripsi::where('irs_id', $input['irs_id'])->first()) {
-            return response()->json(['message' => 'IRS sudah dipakai'], 422);
-        }
-
-        if (Khs::where('irs_id', $input['irs_id'])->first()) {
-            return response()->json(['message' => 'IRS sudah dipakai'], 422);
+            // throw error
+            throw new \Exception("IRS sudah dipakai");
         }
 
         $mahasiswa_id = $input['mahasiswa_id'];
@@ -200,8 +198,9 @@ class Pkl extends Model
             'mahasiswa_id' => $mahasiswa_id
         ];
         $total_sks = DB::select($query, $params)[0]->total_sks;
-        if ($total_sks < 100) {
-            throw new \Exception("Total SKS kurang dari 100, tidak bisa membuat PKL");
+        if ($total_sks < 80) {
+            dd($total_sks);
+            throw new \Exception("Total SKS kurang dari 80, tidak bisa membuat PKL");
         }
 
 

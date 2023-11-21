@@ -94,21 +94,9 @@ class CrudController extends Controller
         if (null !== ($request->input('search'))) {
             $searchTerm = $request->input('search');
             $queryFilter = " TRUE OR ";
-            $isRelation = false;
 
             foreach ($searchable as $key => $value) {
-                foreach($relations as $relationKey => $relationValue) {
-                    if($key == $relationKey) {
-                        $isRelation = true;
-                        break;
-                    }
-                }
-                if($isRelation) {
-                    $queryFilter .= " $relationValue[aliasTable].$relationValue[displayName] ILIKE '%{$searchTerm}%' OR ";
-                } else{
-                    $queryFilter .= " $tableName.$value ILIKE '%{$searchTerm}%' OR ";
-                }
-                
+                $searchableList[] = " UPPER($value) ILIKE '%{$searchTerm}%' ";
             }
             
 
@@ -300,12 +288,12 @@ class CrudController extends Controller
             return response()->json(["message" => $validator->errors()->first()], 422);
         }
 
-        $input = $request->only($fieldInputs);
+        $input = $request->all();
         $input = $modelClass::beforeUpdate($input);
 
-        if(isset($input['password'])) {
-            $input['password'] = bcrypt($input['password']);
-        }
+        // if(isset($input['password'])) {
+        //     $input['password'] = bcrypt($input['password']);
+        // }
 
 
         try{
@@ -437,13 +425,13 @@ class CrudController extends Controller
             return response()->json(["message" => $validator->errors()->first()], 422);
         }
 
-        $input = $request->only($fieldInputs);
+        $input = $request->all();
         $input = $modelClass::beforeInsert($input);
 
         // check if contain field password, if yes, encrypt it
-        if(isset($input['password'])) {
-            $input['password'] = bcrypt($input['password']);
-        }
+        // if(isset($input['password'])) {
+        //     $input['password'] = bcrypt($input['password']);
+        // }
         $object = new $modelClass;
 
         

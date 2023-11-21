@@ -56,7 +56,8 @@ class Skripsi extends Model
         'irs_id',
         'file_skripsi',
         'status_code',
-        'is_selesai'
+        'is_selesai',
+        'semester_akademik_id'
     ];
     const FIELD_SORTABLE = [
         'id',
@@ -181,15 +182,12 @@ class Skripsi extends Model
     {
         // check if irs already exist in either khs, pkl, or skripsi, if yes then return error
         if (Pkl::where('irs_id', $input['irs_id'])->first()) {
-            return response()->json(['message' => 'IRS sudah dipakai'], 422);
+            // throw error
+            throw new \Exception("IRS sudah dipakai");
         }
-
         if (Skripsi::where('irs_id', $input['irs_id'])->first()) {
-            return response()->json(['message' => 'IRS sudah dipakai'], 422);
-        }
-
-        if (Khs::where('irs_id', $input['irs_id'])->first()) {
-            return response()->json(['message' => 'IRS sudah dipakai'], 422);
+            // throw error
+            throw new \Exception("IRS sudah dipakai");
         }
         $mahasiswa_id = $input['mahasiswa_id'];
         $query = "SELECT COALESCE(SUM(i.sks_semester), 0) as total_sks FROM khs k LEFT JOIN irs i ON k.irs_id=i.id WHERE k.mahasiswa_id=:mahasiswa_id";
