@@ -89,6 +89,8 @@ Route::group([
             Route::get('list-semester-mahasiswa', [RekapController::class, 'listSemesterMahasiswa']);
             Route::get('rekap-pkl-angkatan', [RekapController::class, 'rekapPklAngkatan']);
             Route::get('list-pkl-angkatan', [RekapController::class, 'listPklAngkatan']);
+            Route::get('rekap-skripsi-angkatan', [RekapController::class, 'rekapSkripsiAngkatan']);
+            Route::get('list-skripsi-angkatan', [RekapController::class, 'listSkripsiAngkatan']);
         }
     );
 });

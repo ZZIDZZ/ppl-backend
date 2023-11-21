@@ -72,11 +72,13 @@ class RekapController extends Controller
             $lulus_data["belum_lulus"] = $value->belum_lulus;
             $status_lulus_data[] = $lulus_data;
         }
-
-        return [
-            "success" => true,
+        $data = [
             "tahun_masuk" => $tahun_masuk_data,
             "status_lulus" => $status_lulus_data
+        ];
+        return [
+            "success" => true,
+            "data" => $data
         ];
     }
 
@@ -152,6 +154,156 @@ class RekapController extends Controller
         WHERE
         ". $dosen_wali_where ."
             m.tahun_masuk = :tahun_angkatan AND COALESCE(p.is_lulus, false) = :is_lulus
+        ", [
+            "tahun_angkatan" => $tahun_angkatan,
+            "is_lulus" => $is_lulus
+        ]);
+        
+        return [
+            "success" => true,
+            "data" => $query
+        ];
+    }
+
+    public function rekapSkripsiAngkatan(Request $request){
+        $input = $request->all();
+        // check if current user is dosen wali
+        $dosen_wali_id = null;
+        $user_id = auth('api')->user()->id;
+        $dosen_wali = DB::selectOne("
+            SELECT 
+                dw.id,
+                dw.user_id,
+                dw.name,
+                dw.phone_number,
+                dw.nip
+            FROM dosen_wali dw
+            WHERE dw.user_id = :user_id
+        ", [
+            "user_id" => $user_id
+        ]);
+        if(!is_null($dosen_wali)){
+            $dosen_wali_id = $dosen_wali->id;
+        }
+        // dd($dosen_wali_id, $dosen_wali_id != null);
+        $dosen_wali_where = $dosen_wali_id != null ? " WHERE m.dosen_wali_id = $dosen_wali_id " : " ";
+
+        $query = DB::select("
+        SELECT 
+            t.tahun_masuk,
+            COALESCE(r.sudah_lulus, 0) AS sudah_lulus,
+            COALESCE(r.belum_lulus, 0) AS belum_lulus
+        FROM 
+            (SELECT DISTINCT tahun_masuk FROM mahasiswa ORDER BY tahun_masuk DESC LIMIT 7) t
+        LEFT JOIN (
+            SELECT 
+                m.tahun_masuk,
+                SUM(CASE WHEN COALESCE(s.is_lulus, false) = true THEN 1 ELSE 0 END) AS sudah_lulus,
+                SUM(CASE WHEN COALESCE(s.is_lulus, false) = false AND s.id IS NULL THEN 1 ELSE 0 END) AS belum_lulus
+            FROM 
+                mahasiswa m
+            LEFT JOIN 
+                skripsi s ON s.mahasiswa_id = m.id
+            ". $dosen_wali_where ."
+            GROUP BY 
+                m.tahun_masuk, s.is_lulus
+        ) r ON t.tahun_masuk = r.tahun_masuk
+        ORDER BY 
+            t.tahun_masuk DESC
+        ");
+
+        $tahun_masuk_data = [];
+        $status_lulus_data = [];
+
+        foreach($query as $key => $value){
+            $tahun_masuk_data[] = $value->tahun_masuk;
+            $lulus_data = [];
+            $lulus_data["sudah_lulus"] = $value->sudah_lulus;
+            $lulus_data["belum_lulus"] = $value->belum_lulus;
+            $status_lulus_data[] = $lulus_data;
+        }
+        $data = [
+            "tahun_masuk" => $tahun_masuk_data,
+            "status_lulus" => $status_lulus_data
+        ];
+        return [
+            "success" => true,
+            "data" => $data
+        ];
+    }
+
+    public function listSkripsiAngkatan(Request $request){
+        // inputs: tahun_angkatan, is_lulus
+        $input = $request->all();
+        
+        // validate input
+        $tahun_angkatan = $input["tahun_angkatan"] ?? null;
+        $is_lulus = $input["is_lulus"] ?? null;
+
+        $validation = [
+            "tahun_angkatan" => "required",
+            "is_lulus" => "required",
+            "dosen_wali_id" => "nullable"
+        ];
+
+        $validator = Validator::make($input, $validation);
+        if ($validator->fails()) {
+            return [
+                "success" => false,
+                "message" => $validator->errors()->first()
+            ];
+        }
+        $dosen_wali_id = null;
+        $user_id = auth('api')->user()->id;
+        $dosen_wali = DB::selectOne("
+            SELECT 
+                dw.id,
+                dw.user_id,
+                dw.name,
+                dw.phone_number,
+                dw.nip
+            FROM dosen_wali dw
+            WHERE dw.user_id = :user_id
+        ", [
+            "user_id" => $user_id
+        ]);
+        if(!is_null($dosen_wali)){
+            $dosen_wali_id = $dosen_wali->id;
+        }
+
+        $dosen_wali_where = $dosen_wali_id != null ? " m.dosen_wali_id = $dosen_wali_id AND " : " ";
+
+        $params = [];
+
+        $query = DB::select("
+        SELECT 
+            m.id,
+            m.name,
+            m.nim,
+            m.tahun_masuk,
+            m.jalur_masuk,
+            m.status,
+            m.created_at,
+            m.updated_at,
+            m.city_id,
+            m.file_profile,
+            s.id as skripsi_id,
+            s.nilai,
+            s.mahasiswa_id,
+            s.irs_id,
+            s.file_skripsi,
+            s.status_code,
+            s.semester_akademik_id,
+            s.tanggal_selesai,
+            s.is_lulus,
+            s.is_selesai
+        FROM
+            mahasiswa m
+        LEFT JOIN
+            skripsi s ON s.mahasiswa_id = m.id
+        WHERE
+        ". $dosen_wali_where ."
+            m.tahun_masuk = :tahun_angkatan AND COALESCE(s.is_lulus, false) = :is_lulus
         ", [
             "tahun_angkatan" => $tahun_angkatan,
             "is_lulus" => $is_lulus
