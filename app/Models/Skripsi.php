@@ -221,6 +221,12 @@ class Skripsi extends Model
     
     public static function afterUpdate($object, $input)
     {
+        // check if skripsi is lulus and is selesai, if yes then update mahasiswa status to lulus
+        // if ($input['is_lulus'] == true && $input['is_selesai'] == true) {
+        //     $mahasiswa = Mahasiswa::where('id', $input['mahasiswa_id'])->first();
+        //     $mahasiswa->status = 'Lulus';
+        //     $mahasiswa->save();
+        // }
         return $object;
     }
     

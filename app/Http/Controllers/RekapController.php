@@ -25,8 +25,6 @@ class RekapController extends Controller
         $params = [];
         $user_id = auth('api')->user()->id;
 
-        
-
         // get all request params
         $input = $request->all();
         $mahasiswa_id = $input["mahasiswa_id"] ?? null;

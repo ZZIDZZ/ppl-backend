@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\DosenWali;
+use App\Models\Mahasiswa;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -27,7 +30,101 @@ class DosenWaliController extends Controller
         return isset($array[$key]) ? (is_null($array[$key]) || $array[$key] === "") : true;
     }
 
+    public function dashboard(){
+        $total_mengikuti_skripsi = 0;
+        $total_lulus_skripsi = 0;
+        $total_mahasiswa_lulus = 0;
+        $user_id = auth('api')->user()->id;
+        $dosen_wali_id = DosenWali::where('user_id', $user_id)->first()->id;
+
+        $params = ["dosen_wali_id" => $dosen_wali_id];
+
+        $total_mahasiswa_aktif = DB::selectOne("
+            SELECT
+            COALESCE(COUNT(m.id), 0) as total
+            FROM mahasiswa m WHERE m.status = 'Aktif' AND m.dosen_wali_id = :dosen_wali_id
+        ", $params)->total;
+
+        $total_mengikuti_skripsi = DB::selectOne("
+            SELECT
+            COUNT(m.id) as total
+            FROM skripsi s LEFT JOIN mahasiswa m ON m.id = s.mahasiswa_id
+            WHERE s.is_selesai = false AND m.dosen_wali_id = :dosen_wali_id
+        ", $params)->total;
+
+        $total_lulus_skripsi = DB::selectOne("
+            SELECT 
+            COUNT(m.id) as total
+            FROM skripsi s LEFT JOIN mahasiswa m ON m.id = s.mahasiswa_id
+            WHERE s.is_selesai = true AND s.is_lulus = true AND m.dosen_wali_id = :dosen_wali_id
+        ", $params)->total;
+
+        $range_ipk_mahasiswa = DB::select("
+        WITH rentang_ipk AS (
+            SELECT
+                '0.0-0.5' AS ipk_range
+            UNION SELECT '0.5-1.0'
+            UNION SELECT '1.0-1.5'
+            UNION SELECT '1.5-2.0'
+            UNION SELECT '2.0-2.5'
+            UNION SELECT '2.5-3.0'
+            UNION SELECT '3.0-3.5'
+            UNION SELECT '3.5-4.0'
+        )
+        SELECT
+            ri.ipk_range,
+            COALESCE(COUNT(outer_query.ipk_range), 0) as jumlah_mahasiswa
+        FROM
+            rentang_ipk ri
+        LEFT JOIN (
+            SELECT
+                CASE 
+                    WHEN ipk >= 0.0 AND ipk < 0.5 THEN '0.0-0.5'
+                    WHEN ipk >= 0.5 AND ipk < 1.0 THEN '0.5-1.0'
+                    WHEN ipk >= 1.0 AND ipk < 1.5 THEN '1.0-1.5'
+                    WHEN ipk >= 1.5 AND ipk < 2.0 THEN '1.5-2.0'
+                    WHEN ipk >= 2.0 AND ipk < 2.5 THEN '2.0-2.5'
+                    WHEN ipk >= 2.5 AND ipk < 3.0 THEN '2.5-3.0'
+                    WHEN ipk >= 3.0 AND ipk < 3.5 THEN '3.0-3.5'
+                    WHEN ipk >= 3.5 AND ipk <= 4.0 THEN '3.5-4.0'
+                END as ipk_range
+            FROM (
+                SELECT
+                    m.id as id,
+                    m.tahun_masuk as angkatan,
+                    SUM(k.ip_semester*i.sks_semester) / SUM(i.sks_semester) as ipk
+                FROM 
+                    irs i 
+                    LEFT JOIN mahasiswa m ON i.mahasiswa_id = m.id 
+                    LEFT JOIN khs k ON k.irs_id = i.id  
+                WHERE 
+                    i.status_code = 'approved' AND k.status_code = 'approved' AND m.dosen_wali_id = :dosen_wali_id
+                GROUP BY 
+                    m.id, m.tahun_masuk
+            ) as inner_query
+        ) as outer_query ON ri.ipk_range = outer_query.ipk_range
+        GROUP BY 
+            ri.ipk_range
+        ORDER BY 
+            ri.ipk_range;
+            ", $params);
+
+        $return_data = [
+            'total_mahasiswa_aktif' => $total_mahasiswa_aktif,
+            'total_mengikuti_skripsi' => $total_mengikuti_skripsi,
+            'total_lulus_skripsi' => $total_lulus_skripsi,
+            'total_mahasiswa_lulus' => $total_mahasiswa_lulus,
+            'range_ipk_mahasiswa' => $range_ipk_mahasiswa
+        ];
+        return response()->json([
+            'message' => 'success',
+            'data' => $return_data
+        ], 200);
+    }
+    
+
     public function verifikasi($akademik, $id){
+        $this->boot();
         $validation = [
             "akademik" => "required",
             "id" => "required",
@@ -83,6 +180,12 @@ class DosenWaliController extends Controller
                 ];
             }
         }
+        // if skripsi, and is_lulus is true, then update mahasiswa status to lulus
+        if($akademik == 'skripsi' && $model->is_lulus == true){
+            $mahasiswa = Mahasiswa::find($model->mahasiswa_id);
+            $mahasiswa->status = 'Lulus';
+            $mahasiswa->save();
+        }
 
         return [
             "success" => true,
@@ -91,8 +194,84 @@ class DosenWaliController extends Controller
         ];
     }
 
+    public function editProfile(Request $request){
+        // check if user role is dosen_wali
+        $role_code = 'dosen_wali';
+        $role_id = Role::where('role_code', $role_code)->first()->id;
+        $user = auth('api')->user();
+        if($user->role_id != $role_id){
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        if($user->role_id != $role_id){
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $dosen_wali = DosenWali::where('user_id', $user->id)->first();
+
+        $input = $request->all();
+
+        $validation = [
+            'phone_number' => 'nullable|string',
+            'email' => 'nullable|string',
+        ];
+
+        $input = $request->all();
+        $validator = Validator::make($input, $validation);
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()], 422);
+        }
+
+        $dosen_wali->phone_number = $input["phone_number"];
+        $dosen_wali->email = $input["email"];
+
+
+
+        $dosen_wali->save();
+
+        $user = User::where('id', $user->id)->first();
+        // change password of user
+        $user->save();
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $dosen_wali
+        ], 200);
+    }
+
+    public function showProfile(){
+        // check if user role is dosen_wali
+        $user = auth('api')->user();
+        // check if user role is dosen_wali
+        $role_code = 'dosen_wali';
+        $role_id = Role::where('role_code', $role_code)->first()->id;
+
+        if($user->role_id != $role_id){
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $user = User::select("users.*", 'dosen_wali' . ".*", "roles.*")
+            ->leftjoin('roles', 'roles.id', 'users.role_id')
+            ->leftjoin('dosen_wali', 'dosen_wali' . ".user_id", "users.id")
+            ->where("users.id", $user->id)->first();
+
+        $editable = ["phone_number", "email"];
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $user,
+            'editable' => $editable
+        ], 200);
+    }
+
     public function listIrsPerwalian(Request $request)
     {
+        $role_code = 'dosen_wali';
+        $role_id = Role::where('role_code', $role_code)->first()->id;
+        $user = auth('api')->user();
+        if($user->role_id != $role_id){
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
         // Initialize an empty array to hold the milestone hierarchy data
         $milestone_hierarchy = [];
         $searchedList = ["nim", "nama", "no_telp", "status_code"];
@@ -257,6 +436,12 @@ class DosenWaliController extends Controller
 
     public function listKhsPerwalian(Request $request)
     {
+        $role_code = 'dosen_wali';
+        $role_id = Role::where('role_code', $role_code)->first()->id;
+        $user = auth('api')->user();
+        if($user->role_id != $role_id){
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
         // Initialize an empty array to hold the milestone hierarchy data
         $milestone_hierarchy = [];
         $searchedList = ["nim", "nama", "no_telp", "status_code"];
@@ -366,6 +551,7 @@ class DosenWaliController extends Controller
             WHERE m.dosen_wali_id = :dosen_wali_id AND k.status_code='waiting_approval'
             ";
         $params["dosen_wali_id"] = $dosen_wali_id;
+
         // dd("
         // SELECT * FROM (
         //     ". $sql .") as dummy WHERE true ". (count($searchableList) > 0 ? " AND (" . implode(" OR ", $searchableList) . ")"  : "").
@@ -427,6 +613,12 @@ class DosenWaliController extends Controller
 
     public function listPklPerwalian(Request $request)
     {
+        $role_code = 'dosen_wali';
+        $role_id = Role::where('role_code', $role_code)->first()->id;
+        $user = auth('api')->user();
+        if($user->role_id != $role_id){
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
         // Initialize an empty array to hold the milestone hierarchy data
         $milestone_hierarchy = [];
         $searchedList = ["nim", "nama", "no_telp", "status_code"];
@@ -596,6 +788,12 @@ class DosenWaliController extends Controller
 
     public function listSkripsiPerwalian(Request $request)
     {
+        $role_code = 'dosen_wali';
+        $role_id = Role::where('role_code', $role_code)->first()->id;
+        $user = auth('api')->user();
+        if($user->role_id != $role_id){
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
         // Initialize an empty array to hold the milestone hierarchy data
         $milestone_hierarchy = [];
         $searchedList = ["nim", "nama", "no_telp", "status_code"];

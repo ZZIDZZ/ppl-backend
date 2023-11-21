@@ -9,6 +9,7 @@ use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\OperatorController;
 use App\Http\Controllers\RekapController;
 use App\Http\Controllers\UploadController;
+use App\Http\Controllers\DepartemenController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -43,6 +44,9 @@ Route::group([
             Route::post('import-excel', [OperatorController::class, 'importExcel']);
             Route::post('create-mahasiswa', [OperatorController::class, 'createMahasiswa']);
             Route::post('create-dosen-wali', [OperatorController::class, 'createDosenWali']);
+            Route::post('edit-profile', [OperatorController::class, 'editProfile']);
+            Route::get('show-profile', [OperatorController::class, 'showProfile']);
+            Route::get('dashboard', [OperatorController::class, 'dashboard']);
         }
     );
     
@@ -52,6 +56,7 @@ Route::group([
             Route::post('edit-profile', [MahasiswaController::class, 'editProfile']);
             Route::get('show-profile', [MahasiswaController::class, 'showProfile']);
             Route::post('change-password', [MahasiswaController::class, 'changePassword']);
+            Route::get('dashboard', [MahasiswaController::class, 'dashboard']);
         }
     );
 
@@ -63,7 +68,18 @@ Route::group([
             Route::get('pkl/list', [DosenWaliController::class, 'listPklPerwalian']);
             Route::get('skripsi/list', [DosenWaliController::class, 'listSkripsiPerwalian']);
             Route::get('verifikasi/{akademik}/{id}', [DosenWaliController::class, 'verifikasi']);
+            Route::post('edit-profile', [DosenWaliController::class, 'editProfile']);
+            Route::get('show-profile', [DosenWaliController::class, 'showProfile']);
+            Route::get('dashboard', [DosenWaliController::class, 'dashboard']);
+        }
+    );
 
+    // start custom routes for departemen
+    Route::prefix('departemen')->group(
+        function () {
+            Route::post('edit-profile', [DepartemenController::class, 'editProfile']);
+            Route::get('show-profile', [DepartemenController::class, 'showProfile']);
+            Route::get('dashboard', [DepartemenController::class, 'dashboard']);
         }
     );
 
@@ -71,8 +87,6 @@ Route::group([
     Route::prefix('rekap')->group(
         function () {
             Route::get('list-semester-mahasiswa', [RekapController::class, 'listSemesterMahasiswa']);
-
-
         }
     );
 });
