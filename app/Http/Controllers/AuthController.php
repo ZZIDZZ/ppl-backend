@@ -53,10 +53,10 @@ class AuthController extends Controller
                 $table = "users";
                 break;
         }
-        $user = User::select("users.*", $table . ".*", "roles.*")
+        $user = User::select("users.username", "users.role_id", $table . ".*", "roles.role_name", "roles.role_code")
             ->leftjoin('roles', 'roles.id', 'users.role_id')
             ->leftjoin($table, $table . ".user_id", "users.id")
-            ->where("username", $credentials["username"])->first();
+            ->where("users.username", $credentials["username"])->first();
         // empty password
         $user->password = "";
 
