@@ -20,8 +20,6 @@ return new class extends Migration
             $table->date('tanggal_selesai')->nullable();
             $table->boolean('is_lulus')->nullable();
             $table->foreignId('mahasiswa_id')->constrained('mahasiswa');
-            $table->foreignId('irs_id')->nullable()->constrained('irs');
-            $table->foreignId('semester_akademik_id')->nullable()->constrained('semester_akademik');
             $table->text('file_skripsi')->nullable();
             $table->string('status_code')->default('waiting_approval')->comment('waiting_approval, approved');
             $table->timestampsTz($precision = 0);

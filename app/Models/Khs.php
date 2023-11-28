@@ -29,10 +29,8 @@ class Khs extends Model
         'id',
         'ip_semester',
         'mahasiswa_id',
-        'irs_id',
         'file_scan_khs',
         'status_code',
-        'semester_akademik_id'
     ];
     const FIELD_TYPES = [
         // 'id',
@@ -45,19 +43,15 @@ class Khs extends Model
     const FIELD_INPUT = [
         'ip_semester',
         'mahasiswa_id',
-        'irs_id',
         'file_scan_khs',
         'status_code',
-        'semester_akademik_id'
     ];
     const FIELD_SORTABLE = [
         'id',
         'ip_semester',
         'mahasiswa_id',
-        'irs_id',
         'file_scan_khs',
         'status_code',
-        'semester_akademik_id'
     ];
     //searchable untuk tipe string and text!
     const FIELD_SEARCHABLE = [
@@ -68,10 +62,8 @@ class Khs extends Model
         'id' => 'id',
         'ip_semester' => 'ip semester',
         'mahasiswa_id' => 'id mahasiswa',
-        'irs_id' => 'id IRS',
         'file_scan_khs' => 'file scan khs',
         'status_code' => 'kode status',
-        'semester_akademik_id' => 'id semester akademik'
     ];
     const FIELD_RELATIONS = [
         'mahasiswa_id' => [
@@ -82,31 +74,13 @@ class Khs extends Model
             'selectFields' => ['name', 'nim', 'tahun_masuk', 'jalur_masuk', 'status', 'dosen_wali_id'],
             'selectValue' => ['name', 'nim', 'tahun_masuk', 'jalur_masuk', 'status', 'dosen_wali_id'],
         ],
-        'irs_id' => [
-            'linkTable' => 'irs',
-            'aliasTable' => 'B',
-            'linkField' => 'id',
-            'displayName' => 'irs',
-            'selectFields' => ['sks_semester'],
-            'selectValue' => ['sks_semester'],
-        ],
-        'semester_akademik_id' => [
-            'linkTable' => 'semester_akademik',
-            'aliasTable' => 'C',
-            'linkField' => 'id',
-            'displayName' => 'semester_akademik',
-            'selectFields' => ['tahun_ajaran', 'semester'],
-            'selectValue' => ['tahun_ajaran', 'semester'],
-        ],
     ];
 
     const FIELD_VALIDATION = [
         'ip_semester' => 'nullable',
         'mahasiswa_id' => 'required',
-        'irs_id' => 'required',
         'file_scan_irs' => 'nullable',
         'status_code' => 'nullable',
-        'semester_akademik_id' => 'nullable'
     ];
 
     const FIELD_DEFAULT_VALUE = [
@@ -124,9 +98,6 @@ class Khs extends Model
             "operator" => "=",
         ],
         "mahasiswa_id" => [
-            "operator" => "=",
-        ],
-        "irs_id" => [
             "operator" => "=",
         ],
         "file_scan_khs" => [
@@ -151,21 +122,37 @@ class Khs extends Model
         // check if irs already exist in either khs, pkl, or skripsi, if yes then return error
         // $semester_akademik_id = Irs::where('id', $input["irs_id"])->first()->semester_akademik_id;
         // dd($input["irs_id"], $semester_akademik_id);
-        if (Khs::where('irs_id', $input['irs_id'])->first()) {
-            // throw error
-            throw new \Exception("KHS sudah dibuat");
-        }
-
         // check khs between 0.00 - 4.00
         if ($input['ip_semester'] < 0.00 || $input['ip_semester'] > 4.00) {
             throw new \Exception("IP Semester harus diantara 0.00 - 4.00");
         }
-
-        $irs_id = $input['irs_id'];
-        $semester_akademik_id = Irs::where('id', $irs_id)->first()->semester_akademik_id;
-        $input['semester_akademik_id'] = $semester_akademik_id;
-
+        
         $input['status_code'] = 'waiting_approval';
+
+        // check if input semeester is between 1-14
+        $semester = $input['semester'];
+        if ($semester < 1 || $semester > 14) {
+            throw new \Exception("Semester tidak valid");
+        }
+
+        // check if semester already exist in irs
+        $khs = Khs::where('mahasiswa_id', $input['mahasiswa_id'])->where('semester', $semester)->fkhst();
+        if ($khs) {
+            throw new \Exception("Semester sudah dipakai");
+        }
+
+        // check if input semester is in order
+        $khs = Khs::where('mahasiswa_id', $input['mahasiswa_id'])->get();
+        $khs = $khs->toArray();
+        $khs = array_map(function ($item) {
+            return $item['semester'];
+        }, $khs);
+        $khs = array_unique($khs);
+        sort($khs);
+        if ($khs != range(1, count($khs))) {
+            throw new \Exception("Semester tidak urut");
+        }
+
         return $input;
     }
 

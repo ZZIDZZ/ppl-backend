@@ -27,7 +27,6 @@ class Irs extends Model
         'sks_semester',
         'mahasiswa_id',
         'file_scan_irs',
-        'semester_akademik_id',
         'status_code'
     ];
     const FIELD_TYPES = [
@@ -41,14 +40,12 @@ class Irs extends Model
         'sks_semester',
         'mahasiswa_id',
         'file_scan_irs',
-        'semester_akademik_id'
     ];
     const FIELD_SORTABLE = [
         'id',
         'sks_semester',
         'mahasiswa_id',
         'file_scan_irs',
-        'semester_akademik_id',
         'status_code'
     ];
     //searchable untuk tipe string and text!
@@ -60,7 +57,6 @@ class Irs extends Model
         'sks_semester' => 'sks semester',
         'mahasiswa_id' => 'id mahasiswa',
         'file_scan_irs' => 'file scan irs',
-        'semester_akademik_id' => 'id semester akademik',
         'status_code' => 'status code'
     ];
 
@@ -84,20 +80,11 @@ class Irs extends Model
             'selectFields' => ['name', 'nim', 'tahun_masuk', 'jalur_masuk', 'status', 'dosen_wali_id'],
             'selectValue' => ['name', 'nim', 'tahun_masuk', 'jalur_masuk', 'status', 'dosen_wali_id'],
         ],
-        'semester_akademik_id' => [
-            'linkTable' => 'semester_akademik',
-            'aliasTable' => 'C',
-            'linkField' => 'id',
-            'displayName' => 'semester_akademik',
-            'selectFields' => ['tahun_ajaran', 'semester'],
-            'selectValue' => ['tahun_ajaran', 'semester'],
-        ],
     ];
 
     const FIELD_VALIDATION = [
         'sks_semester' => 'nullable',
         'mahasiswa_id' => 'required',
-        'semester_akademik_id' => 'nullable'
     ];
 
     const FIELD_DEFAULT_VALUE = [
@@ -117,54 +104,41 @@ class Irs extends Model
         "mahasiswa_id" => [
             "operator" => "=",
         ],
-        "semester_akademik_id" => [
-            "operator" => "=",
-        ],
     ];
 
     protected $fillable = [
         'sks_semester',
         'mahasiswa_id',
         'file_scan_irs',
-        'semester_akademik_id'
     ];
 
     public static function beforeInsert($input)
     {
         $input['status_code'] = 'waiting_approval';
 
-        // check if semester_akademik is not less than mahasiswa's tahun_masuk, and not more than mahasiswa's tahun_masuk + 6
-        $mahasiswa = Mahasiswa::find($input['mahasiswa_id']);
-        $semester_akademik = SemesterAkademik::find($input['semester_akademik_id']);
-        $tahun_ajaran = $semester_akademik->tahun_ajaran;
-        $semester = $semester_akademik->semester;
-        $tahun_masuk = $mahasiswa->tahun_masuk;
-        $tahun_lulus = $tahun_masuk + 6;
-        if ($tahun_ajaran < $tahun_masuk || $tahun_ajaran > $tahun_lulus) {
-            throw new \Exception("Tahun ajaran tidak valid");
+        // check if input semeester is between 1-14
+        $semester = $input['semester'];
+        if ($semester < 1 || $semester > 14) {
+            throw new \Exception("Semester tidak valid");
         }
 
-        // check if mahasiswa has already made irs for this semester
-        $irs = Irs::where('mahasiswa_id', $input['mahasiswa_id'])->where('semester_akademik_id', $input['semester_akademik_id'])->first();
+        // check if semester already exist in irs
+        $irs = Irs::where('mahasiswa_id', $input['mahasiswa_id'])->where('semester', $semester)->first();
         if ($irs) {
-            throw new \Exception("IRS untuk semester ini sudah dibuat");
+            throw new \Exception("Semester sudah dipakai");
         }
 
-        // check if the semester and tahun akademik is in order from previous IRS
-        // $semester_akademik = SemesterAkademik::find($input['semester_akademik_id']);
-        // $semester = $semester_akademik->semester;
-        // if($semester == 1){
-        //     $tahun_ajaran = $semester_akademik->tahun_ajaran;
-        //     $tahun_ajaran_sebelumnya = $tahun_ajaran - 1;
-        //     $semester_akademik_sebelumnya = SemesterAkademik::where('tahun_ajaran', $tahun_ajaran_sebelumnya)->where('semester', 2)->first();
-        // } else {
-        //     $tahun_ajaran = $semester_akademik->tahun_ajaran;
-        //     $semester_akademik_sebelumnya = SemesterAkademik::where('tahun_ajaran', $tahun_ajaran)->where('semester', 1)->first();
-        // }
-        // $irs_sebelumnya = Irs::where('mahasiswa_id', $input['mahasiswa_id'])->where('semester_akademik_id', $semester_akademik_sebelumnya->id)->first();
-        // if(!$irs_sebelumnya){
-        //     throw new \Exception("Pembuatan IRS harus urut");
-        // }
+        // check if input semester is in order
+        $irs = Irs::where('mahasiswa_id', $input['mahasiswa_id'])->get();
+        $irs = $irs->toArray();
+        $irs = array_map(function ($item) {
+            return $item['semester'];
+        }, $irs);
+        $irs = array_unique($irs);
+        sort($irs);
+        if ($irs != range(1, count($irs))) {
+            throw new \Exception("Semester tidak urut");
+        }
         return $input;
     }
 

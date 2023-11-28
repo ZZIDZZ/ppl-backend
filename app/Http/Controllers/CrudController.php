@@ -98,9 +98,6 @@ class CrudController extends Controller
             foreach ($searchable as $key => $value) {
                 $searchableList[] = " UPPER($value) ILIKE '%{$searchTerm}%' ";
             }
-            
-
-            
         } 
         $finalQuery = $finalQuery ." WHERE TRUE " . (count($searchableList) > 0 ? " AND (" . implode(" OR ", $searchableList) . ")" : "") .
             implode("\n", $filterList);
