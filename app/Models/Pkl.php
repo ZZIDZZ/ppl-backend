@@ -92,7 +92,7 @@ class Pkl extends Model
     ];
 
     const FIELD_DEFAULT_VALUE = [
-        'nilai' => null,
+        'nilai' => 'A',
         'file_pkl' => null,
         'status_code' => 'waiting_approval',
         'semester' => null
@@ -151,6 +151,13 @@ class Pkl extends Model
         $pkl = Pkl::where('mahasiswa_id', $input['mahasiswa_id'])->where('semester', $input['semester'])->first();
         if ($pkl) {
             throw new \Exception("Semester sudah dipakai");
+        }
+
+        // change nilai to upper, and check if A, B, or C
+        $nilai = $input['nilai'];
+        $nilai = strtoupper($nilai);
+        if ($nilai != 'A' && $nilai != 'B' && $nilai != 'C') {
+            throw new \Exception("Nilai tidak valid");
         }
 
         return $input;

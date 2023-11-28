@@ -151,6 +151,14 @@ class Skripsi extends Model
         if ($skripsi) {
             throw new \Exception("Semester sudah dipakai");
         }
+
+        // change nilai to upper, and check if A, B, or C
+        $nilai = $input['nilai'];
+        $nilai = strtoupper($nilai);
+        if ($nilai != 'A' && $nilai != 'B' && $nilai != 'C') {
+            throw new \Exception("Nilai tidak valid");
+        }
+        
         return $input;
     }
 
