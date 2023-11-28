@@ -35,6 +35,7 @@ class Pkl extends Model
         'mahasiswa_id',
         'file_pkl',
         'status_code',
+        'semester'
     ];
     const FIELD_TYPES = [
         // 'id',
@@ -49,7 +50,7 @@ class Pkl extends Model
         'mahasiswa_id',
         'file_pkl',
         'status_code',
-        'semester_akademik_id'
+        'semester'
     ];
     const FIELD_SORTABLE = [
         'id',
@@ -57,6 +58,7 @@ class Pkl extends Model
         'mahasiswa_id',
         'file_pkl',
         'status_code',
+        'semester'
     ];
     //searchable untuk tipe string and text!
     const FIELD_SEARCHABLE = [
@@ -68,6 +70,7 @@ class Pkl extends Model
         'mahasiswa_id' => 'id mahasiswa',
         'file_pkl' => 'File PKL',
         'status_code' => 'kode status',
+        'semester' => 'Semester'
     ];
     const FIELD_RELATIONS = [
         'mahasiswa_id' => [
@@ -85,12 +88,14 @@ class Pkl extends Model
         'mahasiswa_id' => 'required',
         'file_pkl' => 'nullable',
         'status_code' => 'nullable',
+        'semester' => 'required',
     ];
 
     const FIELD_DEFAULT_VALUE = [
         'nilai' => null,
         'file_pkl' => null,
         'status_code' => 'waiting_approval',
+        'semester' => null
     ];
     
     const FIELD_FILTERABLE = [
@@ -109,6 +114,9 @@ class Pkl extends Model
         "status_code" => [
             "operator" => "=",
         ],
+        "semester" => [
+            "operator" => "=",
+        ],
     ];
 
     protected $fillable = [
@@ -116,6 +124,7 @@ class Pkl extends Model
         'mahasiswa_id',
         'file_pkl',
         'status_code',
+        'semester'
     ];
 
     public static function beforeInsert($input)

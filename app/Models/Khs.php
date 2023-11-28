@@ -31,6 +31,7 @@ class Khs extends Model
         'mahasiswa_id',
         'file_scan_khs',
         'status_code',
+        'semester'
     ];
     const FIELD_TYPES = [
         // 'id',
@@ -44,7 +45,8 @@ class Khs extends Model
         'ip_semester',
         'mahasiswa_id',
         'file_scan_khs',
-        'status_code',
+        'semester',
+        'status_code'
     ];
     const FIELD_SORTABLE = [
         'id',
@@ -52,6 +54,7 @@ class Khs extends Model
         'mahasiswa_id',
         'file_scan_khs',
         'status_code',
+        'semester'
     ];
     //searchable untuk tipe string and text!
     const FIELD_SEARCHABLE = [
