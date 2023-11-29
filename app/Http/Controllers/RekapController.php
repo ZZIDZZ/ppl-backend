@@ -48,15 +48,17 @@ class RekapController extends Controller
         LEFT JOIN (
             SELECT 
                 m.tahun_masuk,
-                SUM(CASE WHEN COALESCE(p.is_lulus, false) = true THEN 1 ELSE 0 END) AS sudah_lulus,
-                SUM(CASE WHEN COALESCE(p.is_lulus, false) = false AND p.id IS NULL THEN 1 ELSE 0 END) AS belum_lulus
+                SUM(CASE WHEN COALESCE(p.nilai, 'X') = 'A' THEN 1
+                WHEN COALESCE(p.nilai, 'X') = 'B' THEN 1
+                WHEN COALESCE(p.nilai, 'X') = 'C' THEN 1 ELSE 0 END) AS sudah_lulus,
+                SUM(CASE WHEN COALESCE(p.nilai, 'X') = 'X' AND p.id IS NULL THEN 1 ELSE 0 END) AS belum_lulus
             FROM 
                 mahasiswa m
             LEFT JOIN 
                 pkl p ON p.mahasiswa_id = m.id
             ". $dosen_wali_where ."
             GROUP BY 
-                m.tahun_masuk, p.is_lulus
+                m.tahun_masuk
         ) r ON t.tahun_masuk = r.tahun_masuk
         ORDER BY 
             t.tahun_masuk DESC
@@ -89,6 +91,9 @@ class RekapController extends Controller
         // validate input
         $tahun_angkatan = $input["tahun_angkatan"] ?? null;
         $is_lulus = $input["is_lulus"] ?? null;
+        if(is_string($input["is_lulus"])){
+            $is_lulus = $input["is_lulus"] == "true" ? true : false;
+        }
 
         $validation = [
             "tahun_angkatan" => "required",
@@ -122,6 +127,15 @@ class RekapController extends Controller
         }
 
         $dosen_wali_where = $dosen_wali_id != null ? " m.dosen_wali_id = $dosen_wali_id AND " : " ";
+        $is_lulus_where = "";
+        if($is_lulus == true){
+            $is_lulus_where = " AND nilai IS NOT NULL "; 
+        }
+        else{
+            $is_lulus_where = " AND nilai IS NULL ";
+        }
+        
+
 
         $params = [];
 
@@ -140,23 +154,17 @@ class RekapController extends Controller
             p.id as pkl_id,
             p.nilai,
             p.mahasiswa_id,
-            p.irs_id,
             p.file_pkl,
-            p.status_code,
-            p.semester_akademik_id,
-            p.tanggal_selesai,
-            p.is_lulus,
-            p.is_selesai
+            p.status_code
         FROM
             mahasiswa m
         LEFT JOIN
             pkl p ON p.mahasiswa_id = m.id
         WHERE
         ". $dosen_wali_where ."
-            m.tahun_masuk = :tahun_angkatan AND COALESCE(p.is_lulus, false) = :is_lulus
+            m.tahun_masuk = :tahun_angkatan " . $is_lulus_where . "
         ", [
             "tahun_angkatan" => $tahun_angkatan,
-            "is_lulus" => $is_lulus
         ]);
         
         return [
@@ -198,15 +206,17 @@ class RekapController extends Controller
         LEFT JOIN (
             SELECT 
                 m.tahun_masuk,
-                SUM(CASE WHEN COALESCE(s.is_lulus, false) = true THEN 1 ELSE 0 END) AS sudah_lulus,
-                SUM(CASE WHEN COALESCE(s.is_lulus, false) = false AND s.id IS NULL THEN 1 ELSE 0 END) AS belum_lulus
+                SUM(CASE WHEN COALESCE(s.nilai, 'X') = 'A' THEN 1
+                WHEN COALESCE(s.nilai, 'X') = 'B' THEN 1
+                WHEN COALESCE(s.nilai, 'X') = 'C' THEN 1 ELSE 0 END) AS sudah_lulus,
+                SUM(CASE WHEN COALESCE(s.nilai, 'X') = 'X' AND s.id IS NULL THEN 1 ELSE 0 END) AS belum_lulus
             FROM 
                 mahasiswa m
             LEFT JOIN 
                 skripsi s ON s.mahasiswa_id = m.id
             ". $dosen_wali_where ."
             GROUP BY 
-                m.tahun_masuk, s.is_lulus
+                m.tahun_masuk
         ) r ON t.tahun_masuk = r.tahun_masuk
         ORDER BY 
             t.tahun_masuk DESC
@@ -239,6 +249,9 @@ class RekapController extends Controller
         // validate input
         $tahun_angkatan = $input["tahun_angkatan"] ?? null;
         $is_lulus = $input["is_lulus"] ?? null;
+        if(is_string($input["is_lulus"])){
+            $is_lulus = $input["is_lulus"] == "true" ? true : false;
+        }
 
         $validation = [
             "tahun_angkatan" => "required",
@@ -272,6 +285,13 @@ class RekapController extends Controller
         }
 
         $dosen_wali_where = $dosen_wali_id != null ? " m.dosen_wali_id = $dosen_wali_id AND " : " ";
+        $is_lulus_where = " ";
+        if($is_lulus == true){
+            $is_lulus_where = " AND nilai IS NOT NULL "; 
+        }
+        else{
+            $is_lulus_where = " AND nilai IS NULL ";
+        }
 
         $params = [];
 
@@ -290,23 +310,17 @@ class RekapController extends Controller
             s.id as skripsi_id,
             s.nilai,
             s.mahasiswa_id,
-            s.irs_id,
             s.file_skripsi,
-            s.status_code,
-            s.semester_akademik_id,
-            s.tanggal_selesai,
-            s.is_lulus,
-            s.is_selesai
+            s.status_code
         FROM
             mahasiswa m
         LEFT JOIN
             skripsi s ON s.mahasiswa_id = m.id
         WHERE
         ". $dosen_wali_where ."
-            m.tahun_masuk = :tahun_angkatan AND COALESCE(s.is_lulus, false) = :is_lulus
+            m.tahun_masuk = :tahun_angkatan " . $is_lulus_where . "
         ", [
             "tahun_angkatan" => $tahun_angkatan,
-            "is_lulus" => $is_lulus
         ]);
         
         return [
