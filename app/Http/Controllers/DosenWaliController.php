@@ -297,7 +297,7 @@ class DosenWaliController extends Controller
         $input = $request->all();
 
 
-        $order = strtoupper($input["order"] ?? "ASC") == "ASC" ? "ASC" : "DESC";
+        $order = strtoupper($input["order"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
     
         $orderBy = "semester, mahasiswa_id";
 
@@ -466,7 +466,7 @@ class DosenWaliController extends Controller
         $input = $request->all();
         
 
-        $order = strtoupper($input["order"] ?? "ASC") == "ASC" ? "ASC" : "DESC";
+        $order = strtoupper($input["order"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
     
         $orderBy = "semester, mahasiswa_id";
 
@@ -641,7 +641,7 @@ class DosenWaliController extends Controller
 
         
 
-        $order = strtoupper($input["order"] ?? "ASC") == "ASC" ? "ASC" : "DESC";
+        $order = strtoupper($input["order"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
     
         $orderBy = "semester, mahasiswa_id";
 
@@ -812,7 +812,7 @@ class DosenWaliController extends Controller
 
         
 
-        $order = strtoupper($input["order"] ?? "ASC") == "ASC" ? "ASC" : "DESC";
+        $order = strtoupper($input["order"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
     
         $orderBy = "semester, mahasiswa_id";
 
