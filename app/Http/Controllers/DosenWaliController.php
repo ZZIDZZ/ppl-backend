@@ -716,8 +716,6 @@ class DosenWaliController extends Controller
             m.name as nama,
             m.phone_number as no_telp,
             p.status_code as status_code,
-            p.tanggal_selesai as tanggal_selesai,
-            p.is_lulus as is_lulus,
             p.file_pkl as file_pkl
             FROM pkl p 
             LEFT JOIN mahasiswa m ON p.mahasiswa_id = m.id
@@ -887,8 +885,6 @@ class DosenWaliController extends Controller
             m.name as nama,
             m.phone_number as no_telp,
             s.status_code as status_code,
-            s.tanggal_selesai as tanggal_selesai,
-            s.is_lulus as is_lulus,
             s.file_skripsi as file_skripsi
             FROM skripsi s 
             LEFT JOIN mahasiswa m ON s.mahasiswa_id = m.id
