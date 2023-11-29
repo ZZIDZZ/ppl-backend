@@ -280,8 +280,6 @@ class DosenWaliController extends Controller
             "id" => ["operator" => "=", "type" => "string"],
             "sks_semester" => ["operator" => "=", "type" => "string"],
             "mahasiswa_id" => ["operator" => "=", "type" => "string"],
-            "riwayat_status_akademik_id" => ["operator" => "=", "type" => "string"],
-            "semester_akademik_id" => ["operator" => "=", "type" => "string"],
             "created_at" => ["operator" => "=", "type" => "string"],
             "updated_at" => ["operator" => "=", "type" => "string"],
             "nim" => ["operator" => "=", "type" => "string"],
@@ -290,6 +288,7 @@ class DosenWaliController extends Controller
             "semester" => ["operator" => "=", "type" => "string"],
             "no_telp" => ["operator" => "=", "type" => "string"],
             "status_code" => ["operator" => "=", "type" => "string"],
+            "semester" => ["operator" => "=", "type" => "string"]
         ];
         $params = [];
         $user_id = auth('api')->user()->id;
@@ -369,16 +368,14 @@ class DosenWaliController extends Controller
             i.semester_akademik_id as semester_akademik_id,
             i.created_at as created_at, 
             i.updated_at as updated_at,
+            i.semester as semester,
             m.nim as nim,
             m.name as nama,
-            sa.tahun_ajaran as tahun_ajaran,
-            sa.semester as semester,
             m.phone_number as no_telp,
             i.status_code as status_code,
             i.file_scan_irs as file_scan_irs
             FROM irs i 
             LEFT JOIN mahasiswa m ON i.mahasiswa_id = m.id
-            LEFT JOIN semester_akademik sa ON i.semester_akademik_id = sa.id
             WHERE m.dosen_wali_id = :dosen_wali_id AND i.status_code='waiting_approval'
             ";
         $params["dosen_wali_id"] = $dosen_wali_id;
@@ -452,8 +449,6 @@ class DosenWaliController extends Controller
             "id" => ["operator" => "=", "type" => "string"],
             "ip_semester" => ["operator" => "=", "type" => "string"],
             "mahasiswa_id" => ["operator" => "=", "type" => "string"],
-            "riwayat_status_akademik_id" => ["operator" => "=", "type" => "string"],
-            "semester_akademik_id" => ["operator" => "=", "type" => "string"],
             "created_at" => ["operator" => "=", "type" => "string"],
             "updated_at" => ["operator" => "=", "type" => "string"],
             "nim" => ["operator" => "=", "type" => "string"],
@@ -462,6 +457,7 @@ class DosenWaliController extends Controller
             "semester" => ["operator" => "=", "type" => "string"],
             "no_telp" => ["operator" => "=", "type" => "string"],
             "status_code" => ["operator" => "=", "type" => "string"],
+            "semester" => ["operator" => "=", "type" => "string"]
         ];
         $params = [];
         $user_id = auth('api')->user()->id;
@@ -542,16 +538,14 @@ class DosenWaliController extends Controller
             k.semester_akademik_id as semester_akademik_id,
             k.created_at as created_at, 
             k.updated_at as updated_at,
+            k.semester as semester,
             m.nim as nim,
             m.name as nama,
-            sa.tahun_ajaran as tahun_ajaran,
-            sa.semester as semester,
             m.phone_number as no_telp,
             k.status_code as status_code,
             k.file_scan_khs as file_scan_khs
             FROM khs k 
             LEFT JOIN mahasiswa m ON k.mahasiswa_id = m.id
-            LEFT JOIN semester_akademik sa ON k.semester_akademik_id = sa.id
             WHERE m.dosen_wali_id = :dosen_wali_id AND k.status_code='waiting_approval'
             ";
         $params["dosen_wali_id"] = $dosen_wali_id;
@@ -631,8 +625,6 @@ class DosenWaliController extends Controller
             "id" => ["operator" => "=", "type" => "string"],
             "nilai" => ["operator" => "=", "type" => "string"],
             "mahasiswa_id" => ["operator" => "=", "type" => "string"],
-            "riwayat_status_akademik_id" => ["operator" => "=", "type" => "string"],
-            "semester_akademik_id" => ["operator" => "=", "type" => "string"],
             "created_at" => ["operator" => "=", "type" => "string"],
             "updated_at" => ["operator" => "=", "type" => "string"],
             "nim" => ["operator" => "=", "type" => "string"],
@@ -641,8 +633,7 @@ class DosenWaliController extends Controller
             "semester" => ["operator" => "=", "type" => "string"],
             "no_telp" => ["operator" => "=", "type" => "string"],
             "status_code" => ["operator" => "=", "type" => "string"],
-            "tanggal_selesai" => ["operator" => "=", "type" => "string"],
-            "is_lulus" => ["operator" => "=", "type" => "string"],
+            "semester" => ["operator" => "=", "type" => "string"]
         ];
         $params = [];
         $user_id = auth('api')->user()->id;
@@ -723,10 +714,9 @@ class DosenWaliController extends Controller
             p.semester_akademik_id as semester_akademik_id,
             p.created_at as created_at, 
             p.updated_at as updated_at,
+            p.semester as semester,
             m.nim as nim,
             m.name as nama,
-            sa.tahun_ajaran as tahun_ajaran,
-            sa.semester as semester,
             m.phone_number as no_telp,
             p.status_code as status_code,
             p.tanggal_selesai as tanggal_selesai,
@@ -734,7 +724,6 @@ class DosenWaliController extends Controller
             p.file_pkl as file_pkl
             FROM pkl p 
             LEFT JOIN mahasiswa m ON p.mahasiswa_id = m.id
-            LEFT JOIN semester_akademik sa ON p.semester_akademik_id = sa.id
             WHERE m.dosen_wali_id = :dosen_wali_id AND p.status_code='waiting_approval'
             ";
         $params["dosen_wali_id"] = $dosen_wali_id;
@@ -808,8 +797,6 @@ class DosenWaliController extends Controller
             "id" => ["operator" => "=", "type" => "string"],
             "nilai" => ["operator" => "=", "type" => "string"],
             "mahasiswa_id" => ["operator" => "=", "type" => "string"],
-            "riwayat_status_akademik_id" => ["operator" => "=", "type" => "string"],
-            "semester_akademik_id" => ["operator" => "=", "type" => "string"],
             "created_at" => ["operator" => "=", "type" => "string"],
             "updated_at" => ["operator" => "=", "type" => "string"],
             "nim" => ["operator" => "=", "type" => "string"],
@@ -818,8 +805,7 @@ class DosenWaliController extends Controller
             "semester" => ["operator" => "=", "type" => "string"],
             "no_telp" => ["operator" => "=", "type" => "string"],
             "status_code" => ["operator" => "=", "type" => "string"],
-            "tanggal_selesai" => ["operator" => "=", "type" => "string"],
-            "is_lulus" => ["operator" => "=", "type" => "string"],
+            "semester" => ["operator" => "=", "type" => "string"]
         ];
         $params = [];
         $user_id = auth('api')->user()->id;
@@ -900,10 +886,9 @@ class DosenWaliController extends Controller
             s.semester_akademik_id as semester_akademik_id,
             s.created_at as created_at, 
             s.updated_at as updated_at,
+            s.semester as semester,
             m.nim as nim,
             m.name as nama,
-            sa.tahun_ajaran as tahun_ajaran,
-            sa.semester as semester,
             m.phone_number as no_telp,
             s.status_code as status_code,
             s.tanggal_selesai as tanggal_selesai,
@@ -911,7 +896,6 @@ class DosenWaliController extends Controller
             s.file_skripsi as file_skripsi
             FROM skripsi s 
             LEFT JOIN mahasiswa m ON s.mahasiswa_id = m.id
-            LEFT JOIN semester_akademik sa ON s.semester_akademik_id = sa.id
             WHERE m.dosen_wali_id = :dosen_wali_id AND s.status_code='waiting_approval'
             ";
         $params["dosen_wali_id"] = $dosen_wali_id;
