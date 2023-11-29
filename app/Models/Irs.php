@@ -140,16 +140,17 @@ class Irs extends Model
         }
 
         // check if input semester is in order
-        $irs = Irs::where('mahasiswa_id', $input['mahasiswa_id'])->get();
-        $irs = $irs->toArray();
-        $irs = array_map(function ($item) {
-            return $item['semester'];
-        }, $irs);
-        $irs = array_unique($irs);
-        sort($irs);
-        if ($irs != range(1, count($irs))) {
-            throw new \Exception("Semester tidak urut");
+        if(!$input['semester'] == 1){
+            $irs = Irs::where('mahasiswa_id', $input['mahasiswa_id'])->where('semester', $input['semester'] - 1)->get();
+            if(count($irs) == 0){
+                throw new \Exception("Semester tidak urut");
+            }
+        }else{
+            if($input['semester'] != 1){
+                throw new \Exception("Semester tidak urut");
+            }
         }
+        
         return $input;
     }
 

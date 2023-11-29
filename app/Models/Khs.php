@@ -145,15 +145,15 @@ class Khs extends Model
         }
 
         // check if input semester is in order
-        $khs = Khs::where('mahasiswa_id', $input['mahasiswa_id'])->get();
-        $khs = $khs->toArray();
-        $khs = array_map(function ($item) {
-            return $item['semester'];
-        }, $khs);
-        $khs = array_unique($khs);
-        sort($khs);
-        if ($khs != range(1, count($khs))) {
-            throw new \Exception("Semester tidak urut");
+        if(!$input['semester'] == 1){
+            $khs = Khs::where('mahasiswa_id', $input['mahasiswa_id'])->where('semester', $input['semester'] - 1)->get();
+            if(count($khs) == 0){
+                throw new \Exception("Semester tidak urut");
+            }
+        }else{
+            if($input['semester'] != 1){
+                throw new \Exception("Semester tidak urut");
+            }
         }
 
         return $input;
