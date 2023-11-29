@@ -297,15 +297,15 @@ class DosenWaliController extends Controller
         $input = $request->all();
 
 
-        $sort = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
+        $order = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
     
-        $sortBy = "id";
+        $orderBy = "semester";
 
         // get all request params
         $input = $request->all();
 
-        if (in_array($input["sort_by"] ?? "", $sortableList)) {
-            $sortBy = $input["sort_by"];
+        if (in_array($input["orderBy"] ?? "", $sortableList)) {
+            $orderBy = $input["orderBy"];
         }
 
         $tableJoinList = [];
@@ -381,7 +381,7 @@ class DosenWaliController extends Controller
         $data = DB::select("
         SELECT * FROM (
             ". $sql .") as dummy WHERE true ". (count($searchableList) > 0 ? " AND (" . implode(" OR ", $searchableList) . ")"  : "").
-            implode("\n", $filterList) .  "  ORDER BY " . $sortBy . " " . $sort . " LIMIT $limit OFFSET $offset 
+            implode("\n", $filterList) .  "  ORDER BY " . $orderBy . " " . $order . " LIMIT $limit OFFSET $offset 
             ", $params);
 
         $modelClass = "App\\Models\\Irs";
@@ -466,15 +466,15 @@ class DosenWaliController extends Controller
         $input = $request->all();
         
 
-        $sort = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
+        $order = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
     
-        $sortBy = "id";
+        $orderBy = "semester";
 
         // get all request params
         $input = $request->all();
 
-        if (in_array($input["sort_by"] ?? "", $sortableList)) {
-            $sortBy = $input["sort_by"];
+        if (in_array($input["orderBy"] ?? "", $sortableList)) {
+            $orderBy = $input["orderBy"];
         }
 
         $tableJoinList = [];
@@ -551,12 +551,12 @@ class DosenWaliController extends Controller
         // dd("
         // SELECT * FROM (
         //     ". $sql .") as dummy WHERE true ". (count($searchableList) > 0 ? " AND (" . implode(" OR ", $searchableList) . ")"  : "").
-        //     implode("\n", $filterList) .  "  ORDER BY " . $sortBy . " " . $sort . " LIMIT $limit OFFSET $offset 
+        //     implode("\n", $filterList) .  "  ORDER BY " . $orderBy . " " . $order . " LIMIT $limit OFFSET $offset 
         //     ", $params);
         $data = DB::select("
         SELECT * FROM (
             ". $sql .") as dummy WHERE true ". (count($searchableList) > 0 ? " AND (" . implode(" OR ", $searchableList) . ")"  : "").
-            implode("\n", $filterList) .  "  ORDER BY " . $sortBy . " " . $sort . " LIMIT $limit OFFSET $offset 
+            implode("\n", $filterList) .  "  ORDER BY " . $orderBy . " " . $order . " LIMIT $limit OFFSET $offset 
             ", $params);
 
         $modelClass = "App\\Models\\Khs";
@@ -641,15 +641,15 @@ class DosenWaliController extends Controller
 
         
 
-        $sort = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
+        $order = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
     
-        $sortBy = "id";
+        $orderBy = "semester";
 
         // get all request params
         $input = $request->all();
 
-        if (in_array($input["sort_by"] ?? "", $sortableList)) {
-            $sortBy = $input["sort_by"];
+        if (in_array($input["orderBy"] ?? "", $sortableList)) {
+            $orderBy = $input["orderBy"];
         }
 
         $tableJoinList = [];
@@ -727,7 +727,7 @@ class DosenWaliController extends Controller
         $data = DB::select("
         SELECT * FROM (
             ". $sql .") as dummy WHERE true ". (count($searchableList) > 0 ? " AND (" . implode(" OR ", $searchableList) . ")"  : "").
-            implode("\n", $filterList) .  "  ORDER BY " . $sortBy . " " . $sort . " LIMIT $limit OFFSET $offset 
+            implode("\n", $filterList) .  "  ORDER BY " . $orderBy . " " . $order . " LIMIT $limit OFFSET $offset 
             ", $params);
 
         $modelClass = "App\\Models\\Pkl";
@@ -812,15 +812,15 @@ class DosenWaliController extends Controller
 
         
 
-        $sort = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
+        $order = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
     
-        $sortBy = "id";
+        $orderBy = "semester";
 
         // get all request params
         $input = $request->all();
 
-        if (in_array($input["sort_by"] ?? "", $sortableList)) {
-            $sortBy = $input["sort_by"];
+        if (in_array($input["orderBy"] ?? "", $sortableList)) {
+            $orderBy = $input["orderBy"];
         }
 
         $tableJoinList = [];
@@ -898,7 +898,7 @@ class DosenWaliController extends Controller
         $data = DB::select("
         SELECT * FROM (
             ". $sql .") as dummy WHERE true ". (count($searchableList) > 0 ? " AND (" . implode(" OR ", $searchableList) . ")"  : "").
-            implode("\n", $filterList) .  "  ORDER BY " . $sortBy . " " . $sort . " LIMIT $limit OFFSET $offset 
+            implode("\n", $filterList) .  "  ORDER BY " . $orderBy . " " . $order . " LIMIT $limit OFFSET $offset 
             ", $params);
 
         $modelClass = "App\\Models\\Skripsi";
