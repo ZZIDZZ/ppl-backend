@@ -139,7 +139,7 @@ class Khs extends Model
         }
 
         // check if semester already exist in irs
-        $khs = Khs::where('mahasiswa_id', $input['mahasiswa_id'])->where('semester', $semester)->fkhst();
+        $khs = Khs::where('mahasiswa_id', $input['mahasiswa_id'])->where('semester', $semester)->first();
         if ($khs) {
             throw new \Exception("Semester sudah dipakai");
         }
