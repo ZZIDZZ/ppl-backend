@@ -355,7 +355,7 @@ class DosenWaliController extends Controller
         }
 
         
-        $limit = $input["limit"] ?? 10;
+        $limit = $input["limit"] ?? 999;
         $offset = $input["offset"] ?? 0;
         if (!is_null($input["page"] ?? null)) {
             $offset = $limit * ($input["page"] - 1);
@@ -524,7 +524,7 @@ class DosenWaliController extends Controller
         }
 
         
-        $limit = $input["limit"] ?? 10;
+        $limit = $input["limit"] ?? 999;
         $offset = $input["offset"] ?? 0;
         if (!is_null($input["page"] ?? null)) {
             $offset = $limit * ($input["page"] - 1);
@@ -699,7 +699,7 @@ class DosenWaliController extends Controller
         }
 
         
-        $limit = $input["limit"] ?? 10;
+        $limit = $input["limit"] ?? 999;
         $offset = $input["offset"] ?? 0;
         if (!is_null($input["page"] ?? null)) {
             $offset = $limit * ($input["page"] - 1);
@@ -870,7 +870,7 @@ class DosenWaliController extends Controller
         }
 
         
-        $limit = $input["limit"] ?? 10;
+        $limit = $input["limit"] ?? 999;
         $offset = $input["offset"] ?? 0;
         if (!is_null($input["page"] ?? null)) {
             $offset = $limit * ($input["page"] - 1);
