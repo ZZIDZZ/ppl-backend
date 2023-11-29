@@ -297,9 +297,9 @@ class DosenWaliController extends Controller
         $input = $request->all();
 
 
-        $order = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
+        $order = strtoupper($input["order"] ?? "ASC") == "ASC" ? "ASC" : "DESC";
     
-        $orderBy = "semester";
+        $orderBy = "semester, mahasiswa_id";
 
         // get all request params
         $input = $request->all();
@@ -466,9 +466,9 @@ class DosenWaliController extends Controller
         $input = $request->all();
         
 
-        $order = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
+        $order = strtoupper($input["order"] ?? "ASC") == "ASC" ? "ASC" : "DESC";
     
-        $orderBy = "semester";
+        $orderBy = "semester, mahasiswa_id";
 
         // get all request params
         $input = $request->all();
@@ -641,9 +641,9 @@ class DosenWaliController extends Controller
 
         
 
-        $order = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
+        $order = strtoupper($input["order"] ?? "ASC") == "ASC" ? "ASC" : "DESC";
     
-        $orderBy = "semester";
+        $orderBy = "semester, mahasiswa_id";
 
         // get all request params
         $input = $request->all();
@@ -812,9 +812,9 @@ class DosenWaliController extends Controller
 
         
 
-        $order = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
+        $order = strtoupper($input["order"] ?? "ASC") == "ASC" ? "ASC" : "DESC";
     
-        $orderBy = "semester";
+        $orderBy = "semester, mahasiswa_id";
 
         // get all request params
         $input = $request->all();
