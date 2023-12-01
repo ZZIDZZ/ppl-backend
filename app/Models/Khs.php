@@ -111,10 +111,8 @@ class Khs extends Model
     protected $fillable = [
         'ip_semester',
         'mahasiswa_id',
-        'irs_id',
         'file_scan_khs',
         'status_code',
-        'semester_akademik_id'
     ];
 
     public static function beforeInsert($input)

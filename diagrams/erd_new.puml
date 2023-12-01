@@ -1,0 +1,141 @@
+@startuml
+
+entity cities {
+  + id [PK]
+  --
+  name
+  code
+  description
+  province_id [FK]
+}
+
+entity departemen {
+  + id [PK]
+  --
+  user_id [FK]
+  name
+  phone_number
+  email
+}
+
+entity dosen_wali {
+  + id [PK]
+  --
+  user_id [FK]
+  name
+  phone_number
+  email
+  nip
+}
+
+
+entity irs {
+  + id [PK]
+  --
+  sks_semester
+  mahasiswa_id [FK]
+  file_scan_irs
+  status_code
+  semester
+}
+
+entity khs {
+  + id [PK]
+  --
+  ip_semester
+  mahasiswa_id [FK]
+  file_scan_khs
+  status_code
+  semester
+}
+
+entity mahasiswa {
+  + id [PK]
+  --
+  user_id [FK]
+  dosen_wali_id [FK]
+  name
+  phone_number
+  nim
+  email
+  tahun_masuk
+  password_changed
+  jalur_masuk
+  status
+  city_id [FK]
+  file_profile
+}
+
+
+entity operator_departemen {
+  + id [PK]
+  --
+  user_id [FK]
+  name
+  phone_number
+  email
+}
+
+
+entity pkl {
+  + id [PK]
+  --
+  mahasiswa_id [FK]
+  file_pkl
+  status_code
+  nilai
+  semester
+}
+
+entity provinces {
+  + id [PK]
+  --
+  name
+  code
+  description
+}
+
+entity roles {
+  + id [PK]
+  --
+  role_code
+  role_name
+  description
+}
+
+
+entity skripsi {
+  + id [PK]
+  --
+  mahasiswa_id [FK]
+  file_skripsi
+  status_code
+  nilai
+  semester
+}
+
+entity users {
+  + id [PK]
+  --
+  username
+  password
+  role_id [FK]
+  remember_token
+  created_at
+  updated_at
+}
+
+cities ||--o{ provinces
+departemen ||--o{ users
+dosen_wali ||--o{ users
+irs ||--o{ mahasiswa
+khs ||--o{ mahasiswa
+mahasiswa ||--o{ cities
+mahasiswa ||--o{ dosen_wali
+mahasiswa ||--o{ users
+operator_departemen ||--o{ users
+pkl ||--o{ mahasiswa
+skripsi ||--o{ mahasiswa
+users }--|| roles
+
+@enduml
