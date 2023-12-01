@@ -31,6 +31,7 @@ class Khs extends Model
         'mahasiswa_id',
         'file_scan_khs',
         'status_code',
+        'semester'
     ];
     const FIELD_TYPES = [
         // 'id',
@@ -44,7 +45,8 @@ class Khs extends Model
         'ip_semester',
         'mahasiswa_id',
         'file_scan_khs',
-        'status_code',
+        'semester',
+        'status_code'
     ];
     const FIELD_SORTABLE = [
         'id',
@@ -52,6 +54,7 @@ class Khs extends Model
         'mahasiswa_id',
         'file_scan_khs',
         'status_code',
+        'semester'
     ];
     //searchable untuk tipe string and text!
     const FIELD_SEARCHABLE = [
@@ -134,21 +137,21 @@ class Khs extends Model
         }
 
         // check if semester already exist in irs
-        $khs = Khs::where('mahasiswa_id', $input['mahasiswa_id'])->where('semester', $semester)->fkhst();
+        $khs = Khs::where('mahasiswa_id', $input['mahasiswa_id'])->where('semester', $semester)->first();
         if ($khs) {
             throw new \Exception("Semester sudah dipakai");
         }
 
         // check if input semester is in order
-        $khs = Khs::where('mahasiswa_id', $input['mahasiswa_id'])->get();
-        $khs = $khs->toArray();
-        $khs = array_map(function ($item) {
-            return $item['semester'];
-        }, $khs);
-        $khs = array_unique($khs);
-        sort($khs);
-        if ($khs != range(1, count($khs))) {
-            throw new \Exception("Semester tidak urut");
+        if(!$input['semester'] == 1){
+            $khs = Khs::where('mahasiswa_id', $input['mahasiswa_id'])->where('semester', $input['semester'] - 1)->get();
+            if(count($khs) == 0){
+                throw new \Exception("Semester tidak urut");
+            }
+        }else{
+            if($input['semester'] != 1){
+                throw new \Exception("Semester tidak urut");
+            }
         }
 
         return $input;

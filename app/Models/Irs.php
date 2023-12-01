@@ -27,7 +27,8 @@ class Irs extends Model
         'sks_semester',
         'mahasiswa_id',
         'file_scan_irs',
-        'status_code'
+        'status_code',
+        'semester'
     ];
     const FIELD_TYPES = [
         // 'id' => 'primary_key',
@@ -40,13 +41,16 @@ class Irs extends Model
         'sks_semester',
         'mahasiswa_id',
         'file_scan_irs',
+        'semester',
+        'status_code'
     ];
     const FIELD_SORTABLE = [
         'id',
         'sks_semester',
         'mahasiswa_id',
         'file_scan_irs',
-        'status_code'
+        'status_code',
+        'semester'
     ];
     //searchable untuk tipe string and text!
     const FIELD_SEARCHABLE = [
@@ -57,7 +61,8 @@ class Irs extends Model
         'sks_semester' => 'sks semester',
         'mahasiswa_id' => 'id mahasiswa',
         'file_scan_irs' => 'file scan irs',
-        'status_code' => 'status code'
+        'status_code' => 'status code',
+        'semester' => 'Semester'
     ];
 
     // mahasiswa:
@@ -85,13 +90,15 @@ class Irs extends Model
     const FIELD_VALIDATION = [
         'sks_semester' => 'nullable',
         'mahasiswa_id' => 'required',
+        'semester' => 'required',
     ];
 
     const FIELD_DEFAULT_VALUE = [
         'sks_semester' => 0,
         'mahasiswa_id' => '',
         'file_scan_irs' => '',
-        'status_code' => 'waiting_approval'
+        'status_code' => 'waiting_approval',
+        'semester' => 1
     ];
 
     const FIELD_FILTERABLE = [
@@ -104,12 +111,16 @@ class Irs extends Model
         "mahasiswa_id" => [
             "operator" => "=",
         ],
+        "semester" => [
+            "operator" => "=",
+        ],
     ];
 
     protected $fillable = [
         'sks_semester',
         'mahasiswa_id',
         'file_scan_irs',
+        'semester'
     ];
 
     public static function beforeInsert($input)
@@ -129,16 +140,17 @@ class Irs extends Model
         }
 
         // check if input semester is in order
-        $irs = Irs::where('mahasiswa_id', $input['mahasiswa_id'])->get();
-        $irs = $irs->toArray();
-        $irs = array_map(function ($item) {
-            return $item['semester'];
-        }, $irs);
-        $irs = array_unique($irs);
-        sort($irs);
-        if ($irs != range(1, count($irs))) {
-            throw new \Exception("Semester tidak urut");
+        if(!$input['semester'] == 1){
+            $irs = Irs::where('mahasiswa_id', $input['mahasiswa_id'])->where('semester', $input['semester'] - 1)->get();
+            if(count($irs) == 0){
+                throw new \Exception("Semester tidak urut");
+            }
+        }else{
+            if($input['semester'] != 1){
+                throw new \Exception("Semester tidak urut");
+            }
         }
+        
         return $input;
     }
 

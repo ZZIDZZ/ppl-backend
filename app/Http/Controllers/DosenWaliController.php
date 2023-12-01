@@ -280,8 +280,6 @@ class DosenWaliController extends Controller
             "id" => ["operator" => "=", "type" => "string"],
             "sks_semester" => ["operator" => "=", "type" => "string"],
             "mahasiswa_id" => ["operator" => "=", "type" => "string"],
-            "riwayat_status_akademik_id" => ["operator" => "=", "type" => "string"],
-            "semester_akademik_id" => ["operator" => "=", "type" => "string"],
             "created_at" => ["operator" => "=", "type" => "string"],
             "updated_at" => ["operator" => "=", "type" => "string"],
             "nim" => ["operator" => "=", "type" => "string"],
@@ -290,6 +288,7 @@ class DosenWaliController extends Controller
             "semester" => ["operator" => "=", "type" => "string"],
             "no_telp" => ["operator" => "=", "type" => "string"],
             "status_code" => ["operator" => "=", "type" => "string"],
+            "semester" => ["operator" => "=", "type" => "string"]
         ];
         $params = [];
         $user_id = auth('api')->user()->id;
@@ -298,15 +297,15 @@ class DosenWaliController extends Controller
         $input = $request->all();
 
 
-        $sort = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
+        $order = strtoupper($input["order"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
     
-        $sortBy = "id";
+        $orderBy = "semester, mahasiswa_id";
 
         // get all request params
         $input = $request->all();
 
-        if (in_array($input["sort_by"] ?? "", $sortableList)) {
-            $sortBy = $input["sort_by"];
+        if (in_array($input["orderBy"] ?? "", $sortableList)) {
+            $orderBy = $input["orderBy"];
         }
 
         $tableJoinList = [];
@@ -356,7 +355,7 @@ class DosenWaliController extends Controller
         }
 
         
-        $limit = $input["limit"] ?? 10;
+        $limit = $input["limit"] ?? 999;
         $offset = $input["offset"] ?? 0;
         if (!is_null($input["page"] ?? null)) {
             $offset = $limit * ($input["page"] - 1);
@@ -366,26 +365,23 @@ class DosenWaliController extends Controller
         $sql = "SELECT i.id as id, 
             i.sks_semester as sks_semester,
             i.mahasiswa_id as mahasiswa_id,
-            i.semester_akademik_id as semester_akademik_id,
             i.created_at as created_at, 
             i.updated_at as updated_at,
+            i.semester as semester,
             m.nim as nim,
             m.name as nama,
-            sa.tahun_ajaran as tahun_ajaran,
-            sa.semester as semester,
             m.phone_number as no_telp,
             i.status_code as status_code,
             i.file_scan_irs as file_scan_irs
             FROM irs i 
             LEFT JOIN mahasiswa m ON i.mahasiswa_id = m.id
-            LEFT JOIN semester_akademik sa ON i.semester_akademik_id = sa.id
             WHERE m.dosen_wali_id = :dosen_wali_id AND i.status_code='waiting_approval'
             ";
         $params["dosen_wali_id"] = $dosen_wali_id;
         $data = DB::select("
         SELECT * FROM (
             ". $sql .") as dummy WHERE true ". (count($searchableList) > 0 ? " AND (" . implode(" OR ", $searchableList) . ")"  : "").
-            implode("\n", $filterList) .  "  ORDER BY " . $sortBy . " " . $sort . " LIMIT $limit OFFSET $offset 
+            implode("\n", $filterList) .  "  ORDER BY " . $orderBy . " " . $order . " LIMIT $limit OFFSET $offset 
             ", $params);
 
         $modelClass = "App\\Models\\Irs";
@@ -452,8 +448,6 @@ class DosenWaliController extends Controller
             "id" => ["operator" => "=", "type" => "string"],
             "ip_semester" => ["operator" => "=", "type" => "string"],
             "mahasiswa_id" => ["operator" => "=", "type" => "string"],
-            "riwayat_status_akademik_id" => ["operator" => "=", "type" => "string"],
-            "semester_akademik_id" => ["operator" => "=", "type" => "string"],
             "created_at" => ["operator" => "=", "type" => "string"],
             "updated_at" => ["operator" => "=", "type" => "string"],
             "nim" => ["operator" => "=", "type" => "string"],
@@ -462,6 +456,7 @@ class DosenWaliController extends Controller
             "semester" => ["operator" => "=", "type" => "string"],
             "no_telp" => ["operator" => "=", "type" => "string"],
             "status_code" => ["operator" => "=", "type" => "string"],
+            "semester" => ["operator" => "=", "type" => "string"]
         ];
         $params = [];
         $user_id = auth('api')->user()->id;
@@ -471,15 +466,15 @@ class DosenWaliController extends Controller
         $input = $request->all();
         
 
-        $sort = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
+        $order = strtoupper($input["order"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
     
-        $sortBy = "id";
+        $orderBy = "semester, mahasiswa_id";
 
         // get all request params
         $input = $request->all();
 
-        if (in_array($input["sort_by"] ?? "", $sortableList)) {
-            $sortBy = $input["sort_by"];
+        if (in_array($input["orderBy"] ?? "", $sortableList)) {
+            $orderBy = $input["orderBy"];
         }
 
         $tableJoinList = [];
@@ -529,7 +524,7 @@ class DosenWaliController extends Controller
         }
 
         
-        $limit = $input["limit"] ?? 10;
+        $limit = $input["limit"] ?? 999;
         $offset = $input["offset"] ?? 0;
         if (!is_null($input["page"] ?? null)) {
             $offset = $limit * ($input["page"] - 1);
@@ -539,19 +534,16 @@ class DosenWaliController extends Controller
         $sql = "SELECT k.id as id, 
             k.ip_semester as ip_semester,
             k.mahasiswa_id as mahasiswa_id,
-            k.semester_akademik_id as semester_akademik_id,
             k.created_at as created_at, 
             k.updated_at as updated_at,
+            k.semester as semester,
             m.nim as nim,
             m.name as nama,
-            sa.tahun_ajaran as tahun_ajaran,
-            sa.semester as semester,
             m.phone_number as no_telp,
             k.status_code as status_code,
             k.file_scan_khs as file_scan_khs
             FROM khs k 
             LEFT JOIN mahasiswa m ON k.mahasiswa_id = m.id
-            LEFT JOIN semester_akademik sa ON k.semester_akademik_id = sa.id
             WHERE m.dosen_wali_id = :dosen_wali_id AND k.status_code='waiting_approval'
             ";
         $params["dosen_wali_id"] = $dosen_wali_id;
@@ -559,12 +551,12 @@ class DosenWaliController extends Controller
         // dd("
         // SELECT * FROM (
         //     ". $sql .") as dummy WHERE true ". (count($searchableList) > 0 ? " AND (" . implode(" OR ", $searchableList) . ")"  : "").
-        //     implode("\n", $filterList) .  "  ORDER BY " . $sortBy . " " . $sort . " LIMIT $limit OFFSET $offset 
+        //     implode("\n", $filterList) .  "  ORDER BY " . $orderBy . " " . $order . " LIMIT $limit OFFSET $offset 
         //     ", $params);
         $data = DB::select("
         SELECT * FROM (
             ". $sql .") as dummy WHERE true ". (count($searchableList) > 0 ? " AND (" . implode(" OR ", $searchableList) . ")"  : "").
-            implode("\n", $filterList) .  "  ORDER BY " . $sortBy . " " . $sort . " LIMIT $limit OFFSET $offset 
+            implode("\n", $filterList) .  "  ORDER BY " . $orderBy . " " . $order . " LIMIT $limit OFFSET $offset 
             ", $params);
 
         $modelClass = "App\\Models\\Khs";
@@ -631,8 +623,6 @@ class DosenWaliController extends Controller
             "id" => ["operator" => "=", "type" => "string"],
             "nilai" => ["operator" => "=", "type" => "string"],
             "mahasiswa_id" => ["operator" => "=", "type" => "string"],
-            "riwayat_status_akademik_id" => ["operator" => "=", "type" => "string"],
-            "semester_akademik_id" => ["operator" => "=", "type" => "string"],
             "created_at" => ["operator" => "=", "type" => "string"],
             "updated_at" => ["operator" => "=", "type" => "string"],
             "nim" => ["operator" => "=", "type" => "string"],
@@ -641,8 +631,7 @@ class DosenWaliController extends Controller
             "semester" => ["operator" => "=", "type" => "string"],
             "no_telp" => ["operator" => "=", "type" => "string"],
             "status_code" => ["operator" => "=", "type" => "string"],
-            "tanggal_selesai" => ["operator" => "=", "type" => "string"],
-            "is_lulus" => ["operator" => "=", "type" => "string"],
+            "semester" => ["operator" => "=", "type" => "string"]
         ];
         $params = [];
         $user_id = auth('api')->user()->id;
@@ -652,15 +641,15 @@ class DosenWaliController extends Controller
 
         
 
-        $sort = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
+        $order = strtoupper($input["order"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
     
-        $sortBy = "id";
+        $orderBy = "semester, mahasiswa_id";
 
         // get all request params
         $input = $request->all();
 
-        if (in_array($input["sort_by"] ?? "", $sortableList)) {
-            $sortBy = $input["sort_by"];
+        if (in_array($input["orderBy"] ?? "", $sortableList)) {
+            $orderBy = $input["orderBy"];
         }
 
         $tableJoinList = [];
@@ -710,7 +699,7 @@ class DosenWaliController extends Controller
         }
 
         
-        $limit = $input["limit"] ?? 10;
+        $limit = $input["limit"] ?? 999;
         $offset = $input["offset"] ?? 0;
         if (!is_null($input["page"] ?? null)) {
             $offset = $limit * ($input["page"] - 1);
@@ -720,28 +709,23 @@ class DosenWaliController extends Controller
         $sql = "SELECT p.id as id, 
             p.nilai as nilai,
             p.mahasiswa_id as mahasiswa_id,
-            p.semester_akademik_id as semester_akademik_id,
             p.created_at as created_at, 
             p.updated_at as updated_at,
+            p.semester as semester,
             m.nim as nim,
             m.name as nama,
-            sa.tahun_ajaran as tahun_ajaran,
-            sa.semester as semester,
             m.phone_number as no_telp,
             p.status_code as status_code,
-            p.tanggal_selesai as tanggal_selesai,
-            p.is_lulus as is_lulus,
             p.file_pkl as file_pkl
             FROM pkl p 
             LEFT JOIN mahasiswa m ON p.mahasiswa_id = m.id
-            LEFT JOIN semester_akademik sa ON p.semester_akademik_id = sa.id
             WHERE m.dosen_wali_id = :dosen_wali_id AND p.status_code='waiting_approval'
             ";
         $params["dosen_wali_id"] = $dosen_wali_id;
         $data = DB::select("
         SELECT * FROM (
             ". $sql .") as dummy WHERE true ". (count($searchableList) > 0 ? " AND (" . implode(" OR ", $searchableList) . ")"  : "").
-            implode("\n", $filterList) .  "  ORDER BY " . $sortBy . " " . $sort . " LIMIT $limit OFFSET $offset 
+            implode("\n", $filterList) .  "  ORDER BY " . $orderBy . " " . $order . " LIMIT $limit OFFSET $offset 
             ", $params);
 
         $modelClass = "App\\Models\\Pkl";
@@ -808,8 +792,6 @@ class DosenWaliController extends Controller
             "id" => ["operator" => "=", "type" => "string"],
             "nilai" => ["operator" => "=", "type" => "string"],
             "mahasiswa_id" => ["operator" => "=", "type" => "string"],
-            "riwayat_status_akademik_id" => ["operator" => "=", "type" => "string"],
-            "semester_akademik_id" => ["operator" => "=", "type" => "string"],
             "created_at" => ["operator" => "=", "type" => "string"],
             "updated_at" => ["operator" => "=", "type" => "string"],
             "nim" => ["operator" => "=", "type" => "string"],
@@ -818,8 +800,7 @@ class DosenWaliController extends Controller
             "semester" => ["operator" => "=", "type" => "string"],
             "no_telp" => ["operator" => "=", "type" => "string"],
             "status_code" => ["operator" => "=", "type" => "string"],
-            "tanggal_selesai" => ["operator" => "=", "type" => "string"],
-            "is_lulus" => ["operator" => "=", "type" => "string"],
+            "semester" => ["operator" => "=", "type" => "string"]
         ];
         $params = [];
         $user_id = auth('api')->user()->id;
@@ -829,15 +810,15 @@ class DosenWaliController extends Controller
 
         
 
-        $sort = strtoupper($input["sort"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
+        $order = strtoupper($input["order"] ?? "DESC") == "ASC" ? "ASC" : "DESC";
     
-        $sortBy = "id";
+        $orderBy = "semester, mahasiswa_id";
 
         // get all request params
         $input = $request->all();
 
-        if (in_array($input["sort_by"] ?? "", $sortableList)) {
-            $sortBy = $input["sort_by"];
+        if (in_array($input["orderBy"] ?? "", $sortableList)) {
+            $orderBy = $input["orderBy"];
         }
 
         $tableJoinList = [];
@@ -887,7 +868,7 @@ class DosenWaliController extends Controller
         }
 
         
-        $limit = $input["limit"] ?? 10;
+        $limit = $input["limit"] ?? 999;
         $offset = $input["offset"] ?? 0;
         if (!is_null($input["page"] ?? null)) {
             $offset = $limit * ($input["page"] - 1);
@@ -897,28 +878,23 @@ class DosenWaliController extends Controller
         $sql = "SELECT s.id as id, 
             s.nilai as nilai,
             s.mahasiswa_id as mahasiswa_id,
-            s.semester_akademik_id as semester_akademik_id,
             s.created_at as created_at, 
             s.updated_at as updated_at,
+            s.semester as semester,
             m.nim as nim,
             m.name as nama,
-            sa.tahun_ajaran as tahun_ajaran,
-            sa.semester as semester,
             m.phone_number as no_telp,
             s.status_code as status_code,
-            s.tanggal_selesai as tanggal_selesai,
-            s.is_lulus as is_lulus,
             s.file_skripsi as file_skripsi
             FROM skripsi s 
             LEFT JOIN mahasiswa m ON s.mahasiswa_id = m.id
-            LEFT JOIN semester_akademik sa ON s.semester_akademik_id = sa.id
             WHERE m.dosen_wali_id = :dosen_wali_id AND s.status_code='waiting_approval'
             ";
         $params["dosen_wali_id"] = $dosen_wali_id;
         $data = DB::select("
         SELECT * FROM (
             ". $sql .") as dummy WHERE true ". (count($searchableList) > 0 ? " AND (" . implode(" OR ", $searchableList) . ")"  : "").
-            implode("\n", $filterList) .  "  ORDER BY " . $sortBy . " " . $sort . " LIMIT $limit OFFSET $offset 
+            implode("\n", $filterList) .  "  ORDER BY " . $orderBy . " " . $order . " LIMIT $limit OFFSET $offset 
             ", $params);
 
         $modelClass = "App\\Models\\Skripsi";

@@ -91,7 +91,6 @@ class Mahasiswa extends Model
         'name',
         'phone_number',
         'nim',
-        'tahun_masuk',
         'jalur_masuk',
         'status',
     ];

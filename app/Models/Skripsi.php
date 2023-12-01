@@ -34,6 +34,7 @@ class Skripsi extends Model
         'mahasiswa_id',
         'file_skripsi',
         'status_code',
+        'semester'
     ];
     const FIELD_TYPES = [
         // 'id',
@@ -48,6 +49,7 @@ class Skripsi extends Model
         'mahasiswa_id',
         'file_skripsi',
         'status_code',
+        'semester'
     ];
     const FIELD_SORTABLE = [
         'id',
@@ -55,6 +57,7 @@ class Skripsi extends Model
         'mahasiswa_id',
         'file_skripsi',
         'status_code',
+        'semester'
     ];
     //searchable untuk tipe string and text!
     const FIELD_SEARCHABLE = [
@@ -66,6 +69,7 @@ class Skripsi extends Model
         'mahasiswa_id' => 'id mahasiswa',
         'file_skripsi' => 'File Skripsi',
         'status_code' => 'kode status',
+        'semester' => 'Semester'
     ];
     const FIELD_RELATIONS = [
         'mahasiswa_id' => [
@@ -83,12 +87,14 @@ class Skripsi extends Model
         'mahasiswa_id' => 'required',
         'file_skripsi' => 'nullable',
         'status_code' => 'nullable',
+        'semester' => 'required',
     ];
 
     const FIELD_DEFAULT_VALUE = [
         'nilai' => null,
         'file_skripsi' => null,
         'status_code' => 'waiting_approval',
+        'semester' => null
     ];
     
     const FIELD_FILTERABLE = [
@@ -107,6 +113,9 @@ class Skripsi extends Model
         "status_code" => [
             "operator" => "=",
         ],
+        "semester" => [
+            "operator" => "=",
+        ],
     ];
 
     protected $fillable = [
@@ -114,6 +123,7 @@ class Skripsi extends Model
         'mahasiswa_id',
         'file_skripsi',
         'status_code',
+        'semester'
     ];
 
     public static function beforeInsert($input)
@@ -129,7 +139,6 @@ class Skripsi extends Model
         ];
         $total_sks = DB::select($query, $params)[0]->total_sks;
         if ($total_sks < 80) {
-            dd($total_sks);
             throw new \Exception("Total SKS kurang dari 100, tidak bisa membuat Skripsi");
         }
 
@@ -141,6 +150,14 @@ class Skripsi extends Model
         if ($skripsi) {
             throw new \Exception("Semester sudah dipakai");
         }
+
+        // change nilai to upper, and check if A, B, or C
+        $nilai = $input['nilai'];
+        $nilai = strtoupper($nilai);
+        if ($nilai != 'A' && $nilai != 'B' && $nilai != 'C') {
+            throw new \Exception("Nilai tidak valid");
+        }
+        
         return $input;
     }
 

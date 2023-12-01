@@ -67,6 +67,18 @@ class AuthController extends Controller
             return response()->json(["message" => __("message.loginCredentialFalse")], 401);
         }
 
+        // if mahasiswa, check if already pkl or skripsi
+        $is_pkl = false;
+        $is_skripsi = false;
+        if ($user->role_code == "mahasiswa") {
+            $is_pkl = DB::table("pkl")->where("mahasiswa_id", $user->id)->exists();
+            $is_skripsi = DB::table("skripsi")->where("mahasiswa_id", $user->id)->exists();
+        }
+
+        // add is_pkl and is_skripsi to user
+        $user->is_pkl = $is_pkl;
+        $user->is_skripsi = $is_skripsi;
+
         return [
             "user" => $user->toArray(),
             "token" => $token,
@@ -135,6 +147,18 @@ class AuthController extends Controller
             ->leftjoin($table, $table . ".user_id", "users.id")
             ->where("users.id", $id)->first();
         // empty password
+
+        // if mahasiswa, check if already pkl or skripsi
+        $is_pkl = false;
+        $is_skripsi = false;
+        if ($user->role_code == "mahasiswa") {
+            $is_pkl = DB::table("pkl")->where("mahasiswa_id", $user->id)->exists();
+            $is_skripsi = DB::table("skripsi")->where("mahasiswa_id", $user->id)->exists();
+        }
+
+        // add is_pkl and is_skripsi to user
+        $user->is_pkl = $is_pkl;
+        $user->is_skripsi = $is_skripsi;
 
         return response()->json([
             "data" => $user->toArray()
