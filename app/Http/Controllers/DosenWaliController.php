@@ -32,6 +32,7 @@ class DosenWaliController extends Controller
 
     public function dashboard(){
         $total_mengikuti_skripsi = 0;
+        $total_lulus_pkl = 0;
         $total_lulus_skripsi = 0;
         $total_mahasiswa_lulus = 0;
         $user_id = auth('api')->user()->id;
@@ -45,18 +46,19 @@ class DosenWaliController extends Controller
             FROM mahasiswa m WHERE m.status = 'Aktif' AND m.dosen_wali_id = :dosen_wali_id
         ", $params)->total;
 
-        $total_mengikuti_skripsi = DB::selectOne("
-            SELECT
+        $total_lulus_pkl = DB::selectOne("
+            SELECT 
             COUNT(m.id) as total
-            FROM skripsi s LEFT JOIN mahasiswa m ON m.id = s.mahasiswa_id
-            WHERE s.is_selesai = false AND m.dosen_wali_id = :dosen_wali_id
+            FROM pkl p LEFT JOIN mahasiswa m ON m.id = p.mahasiswa_id
+            WHERE m.dosen_wali_id = :dosen_wali_id
         ", $params)->total;
+
 
         $total_lulus_skripsi = DB::selectOne("
             SELECT 
             COUNT(m.id) as total
             FROM skripsi s LEFT JOIN mahasiswa m ON m.id = s.mahasiswa_id
-            WHERE s.is_selesai = true AND s.is_lulus = true AND m.dosen_wali_id = :dosen_wali_id
+            WHERE m.dosen_wali_id = :dosen_wali_id
         ", $params)->total;
 
         $range_ipk_mahasiswa = DB::select("
@@ -96,7 +98,7 @@ class DosenWaliController extends Controller
                 FROM 
                     irs i 
                     LEFT JOIN mahasiswa m ON i.mahasiswa_id = m.id 
-                    LEFT JOIN khs k ON k.irs_id = i.id  
+                    LEFT JOIN khs k ON k.mahasiswa_id = i.mahasiswa_id AND k.semester = i.semester   
                 WHERE 
                     i.status_code = 'approved' AND k.status_code = 'approved' AND m.dosen_wali_id = :dosen_wali_id
                 GROUP BY 
@@ -111,7 +113,7 @@ class DosenWaliController extends Controller
 
         $return_data = [
             'total_mahasiswa_aktif' => $total_mahasiswa_aktif,
-            'total_mengikuti_skripsi' => $total_mengikuti_skripsi,
+            'total_lulus_pkl' => $total_lulus_pkl,
             'total_lulus_skripsi' => $total_lulus_skripsi,
             'total_mahasiswa_lulus' => $total_mahasiswa_lulus,
             'range_ipk_mahasiswa' => $range_ipk_mahasiswa
