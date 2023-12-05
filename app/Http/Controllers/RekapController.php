@@ -17,6 +17,22 @@ class RekapController extends Controller
 
     public function rekapPklAngkatan(Request $request){
         $input = $request->all();
+        $validation = [
+            "start_tahun_angkatan" => "nullable",
+            "end_tahun_angkatan" => "nullable",
+            "dosen_wali_id" => "nullable"
+        ];
+
+        $validator = Validator::make($input, $validation);
+        if ($validator->fails()) {
+            return [
+                "success" => false,
+                "message" => $validator->errors()->first()
+            ];
+        }
+        // if not exists input for start or end tahun angkatan, then use default value
+        $start_tahun_angkatan = $input["start_tahun_angkatan"] ?? 2017;
+        $end_tahun_angkatan = $input["end_tahun_angkatan"] ?? 2023;
         // check if current user is dosen wali
         $dosen_wali_id = null;
         $user_id = auth('api')->user()->id;
@@ -38,31 +54,42 @@ class RekapController extends Controller
         // dd($dosen_wali_id, $dosen_wali_id != null);
         $dosen_wali_where = $dosen_wali_id != null ? " WHERE m.dosen_wali_id = $dosen_wali_id " : " ";
 
+        $params = [
+            "start_tahun_angkatan" => (int)$start_tahun_angkatan,
+            "end_tahun_angkatan" => (int)$end_tahun_angkatan
+        ];
+
         $query = DB::select("
-        SELECT 
-            t.tahun_masuk,
+        WITH RECURSIVE YearSequence AS (
+            SELECT :start_tahun_angkatan::integer AS Year
+            UNION ALL
+            SELECT Year + 1
+            FROM YearSequence
+            WHERE Year < :end_tahun_angkatan::integer
+          )
+          
+          SELECT 
+            ys.Year AS tahun_masuk,
             COALESCE(r.sudah_lulus, 0) AS sudah_lulus,
             COALESCE(r.belum_lulus, 0) AS belum_lulus
-        FROM 
-            (SELECT DISTINCT tahun_masuk FROM mahasiswa ORDER BY tahun_masuk DESC LIMIT 7) t
-        LEFT JOIN (
+          FROM 
+            YearSequence ys
+          LEFT JOIN (
             SELECT 
-                m.tahun_masuk,
-                SUM(CASE WHEN COALESCE(p.nilai, 'X') = 'A' THEN 1
-                WHEN COALESCE(p.nilai, 'X') = 'B' THEN 1
-                WHEN COALESCE(p.nilai, 'X') = 'C' THEN 1 ELSE 0 END) AS sudah_lulus,
-                SUM(CASE WHEN COALESCE(p.nilai, 'X') = 'X' AND p.id IS NULL THEN 1 ELSE 0 END) AS belum_lulus
+              m.tahun_masuk,
+              SUM(CASE WHEN COALESCE(p.nilai, 'X') IN ('A', 'B', 'C') THEN 1 ELSE 0 END) AS sudah_lulus,
+              SUM(CASE WHEN COALESCE(p.nilai, 'X') = 'X' AND p.id IS NULL THEN 1 ELSE 0 END) AS belum_lulus
             FROM 
-                mahasiswa m
+              mahasiswa m
             LEFT JOIN 
-                pkl p ON p.mahasiswa_id = m.id
+              pkl p ON p.mahasiswa_id = m.id
             ". $dosen_wali_where ."
             GROUP BY 
-                m.tahun_masuk
-        ) r ON t.tahun_masuk = r.tahun_masuk
-        ORDER BY 
-            t.tahun_masuk DESC
-        ");
+              m.tahun_masuk
+          ) r ON ys.Year = r.tahun_masuk
+          ORDER BY 
+            ys.Year DESC
+        ", $params);
 
         $tahun_masuk_data = [];
         $status_lulus_data = [];
@@ -175,6 +202,22 @@ class RekapController extends Controller
 
     public function rekapSkripsiAngkatan(Request $request){
         $input = $request->all();
+        $validation = [
+            "start_tahun_angkatan" => "nullable",
+            "end_tahun_angkatan" => "nullable",
+            "dosen_wali_id" => "nullable"
+        ];
+
+        $validator = Validator::make($input, $validation);
+        if ($validator->fails()) {
+            return [
+                "success" => false,
+                "message" => $validator->errors()->first()
+            ];
+        }
+        // if not exists input for start or end tahun angkatan, then use default value
+        $start_tahun_angkatan = $input["start_tahun_angkatan"] ?? 2017;
+        $end_tahun_angkatan = $input["end_tahun_angkatan"] ?? 2023;
         // check if current user is dosen wali
         $dosen_wali_id = null;
         $user_id = auth('api')->user()->id;
@@ -196,31 +239,42 @@ class RekapController extends Controller
         // dd($dosen_wali_id, $dosen_wali_id != null);
         $dosen_wali_where = $dosen_wali_id != null ? " WHERE m.dosen_wali_id = $dosen_wali_id " : " ";
 
+        $params = [
+            "start_tahun_angkatan" => (int)$start_tahun_angkatan,
+            "end_tahun_angkatan" => (int)$end_tahun_angkatan
+        ];
+
         $query = DB::select("
-        SELECT 
-            t.tahun_masuk,
+        WITH RECURSIVE YearSequence AS (
+            SELECT :start_tahun_angkatan::integer AS Year
+            UNION ALL
+            SELECT Year + 1
+            FROM YearSequence
+            WHERE Year < :end_tahun_angkatan::integer
+          )
+          
+          SELECT 
+            ys.Year AS tahun_masuk,
             COALESCE(r.sudah_lulus, 0) AS sudah_lulus,
             COALESCE(r.belum_lulus, 0) AS belum_lulus
-        FROM 
-            (SELECT DISTINCT tahun_masuk FROM mahasiswa ORDER BY tahun_masuk DESC LIMIT 7) t
-        LEFT JOIN (
+          FROM 
+            YearSequence ys
+          LEFT JOIN (
             SELECT 
-                m.tahun_masuk,
-                SUM(CASE WHEN COALESCE(s.nilai, 'X') = 'A' THEN 1
-                WHEN COALESCE(s.nilai, 'X') = 'B' THEN 1
-                WHEN COALESCE(s.nilai, 'X') = 'C' THEN 1 ELSE 0 END) AS sudah_lulus,
-                SUM(CASE WHEN COALESCE(s.nilai, 'X') = 'X' AND s.id IS NULL THEN 1 ELSE 0 END) AS belum_lulus
+              m.tahun_masuk,
+              SUM(CASE WHEN COALESCE(s.nilai, 'X') IN ('A', 'B', 'C') THEN 1 ELSE 0 END) AS sudah_lulus,
+              SUM(CASE WHEN COALESCE(s.nilai, 'X') = 'X' AND s.id IS NULL THEN 1 ELSE 0 END) AS belum_lulus
             FROM 
-                mahasiswa m
+              mahasiswa m
             LEFT JOIN 
-                skripsi s ON s.mahasiswa_id = m.id
+              skripsi s ON s.mahasiswa_id = m.id
             ". $dosen_wali_where ."
             GROUP BY 
-                m.tahun_masuk
-        ) r ON t.tahun_masuk = r.tahun_masuk
-        ORDER BY 
-            t.tahun_masuk DESC
-        ");
+              m.tahun_masuk
+          ) r ON ys.Year = r.tahun_masuk
+          ORDER BY 
+            ys.Year DESC;
+        ", $params);
 
         $tahun_masuk_data = [];
         $status_lulus_data = [];
