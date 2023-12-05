@@ -157,6 +157,17 @@ class Skripsi extends Model
         if ($nilai != 'A' && $nilai != 'B' && $nilai != 'C') {
             throw new \Exception("Nilai tidak valid");
         }
+
+        $already_lulus_pkl = false;
+        $pkl_data = Pkl::where('mahasiswa_id', $input['mahasiswa_id'])->first();
+        if ($pkl_data) {
+            $already_lulus_pkl = true;
+        }
+        
+        // check if already lulus pkl, if not then cannot create skripsi
+        if (!$already_lulus_pkl) {
+            throw new \Exception("Ambil PKL terlebih dahulu sebelum membuat Skripsi");
+        }
         
         return $input;
     }
