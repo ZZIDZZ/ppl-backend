@@ -174,6 +174,7 @@ class Skripsi extends Model
 
     public static function afterInsert($object, $input)
     {
+        
         return $object;
     }
     

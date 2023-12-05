@@ -183,7 +183,7 @@ class DosenWaliController extends Controller
             }
         }
         // if skripsi, and is_lulus is true, then update mahasiswa status to lulus
-        if($akademik == 'skripsi' && $model->is_lulus == true){
+        if($akademik == 'skripsi'){
             $mahasiswa = Mahasiswa::find($model->mahasiswa_id);
             $mahasiswa->status = 'Lulus';
             $mahasiswa->save();

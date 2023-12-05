@@ -511,7 +511,7 @@ class RekapController extends Controller
             m.id = :mahasiswa_id
         GROUP BY 
             m.id, m.tahun_masuk", $params);
-            
+
         if($data_irs){
             $total_ipk = $data_irs->ipk;
             $total_sks = $data_irs->total_sks;
@@ -532,5 +532,96 @@ class RekapController extends Controller
             "totalPage" => $totalPage,
             "model" => $modelInfo
         ];
+    }
+
+    public function listRekapMahasiswaAngkatan(Request $request){
+        $input = $request->all();
+
+        $validation = [
+            "tahun_angkatan" => "required",
+            "dosen_wali_id" => "nullable"
+        ];
+
+        $validator = Validator::make($input, $validation);
+        if ($validator->fails()) {
+            return [
+                "success" => false,
+                "message" => $validator->errors()->first()
+            ];
+        }
+
+        // check if current user is dosen wali
+        $dosen_wali_id = null;
+        $user_id = auth('api')->user()->id;
+        $dosen_wali = DB::selectOne("
+            SELECT 
+                dw.id,
+                dw.user_id,
+                dw.name,
+                dw.phone_number,
+                dw.nip
+            FROM dosen_wali dw
+            WHERE dw.user_id = :user_id
+        ", [
+            "user_id" => $user_id
+        ]);
+        if(!is_null($dosen_wali)){
+            $dosen_wali_id = $dosen_wali->id;
+        }
+        // dd($dosen_wali_id, $dosen_wali_id != null);
+        $dosen_wali_where = $dosen_wali_id != null ? " AND m.dosen_wali_id = $dosen_wali_id " : " ";
+        $params = [
+            "tahun_angkatan" => $input["tahun_angkatan"]
+        ];
+
+        $list_mahasiswa = DB::select("SELECT m.name, m.jalur_masuk, m.status, SUM(i.sks_semester) as total_sks, SUM(k.ip_semester*i.sks_semester) / SUM(i.sks_semester) as total_ipk, p.nilai as nilai_pkl, s.nilai as nilai_skripsi
+        FROM mahasiswa m 
+        LEFT JOIN khs k ON k.mahasiswa_id = m.id 
+        LEFT JOIN irs i ON i.mahasiswa_id = m.id AND k.semester = i.semester
+        LEFT JOIN pkl p ON p.mahasiswa_id = m.id
+        LEFT JOIN skripsi s ON s.mahasiswa_id = m.id
+        WHERE tahun_masuk = :tahun_angkatan " . $dosen_wali_where . "
+        GROUP BY m.name, m.jalur_masuk, m.status, p.nilai, s.nilai ORDER BY m.name", $params);
+
+        // count how many has pkl data on each mahasiswa
+        $pkl_statistics = (array) DB::selectOne("SELECT SUM(has_not_pkl) AS total_not_pkl, SUM(has_pkl) AS total_pkl FROM (
+            SELECT 
+                m.name, 
+                CASE 
+                WHEN p.id IS NOT NULL THEN 1 
+                ELSE 0 END as has_pkl, 
+                CASE WHEN p.id IS NULL THEN 1 
+                ELSE 0 END as has_not_pkl
+            FROM mahasiswa m 
+            LEFT JOIN pkl p ON p.mahasiswa_id = m.id WHERE tahun_masuk = :tahun_angkatan " . $dosen_wali_where . "
+            ) dummy", $params);
+
+        $skripsi_statistics = (array) DB::selectOne("SELECT SUM(has_not_skripsi) AS total_not_skripsi, SUM(has_skripsi) AS total_skripsi FROM (
+            SELECT 
+                m.name, 
+                CASE 
+                WHEN s.id IS NOT NULL THEN 1 
+                ELSE 0 END as has_skripsi, 
+                CASE WHEN s.id IS NULL THEN 1 
+                ELSE 0 END as has_not_skripsi
+            FROM mahasiswa m
+            LEFT JOIN skripsi s ON s.mahasiswa_id = m.id WHERE tahun_masuk = :tahun_angkatan " . $dosen_wali_where . "
+            ) dummy", $params);
+
+        $total_lulus = DB::selectOne("SELECT COUNT(m.id) as total FROM mahasiswa m WHERE m.status = 'lulus' AND tahun_masuk = :tahun_angkatan " . $dosen_wali_where . " ", $params)->total;
+
+        $total_mahasiswa = DB::selectOne("SELECT COUNT(m.id) as total FROM mahasiswa m WHERE tahun_masuk = :tahun_angkatan " . $dosen_wali_where . " ", $params)->total;
+        
+        $return_data = [
+            "success" => true,
+            "total_mahasiswa" => $total_mahasiswa,
+            "total_lulus" => $total_lulus,
+            "pkl_statistics" => $pkl_statistics,
+            "skripsi_statistics" => $skripsi_statistics,
+            "data" => $list_mahasiswa,
+        ];
+
+        return $return_data;
+        
     }
 }
