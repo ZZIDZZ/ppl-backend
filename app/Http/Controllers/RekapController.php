@@ -479,6 +479,7 @@ class RekapController extends Controller
             }
             return $key;
         }, $data);
+        
 
         $sqlForCount = "SELECT COUNT(1) AS total FROM (" . $sql . ") as dummy WHERE true ". 
             (count($searchableList) > 0 ? " AND (" . implode(" OR ", $searchableList) . ")" : "") .
@@ -510,11 +511,17 @@ class RekapController extends Controller
             m.id = :mahasiswa_id
         GROUP BY 
             m.id, m.tahun_masuk", $params);
-
         if($data_irs){
             $total_ipk = $data_irs->ipk;
             $total_sks = $data_irs->total_sks;
         }
+
+        foreach($data as $key => $value){
+            $data[$key]->total_sks = $total_sks;
+            $data[$key]->total_ipk = $total_ipk;
+        }
+
+        
         return [
             "success" => true,
             "total_ipk" => $total_ipk,
