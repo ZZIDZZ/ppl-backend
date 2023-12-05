@@ -97,7 +97,7 @@ class MahasiswaController extends Controller
             p.id as pkl_id, 
             i.semester as semester,
             p.nilai as nilai,
-            CASE WHEN p.status_code = 'approved' THEN 'Sudah Disetujui' ELSE 'Belum Disetujui'
+            CASE WHEN p.status_code = 'approved' THEN 'Sudah Disetujui' ELSE 'Belum Disetujui' END as status
         FROM 
             irs i LEFT JOIN pkl p ON i.mahasiswa_id = p.mahasiswa_id AND i.semester = p.semester
         WHERE 
@@ -113,7 +113,7 @@ class MahasiswaController extends Controller
             s.id as pkl_id, 
             i.semester as semester,
             s.nilai as nilai,
-            CASE WHEN s.status_code = 'approved' THEN 'Sudah Disetujui' ELSE 'Belum Disetujui'
+            CASE WHEN s.status_code = 'approved' THEN 'Sudah Disetujui' ELSE 'Belum Disetujui' END as status 
         FROM irs i LEFT JOIN skripsi s ON i.mahasiswa_id = s.mahasiswa_id AND i.semester = s.semester
         WHERE s.mahasiswa_id=:mahasiswa_id", $params);
 
