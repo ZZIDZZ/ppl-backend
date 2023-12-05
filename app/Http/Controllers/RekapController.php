@@ -432,7 +432,11 @@ class RekapController extends Controller
             irs.sks_semester as sks_semester, 
             k.ip_semester as ip_semester,
             p.nilai as nilai_pkl,
-            s.nilai as nilai_skripsi
+            s.nilai as nilai_skripsi,
+            irs.file_scan_irs as file_scan_irs,
+            k.file_scan_khs as file_scan_khs,
+            p.file_pkl as file_pkl,
+            s.file_skripsi as file_skripsi
             FROM irs
             LEFT JOIN khs k ON k.mahasiswa_id = irs.mahasiswa_id AND k.semester = irs.semester
             LEFT JOIN pkl p ON p.mahasiswa_id = irs.mahasiswa_id AND p.semester = irs.semester
@@ -491,8 +495,30 @@ class RekapController extends Controller
         ];
 
         $totalPage = ceil($total / $limit);
+
+        $total_ipk = 0;
+        $total_sks = 0;
+
+        $data_irs = DB::selectOne("SELECT
+            ROUND((SUM(COALESCE(k.ip_semester, 0)*i.sks_semester) / SUM(i.sks_semester))::numeric, 2) as ipk,
+            SUM(i.sks_semester) AS total_sks
+        FROM 
+            khs k
+            LEFT JOIN mahasiswa m ON k.mahasiswa_id = m.id 
+            LEFT JOIN irs i ON k.mahasiswa_id = m.id AND k.semester = i.semester
+        WHERE 
+            m.id = :mahasiswa_id
+        GROUP BY 
+            m.id, m.tahun_masuk", $params);
+
+        if($data_irs){
+            $total_ipk = $data_irs->ipk;
+            $total_sks = $data_irs->total_sks;
+        }
         return [
             "success" => true,
+            "total_ipk" => $total_ipk,
+            "total_sks" => $total_sks,
             "data" => $data,
             "total" => $total,
             "totalPage" => $totalPage,
