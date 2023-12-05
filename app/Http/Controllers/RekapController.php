@@ -511,6 +511,7 @@ class RekapController extends Controller
             m.id = :mahasiswa_id
         GROUP BY 
             m.id, m.tahun_masuk", $params);
+            
         if($data_irs){
             $total_ipk = $data_irs->ipk;
             $total_sks = $data_irs->total_sks;

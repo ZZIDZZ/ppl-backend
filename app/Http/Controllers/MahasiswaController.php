@@ -43,7 +43,7 @@ class MahasiswaController extends Controller
             LEFT JOIN mahasiswa m ON i.mahasiswa_id = m.id 
             LEFT JOIN khs k ON k.mahasiswa_id = m.id AND k.semester = i.semester
         WHERE 
-            i.status_code = 'approved' AND k.status_code = 'approved' AND m.id = :mahasiswa_id
+             m.id = :mahasiswa_id
         GROUP BY 
             m.id, m.tahun_masuk", $params);
         if($data_irs){
