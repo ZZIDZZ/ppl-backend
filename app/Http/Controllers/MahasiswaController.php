@@ -39,9 +39,9 @@ class MahasiswaController extends Controller
             ROUND((SUM(COALESCE(k.ip_semester, 0)*i.sks_semester) / SUM(i.sks_semester))::numeric, 2) as ipk,
             SUM(i.sks_semester) AS total_sks
         FROM 
-            irs i 
-            LEFT JOIN mahasiswa m ON i.mahasiswa_id = m.id 
-            LEFT JOIN khs k ON k.mahasiswa_id = m.id AND k.semester = i.semester
+            khs k
+            LEFT JOIN mahasiswa m ON k.mahasiswa_id = m.id 
+            LEFT JOIN irs i ON k.mahasiswa_id = m.id AND k.semester = i.semester
         WHERE 
              m.id = :mahasiswa_id
         GROUP BY 
