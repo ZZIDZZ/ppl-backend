@@ -100,7 +100,7 @@ class MahasiswaController extends Controller
         FROM 
             irs i LEFT JOIN pkl p ON i.mahasiswa_id = p.mahasiswa_id AND i.semester = p.semester
         WHERE 
-            p.mahasiswa_id=:mahasiswa_id AND p.status_code = 'approved' AND i.status_code = 'approved'", $params);
+            p.mahasiswa_id=:mahasiswa_id", $params);
 
         if($latest_pkl_query){
             $latest_pkl = (array)$latest_pkl_query;
@@ -112,8 +112,8 @@ class MahasiswaController extends Controller
             s.id as pkl_id, 
             i.semester as semester,
             s.nilai as nilai
-        FROM irs i LEFT JOIN skripsi p ON i.mahasiswa_id = s.mahasiswa_id AND i.semester = s.semester
-        WHERE s.mahasiswa_id=:mahasiswa_id AND s.status_code = 'approved' AND i.status_code = 'approved'", $params);
+        FROM irs i LEFT JOIN skripsi s ON i.mahasiswa_id = s.mahasiswa_id AND i.semester = s.semester
+        WHERE s.mahasiswa_id=:mahasiswa_id", $params);
 
         if($latest_skripsi_query){
             $latest_skripsi = (array)$latest_skripsi_query;
