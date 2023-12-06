@@ -39,11 +39,11 @@ class MahasiswaController extends Controller
             ROUND((SUM(COALESCE(k.ip_semester, 0)*i.sks_semester) / SUM(i.sks_semester))::numeric, 2) as ipk,
             SUM(i.sks_semester) AS total_sks
         FROM 
-            irs i 
-            LEFT JOIN mahasiswa m ON i.mahasiswa_id = m.id 
-            LEFT JOIN khs k ON k.irs_id = i.id 
+            khs k
+            LEFT JOIN mahasiswa m ON k.mahasiswa_id = m.id 
+            LEFT JOIN irs i ON k.mahasiswa_id = m.id AND k.semester = i.semester
         WHERE 
-            i.status_code = 'approved' AND k.status_code = 'approved' AND m.id = :mahasiswa_id
+             m.id = :mahasiswa_id
         GROUP BY 
             m.id, m.tahun_masuk", $params);
         if($data_irs){
@@ -51,118 +51,92 @@ class MahasiswaController extends Controller
             $total_sks = $data_irs->total_sks;
         }
 
-        $last_semester_akademik_query = DB::selectOne("
-        SELECT dummy.*, sa.tahun_ajaran as tahun_ajaran,
-            CASE WHEN sa.semester = 1 THEN 'Ganjil' ELSE 'Genap' END as semester_akademik FROM (
-                SELECT
-                    m.id as id,
-                    m.tahun_masuk as angkatan,
-                    MAX(sa.id) as semester_akademik_id
-                FROM
-                    irs i
-                    LEFT JOIN mahasiswa m ON i.mahasiswa_id = m.id
-                    LEFT JOIN semester_akademik sa ON i.semester_akademik_id = sa.id
-                WHERE
-                    i.status_code = 'approved' AND m.id = :mahasiswa_id
-                GROUP BY
-                    m.id, m.tahun_masuk
-        ) as dummy LEFT JOIN semester_akademik sa ON dummy.semester_akademik_id = sa.id", $params);
-        $last_semester_akademik = [];
+        // $last_semester_akademik_query = DB::selectOne("
+        // SELECT dummy.*, sa.tahun_ajaran as tahun_ajaran,
+        //     CASE WHEN sa.semester = 1 THEN 'Ganjil' ELSE 'Genap' END as semester_akademik FROM (
+        //         SELECT
+        //             m.id as id,
+        //             m.tahun_masuk as angkatan,
+        //             MAX(sa.id) as semester_akademik_id
+        //         FROM
+        //             irs i
+        //             LEFT JOIN mahasiswa m ON i.mahasiswa_id = m.id
+        //             LEFT JOIN semester_akademik sa ON i.semester_akademik_id = sa.id
+        //         WHERE
+        //             i.status_code = 'approved' AND m.id = :mahasiswa_id
+        //         GROUP BY
+        //             m.id, m.tahun_masuk
+        // ) as dummy LEFT JOIN semester_akademik sa ON dummy.semester_akademik_id = sa.id", $params);
+        // $last_semester_akademik = [];
         
-        if($last_semester_akademik_query){
-            $last_semester_akademik = (array)$last_semester_akademik_query;
-        }
+        // if($last_semester_akademik_query){
+        //     $last_semester_akademik = (array)$last_semester_akademik_query;
+        // }
 
-        $current_semester_query = DB::selectOne("
-        SELECT
-        m.id as id,
-        m.tahun_masuk as angkatan,
-        COUNT(i.id) as semester
-            FROM
-                irs i
-                LEFT JOIN mahasiswa m ON i.mahasiswa_id = m.id
-            WHERE
-                i.status_code = 'approved' AND m.id = :mahasiswa_id
-            GROUP BY
-        m.id, m.tahun_masuk", $params);
+        // $current_semester_query = DB::selectOne("
+        //     SELECT
+        //     m.id as id,
+        //     m.tahun_masuk as angkatan,
+        //     COUNT(i.id) as semester
+        //         FROM
+        //             irs i
+        //             LEFT JOIN mahasiswa m ON i.mahasiswa_id = m.id
+        //         WHERE
+        //             i.status_code = 'approved' AND m.id = :mahasiswa_id
+        //         GROUP BY
+        //     m.id, m.tahun_masuk", $params);
 
-        $current_semester = 0;
-        if($current_semester_query){
-            $current_semester = $current_semester_query->semester;
-        }
+        // $current_semester = 0;
+        // if($current_semester_query){
+        //     $current_semester = $current_semester_query->semester;
+        // }
 
         $latest_pkl_query = DB::selectOne("
-            SELECT
-            p.id AS id,
-            p.irs_id AS irs_id,
-            p.nilai AS nilai,
-            p.status_code AS status_code,
-            p.is_selesai AS is_selesai,
-            p.is_lulus AS is_lulus,
-            p.created_at AS created_at,
-            p.updated_at AS updated_at,
-            CASE
-                WHEN p.id IS NOT NULL THEN TRUE
-                ELSE FALSE
-            END AS is_diambil
-        FROM
-            pkl p
-            LEFT JOIN irs i ON p.irs_id = i.id
-            LEFT JOIN mahasiswa m ON i.mahasiswa_id = m.id
-        WHERE
-            m.id = :mahasiswa_id AND p.status_code = 'approved'
-        ORDER BY
-            p.id DESC
-        LIMIT 1", $params);
+        SELECT 
+            i.id as irs_id, 
+            p.id as pkl_id, 
+            i.semester as semester,
+            p.nilai as nilai,
+            CASE WHEN p.status_code = 'approved' THEN 'Sudah Disetujui' ELSE 'Belum Disetujui' END as status
+        FROM 
+            irs i LEFT JOIN pkl p ON i.mahasiswa_id = p.mahasiswa_id AND i.semester = p.semester
+        WHERE 
+            p.mahasiswa_id=:mahasiswa_id", $params);
 
         if($latest_pkl_query){
             $latest_pkl = (array)$latest_pkl_query;
         }
 
         $latest_skripsi_query = DB::selectOne("
-            SELECT
-            s.id AS id,
-            s.irs_id AS irs_id,
-            s.nilai AS nilai,
-            s.status_code AS status_code,
-            s.is_selesai AS is_selesai,
-            s.is_lulus AS is_lulus,
-            s.created_at AS created_at,
-            s.updated_at AS updated_at,
-            CASE
-                WHEN s.id IS NOT NULL THEN TRUE
-                ELSE FALSE
-            END AS is_diambil
-        FROM
-            skripsi s
-            LEFT JOIN irs i ON s.irs_id = i.id
-            LEFT JOIN mahasiswa m ON i.mahasiswa_id = m.id
-        WHERE
-            m.id = :mahasiswa_id AND s.status_code = 'approved'
-        ORDER BY
-            s.id DESC
-        LIMIT 1", $params);
+        SELECT 
+            i.id as irs_id, 
+            s.id as pkl_id, 
+            i.semester as semester,
+            s.nilai as nilai,
+            CASE WHEN s.status_code = 'approved' THEN 'Sudah Disetujui' ELSE 'Belum Disetujui' END as status 
+        FROM irs i LEFT JOIN skripsi s ON i.mahasiswa_id = s.mahasiswa_id AND i.semester = s.semester
+        WHERE s.mahasiswa_id=:mahasiswa_id", $params);
 
         if($latest_skripsi_query){
             $latest_skripsi = (array)$latest_skripsi_query;
         }
 
-        $pkl_is_diambil = false;
-        $skripsi_is_diambil = false;
+        $pkl_is_lulus = false;
+        $skripsi_is_lulus = false;
         if(isset($latest_pkl)){
-            $pkl_is_diambil = true;
+            $pkl_is_lulus = true;
         }
         if(isset($latest_skripsi)){
-            $skripsi_is_diambil = true;
+            $skripsi_is_lulus = true;
         }
 
         $return_data = [
             "total_ipk" => $total_ipk,
             "total_sks" => $total_sks,
-            "last_semester_akademik" => $last_semester_akademik,
-            "current_semester" => $current_semester,
-            "pkl_is_diambil" => $pkl_is_diambil,
-            "skripsi_is_diambil" => $skripsi_is_diambil,
+            // "last_semester_akademik" => $last_semester_akademik,
+            // "current_semester" => $current_semester,
+            "pkl_is_lulus" => $pkl_is_lulus,
+            "skripsi_is_lulus" => $skripsi_is_lulus,
         ];
 
         if(isset($latest_pkl)){

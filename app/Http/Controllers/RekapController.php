@@ -17,6 +17,22 @@ class RekapController extends Controller
 
     public function rekapPklAngkatan(Request $request){
         $input = $request->all();
+        $validation = [
+            "start_tahun_angkatan" => "nullable",
+            "end_tahun_angkatan" => "nullable",
+            "dosen_wali_id" => "nullable"
+        ];
+
+        $validator = Validator::make($input, $validation);
+        if ($validator->fails()) {
+            return [
+                "success" => false,
+                "message" => $validator->errors()->first()
+            ];
+        }
+        // if not exists input for start or end tahun angkatan, then use default value
+        $start_tahun_angkatan = $input["start_tahun_angkatan"] ?? 2017;
+        $end_tahun_angkatan = $input["end_tahun_angkatan"] ?? 2023;
         // check if current user is dosen wali
         $dosen_wali_id = null;
         $user_id = auth('api')->user()->id;
@@ -38,31 +54,42 @@ class RekapController extends Controller
         // dd($dosen_wali_id, $dosen_wali_id != null);
         $dosen_wali_where = $dosen_wali_id != null ? " WHERE m.dosen_wali_id = $dosen_wali_id " : " ";
 
+        $params = [
+            "start_tahun_angkatan" => (int)$start_tahun_angkatan,
+            "end_tahun_angkatan" => (int)$end_tahun_angkatan
+        ];
+
         $query = DB::select("
-        SELECT 
-            t.tahun_masuk,
+        WITH RECURSIVE YearSequence AS (
+            SELECT :start_tahun_angkatan::integer AS Year
+            UNION ALL
+            SELECT Year + 1
+            FROM YearSequence
+            WHERE Year < :end_tahun_angkatan::integer
+          )
+          
+          SELECT 
+            ys.Year AS tahun_masuk,
             COALESCE(r.sudah_lulus, 0) AS sudah_lulus,
             COALESCE(r.belum_lulus, 0) AS belum_lulus
-        FROM 
-            (SELECT DISTINCT tahun_masuk FROM mahasiswa ORDER BY tahun_masuk DESC LIMIT 7) t
-        LEFT JOIN (
+          FROM 
+            YearSequence ys
+          LEFT JOIN (
             SELECT 
-                m.tahun_masuk,
-                SUM(CASE WHEN COALESCE(p.nilai, 'X') = 'A' THEN 1
-                WHEN COALESCE(p.nilai, 'X') = 'B' THEN 1
-                WHEN COALESCE(p.nilai, 'X') = 'C' THEN 1 ELSE 0 END) AS sudah_lulus,
-                SUM(CASE WHEN COALESCE(p.nilai, 'X') = 'X' AND p.id IS NULL THEN 1 ELSE 0 END) AS belum_lulus
+              m.tahun_masuk,
+              SUM(CASE WHEN COALESCE(p.nilai, 'X') IN ('A', 'B', 'C') THEN 1 ELSE 0 END) AS sudah_lulus,
+              SUM(CASE WHEN COALESCE(p.nilai, 'X') = 'X' AND p.id IS NULL THEN 1 ELSE 0 END) AS belum_lulus
             FROM 
-                mahasiswa m
+              mahasiswa m
             LEFT JOIN 
-                pkl p ON p.mahasiswa_id = m.id
+              pkl p ON p.mahasiswa_id = m.id
             ". $dosen_wali_where ."
             GROUP BY 
-                m.tahun_masuk
-        ) r ON t.tahun_masuk = r.tahun_masuk
-        ORDER BY 
-            t.tahun_masuk DESC
-        ");
+              m.tahun_masuk
+          ) r ON ys.Year = r.tahun_masuk
+          ORDER BY 
+            ys.Year DESC
+        ", $params);
 
         $tahun_masuk_data = [];
         $status_lulus_data = [];
@@ -175,6 +202,22 @@ class RekapController extends Controller
 
     public function rekapSkripsiAngkatan(Request $request){
         $input = $request->all();
+        $validation = [
+            "start_tahun_angkatan" => "nullable",
+            "end_tahun_angkatan" => "nullable",
+            "dosen_wali_id" => "nullable"
+        ];
+
+        $validator = Validator::make($input, $validation);
+        if ($validator->fails()) {
+            return [
+                "success" => false,
+                "message" => $validator->errors()->first()
+            ];
+        }
+        // if not exists input for start or end tahun angkatan, then use default value
+        $start_tahun_angkatan = $input["start_tahun_angkatan"] ?? 2017;
+        $end_tahun_angkatan = $input["end_tahun_angkatan"] ?? 2023;
         // check if current user is dosen wali
         $dosen_wali_id = null;
         $user_id = auth('api')->user()->id;
@@ -196,31 +239,42 @@ class RekapController extends Controller
         // dd($dosen_wali_id, $dosen_wali_id != null);
         $dosen_wali_where = $dosen_wali_id != null ? " WHERE m.dosen_wali_id = $dosen_wali_id " : " ";
 
+        $params = [
+            "start_tahun_angkatan" => (int)$start_tahun_angkatan,
+            "end_tahun_angkatan" => (int)$end_tahun_angkatan
+        ];
+
         $query = DB::select("
-        SELECT 
-            t.tahun_masuk,
+        WITH RECURSIVE YearSequence AS (
+            SELECT :start_tahun_angkatan::integer AS Year
+            UNION ALL
+            SELECT Year + 1
+            FROM YearSequence
+            WHERE Year < :end_tahun_angkatan::integer
+          )
+          
+          SELECT 
+            ys.Year AS tahun_masuk,
             COALESCE(r.sudah_lulus, 0) AS sudah_lulus,
             COALESCE(r.belum_lulus, 0) AS belum_lulus
-        FROM 
-            (SELECT DISTINCT tahun_masuk FROM mahasiswa ORDER BY tahun_masuk DESC LIMIT 7) t
-        LEFT JOIN (
+          FROM 
+            YearSequence ys
+          LEFT JOIN (
             SELECT 
-                m.tahun_masuk,
-                SUM(CASE WHEN COALESCE(s.nilai, 'X') = 'A' THEN 1
-                WHEN COALESCE(s.nilai, 'X') = 'B' THEN 1
-                WHEN COALESCE(s.nilai, 'X') = 'C' THEN 1 ELSE 0 END) AS sudah_lulus,
-                SUM(CASE WHEN COALESCE(s.nilai, 'X') = 'X' AND s.id IS NULL THEN 1 ELSE 0 END) AS belum_lulus
+              m.tahun_masuk,
+              SUM(CASE WHEN COALESCE(s.nilai, 'X') IN ('A', 'B', 'C') THEN 1 ELSE 0 END) AS sudah_lulus,
+              SUM(CASE WHEN COALESCE(s.nilai, 'X') = 'X' AND s.id IS NULL THEN 1 ELSE 0 END) AS belum_lulus
             FROM 
-                mahasiswa m
+              mahasiswa m
             LEFT JOIN 
-                skripsi s ON s.mahasiswa_id = m.id
+              skripsi s ON s.mahasiswa_id = m.id
             ". $dosen_wali_where ."
             GROUP BY 
-                m.tahun_masuk
-        ) r ON t.tahun_masuk = r.tahun_masuk
-        ORDER BY 
-            t.tahun_masuk DESC
-        ");
+              m.tahun_masuk
+          ) r ON ys.Year = r.tahun_masuk
+          ORDER BY 
+            ys.Year DESC;
+        ", $params);
 
         $tahun_masuk_data = [];
         $status_lulus_data = [];
@@ -415,7 +469,10 @@ class RekapController extends Controller
         // change reminder_day_config to integer
         // Fetch data from the SQL query
         $sql = "SELECT * FROM (
-            SELECT semester.semester, 
+            SELECT irs.semester as semester,
+            CASE 
+            WHEN irs.id IS NOT NULL THEN true 
+            ELSE false END as is_irs, 
             CASE 
             WHEN k.id IS NOT NULL THEN true 
             ELSE false END as is_khs, 
@@ -425,24 +482,21 @@ class RekapController extends Controller
             CASE 
             WHEN s.id IS NOT NULL THEN true 
             ELSE false END as is_skripsi,
-            irs_mahasiswa.id, 
-            irs_mahasiswa.sks_semester as sks_semester, 
+            irs.id, 
+            irs.sks_semester as sks_semester, 
             k.ip_semester as ip_semester,
             p.nilai as nilai_pkl,
             s.nilai as nilai_skripsi,
-            sa.tahun_ajaran as tahun_ajaran, 
-            sa.semester as semester_akademik
-            FROM generate_series(1, 14) AS semester
-            LEFT JOIN 
-            (
-                SELECT irs.*, ROW_NUMBER() OVER (ORDER BY id) as irs_number FROM irs WHERE mahasiswa_id=:mahasiswa_id ORDER BY id
-            ) irs_mahasiswa 
-            ON irs_mahasiswa.irs_number = semester.semester
-            LEFT JOIN semester_akademik sa ON sa.id = irs_mahasiswa.semester_akademik_id
-            LEFT JOIN khs k ON k.irs_id = irs_mahasiswa.id
-            LEFT JOIN pkl p ON p.irs_id = irs_mahasiswa.id
-            LEFT JOIN skripsi s ON s.irs_id = irs_mahasiswa.id
-            ORDER BY semester.semester
+            irs.file_scan_irs as file_scan_irs,
+            k.file_scan_khs as file_scan_khs,
+            p.file_pkl as file_pkl,
+            s.file_skripsi as file_skripsi
+            FROM irs
+            LEFT JOIN khs k ON k.mahasiswa_id = irs.mahasiswa_id AND k.semester = irs.semester
+            LEFT JOIN pkl p ON p.mahasiswa_id = irs.mahasiswa_id AND p.semester = irs.semester
+            LEFT JOIN skripsi s ON s.mahasiswa_id = irs.mahasiswa_id AND s.semester = irs.semester
+            WHERE irs.mahasiswa_id = :mahasiswa_id
+            ORDER BY irs.semester
             ) as dummy
             ";
         // dd("
@@ -479,6 +533,7 @@ class RekapController extends Controller
             }
             return $key;
         }, $data);
+        
 
         $sqlForCount = "SELECT COUNT(1) AS total FROM (" . $sql . ") as dummy WHERE true ". 
             (count($searchableList) > 0 ? " AND (" . implode(" OR ", $searchableList) . ")" : "") .
@@ -495,12 +550,132 @@ class RekapController extends Controller
         ];
 
         $totalPage = ceil($total / $limit);
+
+        $total_ipk = 0;
+        $total_sks = 0;
+
+        $data_irs = DB::selectOne("SELECT
+            ROUND((SUM(COALESCE(k.ip_semester, 0)*i.sks_semester) / SUM(i.sks_semester))::numeric, 2) as ipk,
+            SUM(i.sks_semester) AS total_sks
+        FROM 
+            khs k
+            LEFT JOIN mahasiswa m ON k.mahasiswa_id = m.id 
+            LEFT JOIN irs i ON k.mahasiswa_id = m.id AND k.semester = i.semester
+        WHERE 
+            m.id = :mahasiswa_id
+        GROUP BY 
+            m.id, m.tahun_masuk", $params);
+
+        if($data_irs){
+            $total_ipk = $data_irs->ipk;
+            $total_sks = $data_irs->total_sks;
+        }
+
+        foreach($data as $key => $value){
+            $data[$key]->total_sks = $total_sks;
+            $data[$key]->total_ipk = $total_ipk;
+        }
+
+        
         return [
             "success" => true,
+            "total_ipk" => $total_ipk,
+            "total_sks" => $total_sks,
             "data" => $data,
             "total" => $total,
             "totalPage" => $totalPage,
             "model" => $modelInfo
         ];
+    }
+
+    public function listRekapMahasiswaAngkatan(Request $request){
+        $input = $request->all();
+
+        $validation = [
+            "tahun_angkatan" => "required",
+            "dosen_wali_id" => "nullable"
+        ];
+
+        $validator = Validator::make($input, $validation);
+        if ($validator->fails()) {
+            return [
+                "success" => false,
+                "message" => $validator->errors()->first()
+            ];
+        }
+
+        // check if current user is dosen wali
+        $dosen_wali_id = null;
+        $user_id = auth('api')->user()->id;
+        $dosen_wali = DB::selectOne("
+            SELECT 
+                dw.id,
+                dw.user_id,
+                dw.name,
+                dw.phone_number,
+                dw.nip
+            FROM dosen_wali dw
+            WHERE dw.user_id = :user_id
+        ", [
+            "user_id" => $user_id
+        ]);
+        if(!is_null($dosen_wali)){
+            $dosen_wali_id = $dosen_wali->id;
+        }
+        // dd($dosen_wali_id, $dosen_wali_id != null);
+        $dosen_wali_where = $dosen_wali_id != null ? " AND m.dosen_wali_id = $dosen_wali_id " : " ";
+        $params = [
+            "tahun_angkatan" => $input["tahun_angkatan"]
+        ];
+
+        $list_mahasiswa = DB::select("SELECT m.name, m.jalur_masuk, m.status, SUM(i.sks_semester) as total_sks, SUM(k.ip_semester*i.sks_semester) / SUM(i.sks_semester) as total_ipk, p.nilai as nilai_pkl, s.nilai as nilai_skripsi
+        FROM mahasiswa m 
+        LEFT JOIN khs k ON k.mahasiswa_id = m.id 
+        LEFT JOIN irs i ON i.mahasiswa_id = m.id AND k.semester = i.semester
+        LEFT JOIN pkl p ON p.mahasiswa_id = m.id
+        LEFT JOIN skripsi s ON s.mahasiswa_id = m.id
+        WHERE tahun_masuk = :tahun_angkatan " . $dosen_wali_where . "
+        GROUP BY m.name, m.jalur_masuk, m.status, p.nilai, s.nilai ORDER BY m.name", $params);
+
+        // count how many has pkl data on each mahasiswa
+        $pkl_statistics = (array) DB::selectOne("SELECT SUM(has_not_pkl) AS total_not_pkl, SUM(has_pkl) AS total_pkl FROM (
+            SELECT 
+                m.name, 
+                CASE 
+                WHEN p.id IS NOT NULL THEN 1 
+                ELSE 0 END as has_pkl, 
+                CASE WHEN p.id IS NULL THEN 1 
+                ELSE 0 END as has_not_pkl
+            FROM mahasiswa m 
+            LEFT JOIN pkl p ON p.mahasiswa_id = m.id WHERE tahun_masuk = :tahun_angkatan " . $dosen_wali_where . "
+            ) dummy", $params);
+
+        $skripsi_statistics = (array) DB::selectOne("SELECT SUM(has_not_skripsi) AS total_not_skripsi, SUM(has_skripsi) AS total_skripsi FROM (
+            SELECT 
+                m.name, 
+                CASE 
+                WHEN s.id IS NOT NULL THEN 1 
+                ELSE 0 END as has_skripsi, 
+                CASE WHEN s.id IS NULL THEN 1 
+                ELSE 0 END as has_not_skripsi
+            FROM mahasiswa m
+            LEFT JOIN skripsi s ON s.mahasiswa_id = m.id WHERE tahun_masuk = :tahun_angkatan " . $dosen_wali_where . "
+            ) dummy", $params);
+
+        $total_lulus = DB::selectOne("SELECT COUNT(m.id) as total FROM mahasiswa m WHERE m.status = 'lulus' AND tahun_masuk = :tahun_angkatan " . $dosen_wali_where . " ", $params)->total;
+
+        $total_mahasiswa = DB::selectOne("SELECT COUNT(m.id) as total FROM mahasiswa m WHERE tahun_masuk = :tahun_angkatan " . $dosen_wali_where . " ", $params)->total;
+        
+        $return_data = [
+            "success" => true,
+            "total_mahasiswa" => $total_mahasiswa,
+            "total_lulus" => $total_lulus,
+            "pkl_statistics" => $pkl_statistics,
+            "skripsi_statistics" => $skripsi_statistics,
+            "data" => $list_mahasiswa,
+        ];
+
+        return $return_data;
+        
     }
 }
