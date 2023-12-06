@@ -110,13 +110,23 @@ class DosenWaliController extends Controller
         ORDER BY 
             ri.ipk_range;
             ", $params);
+        $range_ipk_mahasiswa_label = [];
+        $range_ipk_mahasiswa_value = [];
+
+        foreach ($range_ipk_mahasiswa as $key => $value) {
+            $range_ipk_mahasiswa_label[] = $value->ipk_range;
+            $range_ipk_mahasiswa_value[] = $value->jumlah_mahasiswa;
+        }
+        
 
         $return_data = [
             'total_mahasiswa_aktif' => $total_mahasiswa_aktif,
             'total_lulus_pkl' => $total_lulus_pkl,
             'total_lulus_skripsi' => $total_lulus_skripsi,
             'total_mahasiswa_lulus' => $total_mahasiswa_lulus,
-            'range_ipk_mahasiswa' => $range_ipk_mahasiswa
+            'range_ipk_mahasiswa' => $range_ipk_mahasiswa,
+            'range_ipk_mahasiswa_label' => $range_ipk_mahasiswa_label,
+            'range_ipk_mahasiswa_value' => $range_ipk_mahasiswa_value,
         ];
         return response()->json([
             'message' => 'success',
