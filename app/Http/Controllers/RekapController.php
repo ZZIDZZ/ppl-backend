@@ -553,6 +553,10 @@ class RekapController extends Controller
 
         $total_ipk = 0;
         $total_sks = 0;
+        $data_params = [
+            "mahasiswa_id1" => $mahasiswa_id,
+            "mahasiswa_id2" => $mahasiswa_id,
+        ];
 
         $data_irs = DB::selectOne("SELECT
             ROUND((SUM(COALESCE(k.ip_semester, 0)*i.sks_semester) / SUM(i.sks_semester))::numeric, 2) as ipk,
@@ -562,9 +566,9 @@ class RekapController extends Controller
             LEFT JOIN mahasiswa m ON k.mahasiswa_id = m.id 
             LEFT JOIN irs i ON k.mahasiswa_id = m.id AND k.semester = i.semester
         WHERE 
-            m.id = :mahasiswa_id
+            k.mahasiswa_id = :mahasiswa_id1 AND i.mahasiswa_id = :mahasiswa_id2
         GROUP BY 
-            m.id, m.tahun_masuk", $params);
+            m.id, m.tahun_masuk", $data_params);
 
         if($data_irs){
             $total_ipk = $data_irs->ipk;

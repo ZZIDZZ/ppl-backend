@@ -35,6 +35,10 @@ class MahasiswaController extends Controller
         $user_id = auth('api')->user()->id;
         $mahasiswa_id = Mahasiswa::where('user_id', $user_id)->first()->id;
         $params["mahasiswa_id"] = $mahasiswa_id;
+        $data_params = [
+            "mahasiswa_id1" => $mahasiswa_id,
+            "mahasiswa_id2" => $mahasiswa_id,
+        ];
         $data_irs = DB::selectOne("SELECT
             ROUND((SUM(COALESCE(k.ip_semester, 0)*i.sks_semester) / SUM(i.sks_semester))::numeric, 2) as ipk,
             SUM(i.sks_semester) AS total_sks
@@ -43,9 +47,9 @@ class MahasiswaController extends Controller
             LEFT JOIN mahasiswa m ON k.mahasiswa_id = m.id 
             LEFT JOIN irs i ON k.mahasiswa_id = m.id AND k.semester = i.semester
         WHERE 
-             m.id = :mahasiswa_id
+            k.mahasiswa_id = :mahasiswa_id1 AND i.mahasiswa_id = :mahasiswa_id2
         GROUP BY 
-            m.id, m.tahun_masuk", $params);
+            m.id, m.tahun_masuk", $data_params);
         if($data_irs){
             $total_ipk = $data_irs->ipk;
             $total_sks = $data_irs->total_sks;
