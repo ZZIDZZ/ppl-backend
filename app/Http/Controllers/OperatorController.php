@@ -395,6 +395,7 @@ class OperatorController extends Controller
 
                     $data_append = [
                         'user' => $user,
+                        'password' => $password,
                         'mahasiswa' => $mahasiswa,
                     ];
                     $data_append['user']->password = '';
