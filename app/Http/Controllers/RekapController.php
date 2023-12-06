@@ -632,14 +632,14 @@ class RekapController extends Controller
             "tahun_angkatan" => $input["tahun_angkatan"]
         ];
 
-        $list_mahasiswa = DB::select("SELECT m.name, m.jalur_masuk, m.status, SUM(i.sks_semester) as total_sks, SUM(k.ip_semester*i.sks_semester) / SUM(i.sks_semester) as total_ipk, p.nilai as nilai_pkl, s.nilai as nilai_skripsi
+        $list_mahasiswa = DB::select("SELECT m.name, m.nim, m.jalur_masuk, m.status, SUM(i.sks_semester) as total_sks, SUM(k.ip_semester*i.sks_semester) / SUM(i.sks_semester) as total_ipk, p.nilai as nilai_pkl, s.nilai as nilai_skripsi
         FROM mahasiswa m 
         LEFT JOIN khs k ON k.mahasiswa_id = m.id 
         LEFT JOIN irs i ON i.mahasiswa_id = m.id AND k.semester = i.semester
         LEFT JOIN pkl p ON p.mahasiswa_id = m.id
         LEFT JOIN skripsi s ON s.mahasiswa_id = m.id
         WHERE tahun_masuk = :tahun_angkatan " . $dosen_wali_where . "
-        GROUP BY m.name, m.jalur_masuk, m.status, p.nilai, s.nilai ORDER BY m.name", $params);
+        GROUP BY m.name, m.nim, m.jalur_masuk, m.status, p.nilai, s.nilai ORDER BY m.name", $params);
 
         // count how many has pkl data on each mahasiswa
         $pkl_statistics = (array) DB::selectOne("SELECT SUM(has_not_pkl) AS total_not_pkl, SUM(has_pkl) AS total_pkl FROM (
